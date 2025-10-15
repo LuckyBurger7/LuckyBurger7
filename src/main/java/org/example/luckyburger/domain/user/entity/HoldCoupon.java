@@ -37,7 +37,7 @@ public class HoldCoupon extends BaseIdEntity {
     }
 
     @Builder
-    public static HoldCoupon create(User user, Coupon coupon, LocalDateTime issueDate) {
+    public static HoldCoupon of(User user, Coupon coupon, LocalDateTime issueDate) {
         return new HoldCoupon(user, coupon, issueDate);
     }
 
