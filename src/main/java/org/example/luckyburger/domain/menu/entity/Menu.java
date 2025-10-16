@@ -33,4 +33,10 @@ public class Menu extends BaseIdEntity {
     public static Menu of(String name, MenuCategory category, long price) {
         return new Menu(name, category, price);
     }
+
+    public void updateMenu(String name, MenuCategory category, long price) {
+        this.name = name;
+        this.category = category;
+        this.price = price;
+    }
 }
