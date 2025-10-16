@@ -25,10 +25,10 @@ public class ReviewUserController {
     // 어노테이션 수정 필요, orderId도 미적용 상태
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/orders/{orderId}/reviews")
-    public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
+    public ResponseEntity<ApiResponse<ReviewResponse>> createOrderReview(
             @RequestBody ReviewCreateRequest request) {
 
-        ReviewResponse response = reviewService.createUserReview(request);
+        ReviewResponse response = reviewService.createOrderReview(request);
         return ApiResponse.created(response);
     }
 
