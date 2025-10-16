@@ -33,6 +33,12 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    /**
+     * 사용자 회원 가입
+     *
+     * @param request 사용자 회원 가입 요청 DTO
+     * @return 사용자 계정 응답 DTO
+     */
     @Transactional
     public UserAccountResponse userSignup(UserSignupRequest request) {
         // 이메일 중복 확인
@@ -68,6 +74,12 @@ public class AuthService {
         );
     }
 
+    /**
+     * 공용 로그인
+     *
+     * @param request 로그인 요청 DTO
+     * @return 토큰 응답 DTO
+     */
     @Transactional
     public TokenResponse login(LoginRequest request) {
         // 아이디 검사
@@ -81,6 +93,11 @@ public class AuthService {
         return TokenResponse.of(accessToken);
     }
 
+    /**
+     * 회원 탈퇴
+     *
+     * @param request 회원 탈퇴 요청 DTO
+     */
     @Transactional
     public void withdraw(WithdrawRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -96,6 +113,12 @@ public class AuthService {
         account.delete();
     }
 
+    /**
+     * 아이디로 게정 조회해 계정 반환
+     *
+     * @param accountId 계정 아이디
+     * @return 계정 엔티티 반환
+     */
     private Account getAccountById(Long accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(
                 AccountNotFoundException::new);
@@ -122,6 +145,13 @@ public class AuthService {
         return account;
     }
 
+    /**
+     * 비밀번호화 암호화된 비밀번호를 비교해 같지 않을때 true를 반환
+     *
+     * @param rawPassword    비밀번호
+     * @param encodePassword 암호화된 비밀번호
+     * @return 다르다면 true, 같다면 false
+     */
     private boolean isMismatchedPassword(String rawPassword, String encodePassword) {
         return !passwordEncoder.matches(rawPassword, encodePassword);
     }
