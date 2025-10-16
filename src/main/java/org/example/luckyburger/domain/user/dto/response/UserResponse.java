@@ -1,23 +1,37 @@
 package org.example.luckyburger.domain.user.dto.response;
 
+import lombok.AccessLevel;
 import lombok.Builder;
-import org.example.luckyburger.domain.auth.entity.Account;
-import org.example.luckyburger.domain.user.entity.User;
 
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 public record UserResponse(
-        Account account,
+        Long id,
+
+        String email,
+
+        String name,
+
         String phone,
+
         String address,
-        String street,
-        int point
+
+        String street
 ) {
-    public static UserResponse from(User user) {
+    public static UserResponse of(
+            Long id,
+            String email,
+            String name,
+            String phone,
+            String address,
+            String street
+    ) {
         return UserResponse.builder()
-                .account(user.getAccount())
-                .phone(user.getPhone())
-                .address(user.getAddress())
-                .street(user.getStreet())
+                .id(id)
+                .email(email)
+                .name(name)
+                .phone(phone)
+                .address(address)
+                .street(street)
                 .build();
     }
 }

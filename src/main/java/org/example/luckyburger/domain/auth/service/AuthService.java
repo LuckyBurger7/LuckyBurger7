@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.common.security.utils.JwtUtil;
 import org.example.luckyburger.domain.auth.dto.request.LoginRequest;
-import org.example.luckyburger.domain.auth.dto.request.UserSignupRequest;
+import org.example.luckyburger.domain.auth.dto.request.SignupAccountRequest;
 import org.example.luckyburger.domain.auth.dto.request.WithdrawRequest;
+import org.example.luckyburger.domain.auth.dto.response.AccountResponse;
 import org.example.luckyburger.domain.auth.dto.response.TokenResponse;
-import org.example.luckyburger.domain.auth.dto.response.UserAccountResponse;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.auth.exception.AccountNotFoundException;
@@ -15,9 +15,6 @@ import org.example.luckyburger.domain.auth.exception.AuthenticationFailedExcepti
 import org.example.luckyburger.domain.auth.exception.DuplicateEmailException;
 import org.example.luckyburger.domain.auth.exception.NoPermissionException;
 import org.example.luckyburger.domain.auth.repository.AccountRepository;
-import org.example.luckyburger.domain.user.dto.request.UserRequest;
-import org.example.luckyburger.domain.user.dto.response.UserResponse;
-import org.example.luckyburger.domain.user.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,18 +26,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final AccountRepository accountRepository;
-    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     /**
-     * 사용자 회원 가입
+     * 계정 생성
      *
-     * @param request 사용자 회원 가입 요청 DTO
-     * @return 사용자 계정 응답 DTO
+     * @param request 계정 가입 요청 DTO
+     * @return 계정 응답 DTO
      */
     @Transactional
-    public UserAccountResponse userSignup(UserSignupRequest request) {
+    public AccountResponse createAccount(SignupAccountRequest request, AccountRole accountRole) {
         // 이메일 중복 확인
         if (accountRepository.existsAccountByEmail(request.email()))
             throw new DuplicateEmailException();
@@ -51,26 +47,15 @@ public class AuthService {
                 request.email(),
                 request.name(),
                 encodePassword,
-                AccountRole.ROLE_USER
+                accountRole
         );
 
         Account savedAccount = accountRepository.save(account);
 
-        UserRequest userRequest = UserRequest.of(
-                savedAccount,
-                request.phone(),
-                request.address(),
-                request.street()
-        );
-
-        UserResponse userResponse = userService.createUser(userRequest);
-
-        return UserAccountResponse.of(
+        return AccountResponse.of(
+                savedAccount.getId(),
                 savedAccount.getEmail(),
-                savedAccount.getName(),
-                userResponse.phone(),
-                userResponse.address(),
-                userResponse.street()
+                savedAccount.getName()
         );
     }
 
@@ -114,12 +99,13 @@ public class AuthService {
     }
 
     /**
-     * 아이디로 게정 조회해 계정 반환
+     * 아이디로 게정 조회 후 반환
      *
      * @param accountId 계정 아이디
      * @return 계정 엔티티 반환
      */
-    private Account getAccountById(Long accountId) {
+    @Transactional(readOnly = true)
+    public Account getAccountById(Long accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(
                 AccountNotFoundException::new);
 
