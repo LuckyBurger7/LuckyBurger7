@@ -62,4 +62,8 @@ public class Review extends BaseEntity {
         this.content = request.content();
         this.rating = request.rating();
     }
+
+    public void writeComment(String comment) {
+        this.comment = comment;
+    }
 }

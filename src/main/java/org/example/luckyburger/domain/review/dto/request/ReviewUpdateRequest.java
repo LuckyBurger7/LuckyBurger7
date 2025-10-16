@@ -10,8 +10,6 @@ public record ReviewUpdateRequest(
         String content,
 
         @Min(0) @Max(5)
-        double rating,
-
-        String comment
+        double rating
 ) {
 }
