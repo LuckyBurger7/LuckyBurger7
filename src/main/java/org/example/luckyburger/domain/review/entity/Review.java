@@ -15,6 +15,7 @@ import org.example.luckyburger.common.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends BaseEntity {
 
+    // 유저, 점포, 주문 정보를 받아올 수 있을때 활성화
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id", nullable = false)
 //    private User user;
@@ -35,6 +36,7 @@ public class Review extends BaseEntity {
     @Column(length = 255)
     private String comment;
 
+    // 유저, 점포, 주문 정보를 받아올 수 있을때 활성화
 //    private Review(User user, Shop shop, Order order, String content, double rating, String comment) {
 //        this.user = user;
 //        this.shop = shop;
@@ -49,6 +51,7 @@ public class Review extends BaseEntity {
 //        return new Review(user, shop, order, content, rating, comment);
 //    }
 
+    // 임시로 리뷰만 작성 가능
     private Review(String content, double rating, String comment) {
         this.content = content;
         this.rating = rating;
