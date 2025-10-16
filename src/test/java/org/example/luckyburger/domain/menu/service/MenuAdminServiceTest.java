@@ -2,8 +2,7 @@ package org.example.luckyburger.domain.menu.service;
 
 import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
 import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
-import org.example.luckyburger.domain.menu.dto.response.MenuCreateResponse;
-import org.example.luckyburger.domain.menu.dto.response.MenuUpdateResponse;
+import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.exception.NotFoundMenuException;
@@ -29,6 +28,9 @@ public class MenuAdminServiceTest {
     @Mock
     private MenuRepository menuRepository;
 
+    @Mock
+    private MenuEntityFinder menuEntityFinder;
+
     @InjectMocks
     private MenuAdminService menuAdminService;
 
@@ -40,7 +42,7 @@ public class MenuAdminServiceTest {
         given(menuRepository.save(any(Menu.class))).willAnswer(i -> i.getArgument(0));
 
         // when
-        MenuCreateResponse response = menuAdminService.createMenu(request);
+        MenuResponse response = menuAdminService.createMenu(request);
 
         // then
         assertNotNull(response);
@@ -56,10 +58,10 @@ public class MenuAdminServiceTest {
         Menu existingMenu = Menu.of("기존버거", MenuCategory.HAMBURGER, 7000);
         MenuUpdateRequest request = new MenuUpdateRequest(menuName, category, price);
 
-        given(menuRepository.findById(menuId)).willReturn(java.util.Optional.of(existingMenu));
+        given(menuEntityFinder.getMenu(menuId)).willReturn(existingMenu);
 
         // when
-        MenuUpdateResponse response = menuAdminService.updateMenu(menuId, request);
+        MenuResponse response = menuAdminService.updateMenu(menuId, request);
 
         // then
         assertNotNull(response);
@@ -74,7 +76,7 @@ public class MenuAdminServiceTest {
         Long menuId = 1L;
         MenuUpdateRequest updateRequest = new MenuUpdateRequest(menuName, category, price);
 
-        given(menuRepository.findById(menuId)).willReturn(java.util.Optional.empty());
+        given(menuEntityFinder.getMenu(menuId)).willThrow(new NotFoundMenuException());
 
         // when & then
         assertThrows(NotFoundMenuException.class, () -> menuAdminService.updateMenu(menuId, updateRequest));
@@ -85,7 +87,7 @@ public class MenuAdminServiceTest {
         // given
         Long menuId = 1L;
         Menu menu = Menu.of(menuName, category, price);
-        given(menuRepository.findById(menuId)).willReturn(java.util.Optional.of(menu));
+        given(menuEntityFinder.getMenu(menuId)).willReturn(menu);
 
         // when
         menuAdminService.deleteMenu(menuId);
@@ -98,7 +100,7 @@ public class MenuAdminServiceTest {
     void 메뉴가_존재하지_않아_삭제에_실패한다() {
         // given
         Long menuId = 1L;
-        given(menuRepository.findById(menuId)).willReturn(java.util.Optional.empty());
+        given(menuEntityFinder.getMenu(menuId)).willThrow(new NotFoundMenuException());
 
         // when & then
         assertThrows(NotFoundMenuException.class, () -> menuAdminService.deleteMenu(menuId));
