@@ -8,7 +8,7 @@ public record UserSignupRequest(
 
         @NotBlank
         String password,
-
+        
         @NotBlank
         String name,
 

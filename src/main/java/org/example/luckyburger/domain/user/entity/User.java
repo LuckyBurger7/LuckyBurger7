@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
 import org.example.luckyburger.domain.auth.entity.Account;
+import org.example.luckyburger.domain.user.exception.NotAllowNegativePoint;
+import org.example.luckyburger.domain.user.exception.NotEnoughPointException;
 
 @Getter
 @Entity
@@ -29,16 +31,28 @@ public class User extends BaseIdEntity {
 
     private int point;
 
-    private User(Account account, String phone, String address, String street, int point) {
+    private User(Account account, String phone, String address, String street) {
         this.account = account;
         this.phone = phone;
         this.address = address;
         this.street = street;
-        this.point = point;
     }
 
     @Builder
-    public static User of(Account account, String phone, String address, String street, int point) {
-        return new User(account, phone, address, street, point);
+    public static User of(Account account, String phone, String address, String street) {
+        return new User(account, phone, address, street);
+    }
+
+    public void usePoint(int amount) {
+        if (amount <= 0)
+            throw new NotAllowNegativePoint();
+        if (this.point < amount)
+            throw new NotEnoughPointException();
+
+        this.point -= amount;
+    }
+
+    public void accumulatePoint(int amount) {
+        this.point += amount;
     }
 }
