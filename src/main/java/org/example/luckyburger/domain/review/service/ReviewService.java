@@ -15,7 +15,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
 
     @Transactional
-    public ReviewResponse createUserReview(ReviewCreateRequest request) {
+    public ReviewResponse createOrderReview(ReviewCreateRequest request) {
         // 1) 주문 존재 확인 - 주문에 대한 정보를 받아 올 수 있을때 활성화
 //        Order order = orderRepository.findById(orderId)
 //                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다. id=" + orderId));
