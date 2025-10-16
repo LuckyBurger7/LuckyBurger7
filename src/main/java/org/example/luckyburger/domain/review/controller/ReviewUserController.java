@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/")
 @RequiredArgsConstructor
-public class ReviewOwnerController {
+public class ReviewUserController {
 
     private final ReviewService reviewService;
 
