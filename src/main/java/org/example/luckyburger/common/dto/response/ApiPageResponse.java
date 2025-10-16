@@ -1,14 +1,14 @@
 package org.example.luckyburger.common.dto.response;
 
-import lombok.Builder;
+import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-@Builder
+@Getter
 public class ApiPageResponse<T> {
-    
+
     private final int page;
     private final int size;
     private final int totalPages;

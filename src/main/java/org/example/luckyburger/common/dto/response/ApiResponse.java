@@ -1,12 +1,12 @@
 package org.example.luckyburger.common.dto.response;
 
-import lombok.Builder;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-@Builder
+@Getter
 public class ApiResponse<T> {
-    
+
     private final T data;
 
     private ApiResponse(T data) {
