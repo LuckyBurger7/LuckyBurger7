@@ -94,9 +94,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void setAuthentication(Claims claims) {
         Long userId = Long.valueOf(claims.getSubject());
         String email = claims.get("email", String.class);
-        String rule = claims.get("rule", String.class);
+        String role = claims.get("role", String.class);
 
-        AuthAccount authAccount = new AuthAccount(userId, email, AccountRole.valueOf(rule));
+        AuthAccount authAccount = new AuthAccount(userId, email, AccountRole.valueOf(role));
 
         Authentication authenticationToken = new JwtAuthenticationToken(authAccount);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

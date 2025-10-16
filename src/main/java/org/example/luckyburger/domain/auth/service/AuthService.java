@@ -47,6 +47,6 @@ public class AuthService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuthAccount authAccount = (AuthAccount) authentication.getPrincipal();
 
-        return authAccount.rule().name();
+        return authAccount.role().name();
     }
 }
