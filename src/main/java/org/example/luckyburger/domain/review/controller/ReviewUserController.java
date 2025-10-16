@@ -2,11 +2,14 @@ package org.example.luckyburger.domain.review.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
+import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.service.ReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,9 +29,11 @@ public class ReviewUserController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/orders/{orderId}/reviews")
     public ResponseEntity<ApiResponse<ReviewResponse>> createOrderReview(
+            @AuthenticationPrincipal AuthAccount authAccount,
+            @PathVariable Long orderId,
             @RequestBody ReviewCreateRequest request) {
 
-        ReviewResponse response = reviewService.createOrderReview(request);
+        ReviewResponse response = reviewService.createOrderReview(authAccount, orderId, request);
         return ApiResponse.created(response);
     }
 
