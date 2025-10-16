@@ -8,8 +8,7 @@ import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
 import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
-import org.example.luckyburger.domain.menu.dto.response.MenuCreateResponse;
-import org.example.luckyburger.domain.menu.dto.response.MenuUpdateResponse;
+import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.service.MenuAdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -25,14 +24,14 @@ public class MenuAdminController {
     private final MenuAdminService menuAdminService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<MenuCreateResponse>> createMenu(
+    public ResponseEntity<ApiResponse<MenuResponse>> createMenu(
             @Valid @RequestBody MenuCreateRequest menuCreateRequest
     ) {
         return ApiResponse.created(menuAdminService.createMenu(menuCreateRequest));
     }
 
     @PutMapping("/{menuId}")
-    public ResponseEntity<ApiResponse<MenuUpdateResponse>> updateMenu(
+    public ResponseEntity<ApiResponse<MenuResponse>> updateMenu(
             @PathVariable Long menuId,
             @Valid @RequestBody MenuUpdateRequest menuUpdateRequest
     ) {

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
-import org.example.luckyburger.domain.menu.dto.response.MenuGetResponse;
+import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.service.MenuService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,23 +23,23 @@ public class MenuController {
 
     // 메뉴 전체 조회
     @GetMapping
-    public ResponseEntity<ApiPageResponse<MenuGetResponse>> getAllMenu(
+    public ResponseEntity<ApiPageResponse<MenuResponse>> getAllMenu(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<MenuGetResponse> response = menuService.getAllMenuResponse(pageable);
+        Page<MenuResponse> response = menuService.getAllMenuResponse(pageable);
 
         return ApiPageResponse.success(response);
     }
 
     // 메뉴 단일 조회
     @GetMapping("/{menuId}")
-    public ResponseEntity<ApiResponse<MenuGetResponse>> getMenu(
+    public ResponseEntity<ApiResponse<MenuResponse>> getMenu(
             @PathVariable Long menuId
     ) {
-        MenuGetResponse response = menuService.getMenuResponse(menuId);
+        MenuResponse response = menuService.getMenuResponse(menuId);
 
         return ApiResponse.success(response);
     }

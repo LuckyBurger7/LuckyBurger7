@@ -5,8 +5,7 @@ import org.example.luckyburger.common.security.properties.JwtSecurityProperties;
 import org.example.luckyburger.common.security.utils.JwtUtil;
 import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
 import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
-import org.example.luckyburger.domain.menu.dto.response.MenuCreateResponse;
-import org.example.luckyburger.domain.menu.dto.response.MenuUpdateResponse;
+import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.exception.NotFoundMenuException;
@@ -66,7 +65,7 @@ public class MenuAdminControllerTest {
 
         ReflectionTestUtils.setField(menu, "id", menuId);
 
-        MenuCreateResponse response = MenuCreateResponse.from(menu);
+        MenuResponse response = MenuResponse.from(menu);
         when(menuAdminService.createMenu(menuCreateRequest)).thenReturn(response);
 
         // when & then
@@ -94,7 +93,7 @@ public class MenuAdminControllerTest {
         Menu updatedMenu = Menu.of(menuName, category, price);
         ReflectionTestUtils.setField(updatedMenu, "id", menuId);
 
-        MenuUpdateResponse response = MenuUpdateResponse.from(updatedMenu);
+        MenuResponse response = MenuResponse.from(updatedMenu);
         when(menuAdminService.updateMenu(menuId, menuUpdateRequest)).thenReturn(response);
 
         // when & then

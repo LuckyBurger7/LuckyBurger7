@@ -1,7 +1,7 @@
 package org.example.luckyburger.domain.menu.controller;
 
 import org.example.luckyburger.common.security.filter.JwtAuthenticationFilter;
-import org.example.luckyburger.domain.menu.dto.response.MenuGetResponse;
+import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.service.MenuService;
@@ -51,7 +51,7 @@ class MenuControllerTest {
 
         ReflectionTestUtils.setField(menu, "id", menuId);
 
-        MenuGetResponse response = MenuGetResponse.from(menu);
+        MenuResponse response = MenuResponse.from(menu);
 
         given(menuService.getMenuResponse(menuId)).willReturn(response);
 
@@ -63,9 +63,9 @@ class MenuControllerTest {
 
     @Test
     void 메뉴_전체조회_성공() throws Exception {
-        MenuGetResponse menu1 = new MenuGetResponse(1L, "햄버거", null, 5000);
-        MenuGetResponse menu2 = new MenuGetResponse(2L, "치킨버거", null, 6000);
-        Page<MenuGetResponse> pageResponse = new PageImpl<>(List.of(menu1, menu2), PageRequest.of(0, 10), 2);
+        MenuResponse menu1 = new MenuResponse(1L, "햄버거", null, 5000);
+        MenuResponse menu2 = new MenuResponse(2L, "치킨버거", null, 6000);
+        Page<MenuResponse> pageResponse = new PageImpl<>(List.of(menu1, menu2), PageRequest.of(0, 10), 2);
 
         given(menuService.getAllMenuResponse(any(Pageable.class))).willReturn(pageResponse);
 
