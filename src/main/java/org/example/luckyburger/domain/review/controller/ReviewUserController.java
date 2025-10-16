@@ -1,10 +1,12 @@
 package org.example.luckyburger.domain.review.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
+import org.example.luckyburger.domain.review.dto.request.ReviewUpdateRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.service.ReviewService;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -51,5 +54,16 @@ public class ReviewUserController {
     @GetMapping("/user/reviews")
     public ResponseEntity<ApiPageResponse<ReviewResponse>> getAllReview(@PageableDefault Pageable pageable) {
         return ApiPageResponse.success(reviewService.getAllReview(pageable));
+    }
+
+    // 주문에 대한 리뷰 수정
+    @PutMapping("/user/orders/reviews/{reviewId}")
+    public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(
+            @Valid @RequestBody ReviewUpdateRequest request,
+            @PathVariable Long reviewId) {
+
+        ReviewResponse reviewResponse = reviewService.updateReview(request, reviewId);
+        return ApiResponse.success(reviewResponse);
+
     }
 }

@@ -7,6 +7,7 @@ import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderService;
 import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
+import org.example.luckyburger.domain.review.dto.request.ReviewUpdateRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
@@ -64,5 +65,13 @@ public class ReviewService {
         Page<Review> reviews = reviewRepository.findReviewPage(pageable);
 
         return reviews.map(ReviewResponse::from);
+    }
+
+    public ReviewResponse updateReview(ReviewUpdateRequest request, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new GlobalException(CommonErrorCode.INVALID_REVIEW));
+
+        review.update(request);
+        return ReviewResponse.from(review);
     }
 }

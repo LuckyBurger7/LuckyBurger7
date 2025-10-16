@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseEntity;
 import org.example.luckyburger.domain.order.entity.Order;
+import org.example.luckyburger.domain.review.dto.request.ReviewUpdateRequest;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.user.entity.User;
 
@@ -55,5 +56,10 @@ public class Review extends BaseEntity {
     @Builder
     public static Review of(User user, Shop shop, Order order, String content, double rating, String comment) {
         return new Review(user, shop, order, content, rating, comment);
+    }
+
+    public void update(ReviewUpdateRequest request) {
+        this.content = request.content();
+        this.rating = request.rating();
     }
 }
