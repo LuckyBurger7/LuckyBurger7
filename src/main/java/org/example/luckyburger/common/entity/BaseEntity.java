@@ -3,12 +3,11 @@ package org.example.luckyburger.common.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 /**
  * ID, 생성일, 수정일, 삭제일 포함
@@ -26,8 +25,8 @@ public abstract class BaseEntity extends BaseIdEntity {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    @Column(name = "modified_at", nullable = false)
+    private LocalDateTime modifiedAt;
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
