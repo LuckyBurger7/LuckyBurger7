@@ -6,6 +6,7 @@ import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -13,6 +14,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
 
+    @Transactional
     public ReviewResponse createUserReview(ReviewCreateRequest request) {
         // 1) 주문 존재 확인 - 주문에 대한 정보를 받아 올 수 있을때 활성화
 //        Order order = orderRepository.findById(orderId)
