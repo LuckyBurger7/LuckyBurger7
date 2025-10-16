@@ -1,10 +1,17 @@
 package org.example.luckyburger.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.security.dto.AuthAccount;
+import org.example.luckyburger.domain.order.entity.Order;
+import org.example.luckyburger.domain.order.service.OrderService;
 import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
+import org.example.luckyburger.domain.shop.entity.Shop;
+import org.example.luckyburger.domain.shop.service.ShopService;
+import org.example.luckyburger.domain.user.entity.User;
+import org.example.luckyburger.domain.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +20,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final OrderService orderService;
+    private final UserService userService;
+    private final ShopService shopService;
 
     @Transactional
-    public ReviewResponse createOrderReview(ReviewCreateRequest request) {
-        // 1) 주문 존재 확인 - 주문에 대한 정보를 받아 올 수 있을때 활성화
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new IllegalArgumentException("주문이 존재하지 않습니다. id=" + orderId));
+    public ReviewResponse createOrderReview(AuthAccount authAccount, Long orderId, ReviewCreateRequest request) {
+        User user = userService.getUserById(authAccount.accountId());
+        Order order = orderService.getOrderById(orderId);
+        Shop shop = shopService.getShopById(request.shopId());
 
-        // 2) 엔티티 생성 및 저장 - 변경 예정
         Review review = Review.of(
+                user,
+                shop,
+                order,
                 request.content(),
                 request.rating(),
                 request.comment()

@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record ReviewCreateRequest(
 
+        @NotNull
+        Long shopId,
+
         @NotBlank
         String content,
 
