@@ -8,8 +8,19 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
         format_sql: false
+
+jwt:
+  secret:
+    aesKey: ${AES_KEY}
+    key: ${JWT_KEY}
+    whiteList:
+      - /api/v1/signup
+      - /api/v1/login
+  token:
+    prefix: 'Bearer '
+    expiration: ${JWT_EXPIRATION}
