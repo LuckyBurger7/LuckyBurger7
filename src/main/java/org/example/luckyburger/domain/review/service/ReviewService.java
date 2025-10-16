@@ -1,6 +1,8 @@
 package org.example.luckyburger.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.code.CommonErrorCode;
+import org.example.luckyburger.common.exception.GlobalException;
 import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
@@ -29,5 +31,14 @@ public class ReviewService {
         Review saved = reviewRepository.save(review);
 
         return ReviewResponse.from(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewResponse getOrderReview(Long reviewId) {
+        // 1) 리뷰 존재여부 확인
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
+                () -> new GlobalException(CommonErrorCode.INVALID_REVIEW));
+
+        return ReviewResponse.from(review);
     }
 }
