@@ -26,8 +26,8 @@ public abstract class BaseEntity extends BaseIdEntity {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    @Column(name = "modified_at", nullable = false)
+    private LocalDateTime modifiedAt;
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
