@@ -5,10 +5,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
 import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
-import org.example.luckyburger.domain.menu.dto.response.MenuCreateResponse;
-import org.example.luckyburger.domain.menu.dto.response.MenuUpdateResponse;
+import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
-import org.example.luckyburger.domain.menu.exception.NotFoundMenuException;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,32 +17,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class MenuAdminService {
 
     private final MenuRepository menuRepository;
+    private final MenuEntityFinder menuEntityFinder;
 
     @Transactional
-    public MenuCreateResponse createMenu(MenuCreateRequest request) {
+    public MenuResponse createMenu(MenuCreateRequest request) {
 
         Menu menu = Menu.of(request.name(), request.menuCategory(), request.price());
 
-        menuRepository.save(menu);
+        Menu savedMenu = menuRepository.save(menu);
 
-        return MenuCreateResponse.from(menu);
+        return MenuResponse.from(savedMenu);
     }
 
     @Transactional
-    public MenuUpdateResponse updateMenu(Long menuId, MenuUpdateRequest request) {
+    public MenuResponse updateMenu(Long menuId, MenuUpdateRequest request) {
 
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(NotFoundMenuException::new);
+        Menu menu = menuEntityFinder.getMenu(menuId);
 
         menu.updateMenu(request.name(), request.menuCategory(), request.price());
 
-        return MenuUpdateResponse.from(menu);
+        return MenuResponse.from(menu);
     }
 
     @Transactional
     public void deleteMenu(Long menuId) {
-        Menu menu = menuRepository.findById(menuId)
-                .orElseThrow(NotFoundMenuException::new);
+        Menu menu = menuEntityFinder.getMenu(menuId);
 
         menuRepository.delete(menu);
     }
