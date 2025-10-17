@@ -3,6 +3,7 @@ package org.example.luckyburger.domain.review.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -17,6 +18,7 @@ import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
+import org.example.luckyburger.domain.review.exception.UnauthorizedReviewException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.example.luckyburger.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
@@ -126,8 +128,8 @@ public class ReviewUserServiceTest {
         assertThatThrownBy(() ->
                 reviewUserService.createOrderReview(authAccount, orderId, request)
         )
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("본인의 주문에만 리뷰를 작성할 수 있습니다.");
+                .isInstanceOf(UnauthorizedReviewException.class)
+                .hasMessage("본인이 작성한 리뷰가 아닙니다.");
 
         verify(orderEntityFinder).getOrderById(orderId);
         verify(reviewRepository, never()).save(any(Review.class));
@@ -226,7 +228,7 @@ public class ReviewUserServiceTest {
         reviewUserService.deleteReview(reviewId, auth);
 
         // then
-        verify(reviewEntityFinder).getReview(reviewId);
-        verify(reviewRepository).delete(review);
+        verify(reviewRepository, never()).delete(any());
+        verify(reviewRepository, never()).deleteById(anyLong());
     }
 }
