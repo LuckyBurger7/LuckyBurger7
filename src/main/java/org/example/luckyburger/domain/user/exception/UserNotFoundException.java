@@ -5,6 +5,6 @@ import org.example.luckyburger.domain.user.code.UserErrorCode;
 
 public class UserNotFoundException extends GlobalException {
     public UserNotFoundException() {
-        super(UserErrorCode.NOT_ALLOW_NEGATIVE_POINT);
+        super(UserErrorCode.USER_NOT_FOUND);
     }
 }

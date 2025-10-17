@@ -27,6 +27,12 @@ public class UserService {
     private final AuthService authService;
     private final UserRepository userRepository;
 
+    /**
+     * 유저 생성
+     *
+     * @param request 유저 생성 요청 DTO
+     * @return 유저 응답 DTO
+     */
     @Transactional
     public UserResponse createUser(UserSignupRequest request) {
         // 연락처 중복 확인
@@ -51,10 +57,15 @@ public class UserService {
         return UserResponse.from(userRepository.save(user));
     }
 
+    /**
+     * 로그인한 유저 프로필 수정
+     *
+     * @param userRequest 유저 수정 요청 DTO
+     * @return 유저 응답 DTO
+     */
     @Transactional
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
-        Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().accountId());
-
+        Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().email());
         User user = userEntityFinder.getUserByAccount(account);
 
         authService.updateAccount(AccountUpdateRequest.builder()
@@ -66,6 +77,11 @@ public class UserService {
         return UserResponse.from(user);
     }
 
+    /**
+     * 로그인한 유저 프로필 조회
+     *
+     * @return 유저 응답 DTO
+     */
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
         Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().accountId());
