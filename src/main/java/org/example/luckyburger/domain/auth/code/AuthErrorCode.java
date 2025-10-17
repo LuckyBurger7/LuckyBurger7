@@ -10,9 +10,9 @@ import org.springframework.http.HttpStatus;
 public enum AuthErrorCode implements ErrorCode {
 
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계정을 찾을 수 없습니다."),
-    NO_PERMISSION(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    NO_AUTHORITY(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "인증 정보가 유효하지 않습니다."),
-    DUPLICATE_EMAIL_ERROR(HttpStatus.BAD_REQUEST, "같은 이메일이 존재합니다.");
+    DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "같은 이메일이 존재합니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

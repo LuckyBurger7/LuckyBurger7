@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
 
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
     NOT_ALLOW_NEGATIVE_POINT(HttpStatus.BAD_REQUEST, "포인트는 양수만 입력할 수 있습니다."),
     NOT_ENOUGH_POINT(HttpStatus.BAD_REQUEST, "사용할 포인트가 충분하지 않습니다.");
 

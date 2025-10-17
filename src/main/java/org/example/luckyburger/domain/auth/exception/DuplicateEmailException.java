@@ -5,6 +5,6 @@ import org.example.luckyburger.domain.auth.code.AuthErrorCode;
 
 public class DuplicateEmailException extends GlobalException {
     public DuplicateEmailException() {
-        super(AuthErrorCode.DUPLICATE_EMAIL_ERROR);
+        super(AuthErrorCode.DUPLICATE_EMAIL);
     }
 }

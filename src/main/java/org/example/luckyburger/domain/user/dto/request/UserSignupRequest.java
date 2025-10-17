@@ -2,7 +2,7 @@ package org.example.luckyburger.domain.user.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record SignupUserRequest(
+public record UserSignupRequest(
         @NotBlank
         String email,
 

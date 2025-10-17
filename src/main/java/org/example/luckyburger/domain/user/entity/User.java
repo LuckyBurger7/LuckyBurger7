@@ -55,4 +55,10 @@ public class User extends BaseIdEntity {
     public void accumulatePoint(int amount) {
         this.point += amount;
     }
+
+    public void updateUser(String phone, String address, String street) {
+        this.phone = phone;
+        this.address = address;
+        this.street = street;
+    }
 }

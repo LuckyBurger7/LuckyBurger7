@@ -2,9 +2,10 @@ package org.example.luckyburger.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.dto.AuthAccount;
+import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.common.security.utils.JwtUtil;
+import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.dto.request.LoginRequest;
-import org.example.luckyburger.domain.auth.dto.request.SignupAccountRequest;
 import org.example.luckyburger.domain.auth.dto.request.WithdrawRequest;
 import org.example.luckyburger.domain.auth.dto.response.AccountResponse;
 import org.example.luckyburger.domain.auth.dto.response.TokenResponse;
@@ -13,10 +14,8 @@ import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.auth.exception.AccountNotFoundException;
 import org.example.luckyburger.domain.auth.exception.AuthenticationFailedException;
 import org.example.luckyburger.domain.auth.exception.DuplicateEmailException;
-import org.example.luckyburger.domain.auth.exception.NoPermissionException;
+import org.example.luckyburger.domain.auth.exception.NoAuthorityException;
 import org.example.luckyburger.domain.auth.repository.AccountRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final AccountRepository accountRepository;
+    private final AccountEntityFinder accountEntityFinder;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -36,7 +36,7 @@ public class AuthService {
      * @return 계정 응답 DTO
      */
     @Transactional
-    public AccountResponse createAccount(SignupAccountRequest request, AccountRole accountRole) {
+    public AccountResponse createAccount(AccountSignupRequest request, AccountRole accountRole) {
         // 이메일 중복 확인
         if (accountRepository.existsAccountByEmail(request.email()))
             throw new DuplicateEmailException();
@@ -57,6 +57,18 @@ public class AuthService {
                 savedAccount.getEmail(),
                 savedAccount.getName()
         );
+    }
+
+
+    @Transactional
+    public AccountResponse updateAccount(String name) {
+        AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
+
+        Account account = accountEntityFinder.getAccountByEmail(authAccount.email());
+
+        account.updateAccount(name);
+
+        return AccountResponse.from(account);
     }
 
     /**
@@ -85,34 +97,17 @@ public class AuthService {
      */
     @Transactional
     public void withdraw(WithdrawRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuthAccount authAccount = (AuthAccount) authentication.getPrincipal();
-        Account account = getAccountById(authAccount.accountId());
+        AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
+
+        Account account = accountEntityFinder.getAccountById(authAccount.accountId());
         // 유저 권한 검사
         if (authAccount.role() != AccountRole.ROLE_USER)
-            throw new NoPermissionException();
+            throw new NoAuthorityException();
         // 비밀번호 검사
         if (isMismatchedPassword(request.password(), account.getPassword()))
             throw new AuthenticationFailedException();
 
         account.delete();
-    }
-
-    /**
-     * 아이디로 게정 조회 후 반환
-     *
-     * @param accountId 계정 아이디
-     * @return 계정 엔티티 반환
-     */
-    @Transactional(readOnly = true)
-    public Account getAccountById(Long accountId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(
-                AccountNotFoundException::new);
-
-        if (account.getDeletedAt() != null)
-            throw new AccountNotFoundException();
-
-        return account;
     }
 
     /**
