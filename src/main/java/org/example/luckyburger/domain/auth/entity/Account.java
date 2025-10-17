@@ -38,4 +38,8 @@ public class Account extends BaseEntity {
     public static Account of(String email, String name, String password, AccountRole role) {
         return new Account(email, name, password, role);
     }
+
+    public void updateAccount(String name) {
+        this.name = name;
+    }
 }
