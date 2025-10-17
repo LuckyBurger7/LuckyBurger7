@@ -28,9 +28,6 @@ public class ReviewUserService {
         if (!order.getUser().getAccount().getId().equals(authAccount.accountId())) {
             throw new IllegalArgumentException("본인의 주문에만 리뷰를 작성할 수 있습니다.");
         }
-        if (!order.getShop().getId().equals(request.shopId())) {
-            throw new IllegalArgumentException("주문한 점포와 리뷰 대상 점포가 일치하지 않습니다.");
-        }
 
         Review review = Review.of(
                 order.getUser(),
@@ -52,18 +49,6 @@ public class ReviewUserService {
         ensureOwnerByAccount(review, authAccount);
         return ReviewResponse.from(review);
     }
-
-//    // 내가 작성한 리뷰 전체 조회
-//    @Transactional(readOnly = true)
-//    public Page<ReviewResponse> getAllReview(Pageable pageable) {
-//        Pageable limited = PageRequest.of(
-//                Math.max(0, pageable.getPageNumber()),
-//                Math.min(pageable.getPageSize(), 3),
-//                pageable.getSort()
-//        );
-//        Page<Review> reviews = reviewRepository.findReviewPage(limited);
-//        return reviews.map(ReviewResponse::from);
-//    }
 
     // 리뷰 수정
     @Transactional

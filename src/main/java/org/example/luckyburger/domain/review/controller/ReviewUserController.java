@@ -46,12 +46,6 @@ public class ReviewUserController {
         return ApiResponse.success(reviewUserService.getOrderReview(reviewId, authAccount));
     }
 
-//    // 내가 작성한 리뷰 전체 조회
-//    @GetMapping("/v1/user/reviews")
-//    public ResponseEntity<ApiPageResponse<ReviewResponse>> getAllReview(@PageableDefault Pageable pageable) {
-//        return ApiPageResponse.success(reviewUserService.getAllReview(pageable));
-//    }
-
     // 주문에 대한 리뷰 수정
     @PutMapping("/v1/user/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(

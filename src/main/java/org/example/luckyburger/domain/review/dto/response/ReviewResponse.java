@@ -11,7 +11,7 @@ public record ReviewResponse(
         String content,
         String comment,
         LocalDateTime createdAt,
-        LocalDateTime modified
+        LocalDateTime modifiedAt
 ) {
     public static ReviewResponse from(Review review) {
         return ReviewResponse.builder()
@@ -20,7 +20,7 @@ public record ReviewResponse(
                 .content(review.getContent())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())
-                .modified(review.getModifiedAt())
+                .modifiedAt(review.getModifiedAt())
                 .build();
     }
 }

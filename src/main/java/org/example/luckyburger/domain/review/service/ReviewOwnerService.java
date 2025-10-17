@@ -5,7 +5,6 @@ import org.example.luckyburger.domain.review.dto.request.CommentRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
-import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +17,6 @@ public class ReviewOwnerService {
 
     private final ReviewRepository reviewRepository;
     private final ReviewEntityFinder reviewEntityFinder;
-    private final ShopEntityFinder shopEntityFinder;
 
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getShopReviews(Pageable pageable, Long shopId) {

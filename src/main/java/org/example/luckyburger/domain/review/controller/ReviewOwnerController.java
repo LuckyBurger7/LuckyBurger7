@@ -24,6 +24,7 @@ public class ReviewOwnerController {
 
     private final ReviewOwnerService reviewOwnerService;
 
+    // 주문에 대한 리뷰를 전체 불러오기
     @GetMapping("/v1/owner/shops/{shopId}/reviews")
     public ResponseEntity<ApiPageResponse<ReviewResponse>> getShopReviews(
             @PageableDefault Pageable pageable,
@@ -31,6 +32,7 @@ public class ReviewOwnerController {
         return ApiPageResponse.success(reviewOwnerService.getShopReviews(pageable, shopId));
     }
 
+    // 리뷰에 대한 댓글 작성
     @PostMapping("/v1/owner/reviews/{reviewId}/comments")
     public ResponseEntity<ApiResponse<ReviewResponse>> createComment(
             @PathVariable Long reviewId,
