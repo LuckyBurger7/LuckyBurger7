@@ -8,14 +8,21 @@ import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Transactional(readOnly = true)
 public class OrderEntityFinder {
     private final OrderRepository orderRepository;
 
-    @Transactional(readOnly = true)
     public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(NotFoundOrderException::new);
+    }
+
+    public List<Order> getAllOrderByShopId(Long shopId) {
+        List<Order> orders = orderRepository.findAllByShopId(shopId);
+        return orders;
     }
 }

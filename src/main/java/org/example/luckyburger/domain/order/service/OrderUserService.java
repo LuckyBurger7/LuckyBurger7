@@ -93,6 +93,19 @@ public class OrderUserService {
         long pay = subtotal - discount;
         if (pay < 0) throw new NegativePayOrderException();
 
+        // TODO: 쿠폰 사용 처리
+
+        // TODO: 적립금 차감
+        if (usePoint > 0) {
+            userService.deductPoints(user.getId(), usePoint);
+        }
+
+        // TODO: 적립금 추가 (할인 적용 전 가격 기준 1% 적립?)
+        int addedPoint = (int) (subtotal * 0.01); //TODO: 상수 적용
+        userService.addPoints(user.getId(), addedPoint);
+
+        // TODO: 결제 연동
+
         // 주문 생성
         Order order = Order.of(
                 shop,
@@ -104,6 +117,7 @@ public class OrderUserService {
                 request.request(),
                 null,
                 usePoint,
+                addedPoint,
                 subtotal,
                 pay,
                 LocalDateTime.now(),
@@ -119,20 +133,7 @@ public class OrderUserService {
         // TODO: 장바구니 비우기 및 삭제
         cartService.clear(cart.getId());
 
-        // TODO: 쿠폰 사용 처리
-
-        // TODO: 적립금 차감
-        if (usePoint > 0) {
-            userService.deductPoints(user.getId(), usePoint);
-        }
-
-        // TODO: 적립금 추가 (할인 적용 전 가격 기준 5% 적립?)
-        int addedPoint = (int) (subtotal * 0.05); //TODO: 상수 적용
-        userService.addPoints(user.getId(), addedPoint);
-
         // TODO: ShopMenu 별 판매량 증가
-
-        // TODO: 결제 연동
 
         List<OrderMenuResponse> orderMenuResponses = cartMenus.stream()
                 .map(cartMenu -> OrderMenuResponse.of(
@@ -222,7 +223,38 @@ public class OrderUserService {
         return new PageImpl<>(contents, pageable, idPage.getTotalElements());
     }
 
-    
+    @Transactional
+    public void deleteOrder(AuthAccount account, Long orderId) {
+        Account userAccount = accountEntityFinder.getAccountById(account.accountId());
+        User user = userEntityFinder.getUserByAccount(userAccount);
+        Order order = orderEntityFinder.getOrderById(orderId);
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedOrderAccessException();
+        }
+
+        if (order.getStatus() != OrderStatus.WAITING) {
+            throw new OrderNotCancelableException();
+        }
+
+        order.cancel();
+
+        // TODO: 결제 취소 및 환불
+
+        // TODO: 쿠폰 적용 취소
+
+        // 적립금 적용 취소 및 적립금 회수
+        Integer usedPoint = order.getPoint();
+        if (usedPoint != null && usedPoint > 0) {
+            userService.addPoints(user.getId(), usedPoint);
+        }
+        Integer addedPoint = order.getAddedPoint();
+        if (addedPoint != null && addedPoint > 0) {
+            userService.deductPoints(user.getId(), addedPoint);
+        }
+
+        // TODO: ShopMenu 판매량 증가 취소
+    }
 }
 
 

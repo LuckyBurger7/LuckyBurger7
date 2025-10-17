@@ -48,6 +48,8 @@ public class Order extends BaseIdEntity {
 
     private Integer point;
 
+    private Integer addedPoint;
+
     private long totalPrice;
 
     private long pay;
@@ -69,6 +71,7 @@ public class Order extends BaseIdEntity {
             String request,
             Coupon coupon,
             Integer point,
+            Integer addedPoint,
             long totalPrice,
             long pay,
             LocalDateTime orderDate,
@@ -82,6 +85,7 @@ public class Order extends BaseIdEntity {
         this.request = request;
         this.coupon = coupon;
         this.point = point;
+        this.addedPoint = addedPoint;
         this.totalPrice = totalPrice;
         this.pay = pay;
         this.orderDate = orderDate;
@@ -99,6 +103,7 @@ public class Order extends BaseIdEntity {
             String request,
             Coupon coupon,
             Integer point,
+            Integer addedPoint,
             long totalPrice,
             long pay,
             LocalDateTime orderDate,
@@ -113,6 +118,7 @@ public class Order extends BaseIdEntity {
                 request,
                 coupon,
                 point,
+                addedPoint,
                 totalPrice,
                 pay,
                 orderDate,
@@ -120,4 +126,7 @@ public class Order extends BaseIdEntity {
         );
     }
 
+    public void cancel() {
+        this.status = OrderStatus.CANCEL;
+    }
 }

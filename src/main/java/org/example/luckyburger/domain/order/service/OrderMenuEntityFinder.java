@@ -11,10 +11,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Transactional(readOnly = true)
 public class OrderMenuEntityFinder {
     private final OrderMenuRepository orderMenuRepository;
 
-    @Transactional(readOnly = true)
     public List<OrderMenu> getAllOrderMenu(Long orderId) {
         return orderMenuRepository.findAllByOrderId(orderId);
     }

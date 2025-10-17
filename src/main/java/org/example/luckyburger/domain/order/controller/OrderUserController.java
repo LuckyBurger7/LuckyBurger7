@@ -48,4 +48,11 @@ public class OrderUserController {
         return ApiPageResponse.success(response);
     }
 
+    @PutMapping("/v1/user/orders/{orderId}")
+    public ResponseEntity<ApiResponse<Void>> deleteOrder(
+            @AuthenticationPrincipal AuthAccount authAccount,
+            @PathVariable("orderId") Long orderId) {
+        orderUserService.deleteOrder(authAccount, orderId);
+        return ApiResponse.success(null);
+    }
 }

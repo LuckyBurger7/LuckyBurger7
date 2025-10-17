@@ -9,6 +9,7 @@ import org.example.luckyburger.domain.order.dto.response.OrderCreateResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
+import org.example.luckyburger.domain.order.exception.OrderNotCancelableException;
 import org.example.luckyburger.domain.order.service.OrderUserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,9 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -146,6 +145,28 @@ public class OrderUserControllerTest {
                 .andExpect(jsonPath("$.size").value(2));
     }
 
+    @Test
+    void 주문_취소_성공() throws Exception {
+        var auth = authPrincipal(1L);
+
+        doNothing().when(orderUserService).deleteOrder(nullable(AuthAccount.class), eq(9001L));
+
+        mockMvc.perform(put("/api/v1/user/orders/{orderId}", 9001L)
+                        .with(authentication(auth)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void 주문_취소_실패() throws Exception {
+        var auth = authPrincipal(1L);
+
+        doThrow(new OrderNotCancelableException()).when(orderUserService).deleteOrder(nullable(AuthAccount.class), eq(9001L));
+
+        mockMvc.perform(put("/api/v1/user/orders/{orderId}", 9001L)
+                        .with(authentication(auth)))
+                .andExpect(status().isBadRequest());
+    }
+
     private OrderCreateResponse sampleCreateResponse() {
         var amount = new OrderCreateResponse.Amount(23000, 3000, 20000);
         var items = List.of(
@@ -157,7 +178,7 @@ public class OrderUserControllerTest {
                 "홍길동", "010-1234-5678",
                 "서울 강남구 oo", "oo아파트 101동 1001호",
                 "양파 빼주세요",
-                null, 5000, 500,
+                null, 5000, 230,
                 amount, items,
                 LocalDateTime.of(2025, 10, 17, 12, 30),
                 OrderStatus.COOKING
@@ -175,7 +196,7 @@ public class OrderUserControllerTest {
                 "홍길동", "010-1234-5678",
                 "서울 강남구 oo", "oo아파트 101동 1001호",
                 "양파 빼주세요",
-                null, 5000,
+                null, 5000, 230,
                 amount, items,
                 LocalDateTime.of(2025, 10, 17, 12, 30),
                 OrderStatus.COOKING
