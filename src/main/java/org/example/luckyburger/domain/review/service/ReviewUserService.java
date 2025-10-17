@@ -64,7 +64,7 @@ public class ReviewUserService {
     public void deleteReview(Long reviewId, AuthAccount authAccount) {
         Review review = reviewEntityFinder.getReview(reviewId);
         ensureOwnerByAccount(review, authAccount);
-        reviewRepository.delete(review);
+        review.delete();
     }
 
     private void ensureOwnerByAccount(Review review, AuthAccount auth) {

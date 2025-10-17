@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.review.service;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.review.entity.Review;
@@ -16,5 +17,9 @@ public class ReviewEntityFinder {
     public Review getReview(Long reviewId) {
         return reviewRepository.findById(reviewId).orElseThrow(
                 NotFoundReviewException::new);
+    }
+
+    public List<Review> getAllReviewsByShopId(Long shopId) {
+        return reviewRepository.findAllByShopId(shopId);
     }
 }
