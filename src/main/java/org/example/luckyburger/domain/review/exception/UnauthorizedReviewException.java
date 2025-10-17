@@ -5,6 +5,6 @@ import org.example.luckyburger.domain.review.code.ReviewErrorcode;
 
 public class UnauthorizedReviewException extends GlobalException {
     public UnauthorizedReviewException() {
-        super(ReviewErrorcode.UNAUTHORIZED);
+        super(ReviewErrorcode.REVIEW_UNAUTHORIZED);
     }
 }

@@ -15,7 +15,7 @@ import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
-import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
+import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.exception.UnauthorizedReviewException;
@@ -63,17 +63,15 @@ public class ReviewUserServiceTest {
         Order order = mock(Order.class);
         given(order.getUser()).willReturn(user);
 
-        ReviewCreateRequest request = new ReviewCreateRequest(
+        ReviewRequest request = new ReviewRequest(
                 "맛있어요",
-                5,
-                null
+                5
         );
 
         Review savedReview = mock(Review.class);
         given(savedReview.getId()).willReturn(1L);
         given(savedReview.getRating()).willReturn(5.0);
         given(savedReview.getContent()).willReturn("맛있어요");
-        given(savedReview.getComment()).willReturn(null);
         given(savedReview.getCreatedAt()).willReturn(LocalDateTime.now());
         given(savedReview.getModifiedAt()).willReturn(LocalDateTime.now());
 
@@ -88,7 +86,6 @@ public class ReviewUserServiceTest {
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.rating()).isEqualTo(5.0);
         assertThat(response.content()).isEqualTo("맛있어요");
-        assertThat(response.comment()).isEqualTo(null);
         assertThat(response.createdAt()).isNotNull();
         assertThat(response.modifiedAt()).isNotNull();
 
@@ -116,10 +113,9 @@ public class ReviewUserServiceTest {
         Order order = mock(Order.class);
         given(order.getUser()).willReturn(otherUser);
 
-        ReviewCreateRequest request = new ReviewCreateRequest(
+        ReviewRequest request = new ReviewRequest(
                 "맛있어요",
-                5,
-                null
+                5
         );
 
         given(orderEntityFinder.getOrderById(orderId)).willReturn(order);
@@ -144,10 +140,9 @@ public class ReviewUserServiceTest {
 
         AuthAccount authAccount = new AuthAccount(accountId, "user@test.com", AccountRole.ROLE_USER);
 
-        ReviewCreateRequest request = new ReviewCreateRequest(
+        ReviewRequest request = new ReviewRequest(
                 "맛있어요",
-                5,
-                null
+                5
         );
 
         given(orderEntityFinder.getOrderById(orderId))
@@ -184,7 +179,6 @@ public class ReviewUserServiceTest {
         given(review.getId()).willReturn(reviewId);
         given(review.getRating()).willReturn(5.0);
         given(review.getContent()).willReturn("맛있어요");
-        given(review.getComment()).willReturn(null);
         given(review.getCreatedAt()).willReturn(LocalDateTime.now());
         given(review.getModifiedAt()).willReturn(LocalDateTime.now());
 
@@ -198,7 +192,6 @@ public class ReviewUserServiceTest {
         assertThat(response.id()).isEqualTo(reviewId);
         assertThat(response.rating()).isEqualTo(5.0);
         assertThat(response.content()).isEqualTo("맛있어요");
-        assertThat(response.comment()).isEqualTo(null);
         assertThat(response.createdAt()).isNotNull();
         assertThat(response.modifiedAt()).isNotNull();
 

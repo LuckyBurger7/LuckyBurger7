@@ -5,6 +5,6 @@ import org.example.luckyburger.domain.review.code.ReviewErrorcode;
 
 public class NotFoundReviewException extends GlobalException {
     public NotFoundReviewException() {
-        super(ReviewErrorcode.NOT_FOUND_REVIEW);
+        super(ReviewErrorcode.REVIEW_NOT_FOUND);
     }
 }

@@ -4,8 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.common.security.dto.AuthAccount;
-import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
-import org.example.luckyburger.domain.review.dto.request.ReviewUpdateRequest;
+import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.service.ReviewUserService;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ReviewUserController {
 
@@ -31,7 +30,7 @@ public class ReviewUserController {
     public ResponseEntity<ApiResponse<ReviewResponse>> createOrderReview(
             @AuthenticationPrincipal AuthAccount authAccount,
             @PathVariable Long orderId,
-            @RequestBody ReviewCreateRequest request) {
+            @RequestBody ReviewRequest request) {
 
         ReviewResponse response = reviewUserService.createOrderReview(authAccount, orderId, request);
         return ApiResponse.created(response);
@@ -50,7 +49,7 @@ public class ReviewUserController {
     @PutMapping("/v1/user/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(
             @AuthenticationPrincipal AuthAccount authAccount,
-            @Valid @RequestBody ReviewUpdateRequest request,
+            @Valid @RequestBody ReviewRequest request,
             @PathVariable Long reviewId) {
 
         ReviewResponse reviewResponse = reviewUserService.updateReview(request, reviewId, authAccount);

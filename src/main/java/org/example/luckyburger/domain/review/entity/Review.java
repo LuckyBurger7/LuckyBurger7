@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseEntity;
 import org.example.luckyburger.domain.order.entity.Order;
-import org.example.luckyburger.domain.review.dto.request.ReviewUpdateRequest;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.user.entity.User;
 import org.hibernate.annotations.SQLRestriction;
@@ -46,23 +45,22 @@ public class Review extends BaseEntity {
     private String comment;
 
 
-    private Review(User user, Shop shop, Order order, String content, double rating, String comment) {
+    private Review(User user, Shop shop, Order order, String content, double rating) {
         this.user = user;
         this.shop = shop;
         this.order = order;
         this.content = content;
         this.rating = rating;
-        this.comment = comment;
     }
 
     @Builder
-    public static Review of(User user, Shop shop, Order order, String content, double rating, String comment) {
-        return new Review(user, shop, order, content, rating, comment);
+    public static Review of(User user, Shop shop, Order order, String content, double rating) {
+        return new Review(user, shop, order, content, rating);
     }
 
-    public void update(ReviewUpdateRequest request) {
-        this.content = request.content();
-        this.rating = request.rating();
+    public void update(String content, double rating) {
+        this.content = content;
+        this.rating = rating;
     }
 
     public void writeComment(String comment) {
