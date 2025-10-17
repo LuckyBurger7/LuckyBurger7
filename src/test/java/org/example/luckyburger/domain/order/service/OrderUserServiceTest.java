@@ -19,6 +19,7 @@ import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.entity.OrderMenu;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
+import org.example.luckyburger.domain.order.exception.OrderNotCancelableException;
 import org.example.luckyburger.domain.order.exception.PointExceedBalanceOrderException;
 import org.example.luckyburger.domain.order.exception.ShopNotOpenedOrderException;
 import org.example.luckyburger.domain.order.exception.UnauthorizedOrderAccessException;
@@ -207,6 +208,7 @@ public class OrderUserServiceTest {
                 "양파 빼주세요",
                 null,
                 5000,
+                230,
                 23000,
                 18000,
                 LocalDateTime.now(),
@@ -253,6 +255,7 @@ public class OrderUserServiceTest {
                 "요청사항",
                 null,
                 0,
+                100,
                 10000,
                 10000,
                 LocalDateTime.now(),
@@ -274,8 +277,8 @@ public class OrderUserServiceTest {
         // given
         Pageable pageable = PageRequest.of(0, 2);
 
-        Order o1 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 23000, 20000, LocalDateTime.now(), OrderStatus.WAITING);
-        Order o2 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 15000, 12000, LocalDateTime.now(), OrderStatus.COOKING);
+        Order o1 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 230, 23000, 20000, LocalDateTime.now(), OrderStatus.WAITING);
+        Order o2 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 150, 15000, 12000, LocalDateTime.now(), OrderStatus.COOKING);
         ReflectionTestUtils.setField(o1, "id", 101L);
         ReflectionTestUtils.setField(o2, "id", 102L);
 
@@ -313,5 +316,75 @@ public class OrderUserServiceTest {
 
         assertThat(result.getTotalElements()).isZero();
         assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
+    void 주문_취소_성공_WAITING() {
+        // given
+        Order order = Order.of(
+                shop,
+                user,
+                "홍길동",
+                "010-1234-5678",
+                "서울 강남구 oo",
+                "oo아파트 101동 1001호",
+                "양파 빼주세요",
+                null,
+                5000,
+                230,
+                23000,
+                18000,
+                LocalDateTime.now(),
+                OrderStatus.WAITING
+        );
+        ReflectionTestUtils.setField(order, "id", 101L);
+        when(orderEntityFinder.getOrderById(101L)).thenReturn(order);
+
+
+        // when
+        orderUserService.deleteOrder(authAccount, 101L);
+
+        // then
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCEL);
+        // 사용 포인트 환원 호출 확인
+        Integer usedPoint = order.getPoint();
+        if (usedPoint != null && usedPoint > 0) {
+            verify(userService).addPoints(eq(user.getId()), eq(usedPoint));
+        }
+        // 적립 포인트 회수 호출 확인
+        Integer addedPoint = order.getAddedPoint();
+        if (addedPoint != null && addedPoint > 0) {
+            verify(userService).deductPoints(eq(user.getId()), eq(addedPoint));
+        }
+    }
+
+    @Test
+    void 주문_취소_실패_WAITING_아닌경우() {
+        // given
+        Order order = Order.of(
+                shop,
+                user,
+                "홍길동",
+                "010-1234-5678",
+                "서울 강남구 oo",
+                "oo아파트 101동 1001호",
+                "양파 빼주세요",
+                null,
+                5000,
+                230,
+                23000,
+                18000,
+                LocalDateTime.now(),
+                OrderStatus.COOKING
+        );
+        ReflectionTestUtils.setField(order, "id", 101L);
+        when(orderEntityFinder.getOrderById(101L)).thenReturn(order);
+        
+        // when & then
+        assertThatThrownBy(() -> orderUserService.deleteOrder(authAccount, 101L))
+                .isInstanceOf(OrderNotCancelableException.class)
+                .extracting(e -> ((OrderNotCancelableException) e).getErrorCode())
+                .isEqualTo(OrderErrorCode.ORDER_NOT_CANCELABLE);
+        verifyNoInteractions(userService);
     }
 }

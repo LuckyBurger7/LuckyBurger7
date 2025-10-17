@@ -19,6 +19,7 @@ public record OrderResponse(
         String request,
         Long couponId,
         Integer point,
+        Integer addedPoint,
         Amount amount,
         List<OrderMenuResponse> items,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
@@ -37,6 +38,7 @@ public record OrderResponse(
                 .request(order.getRequest())
                 .couponId(order.getCoupon() != null ? order.getCoupon().getId() : null)
                 .point(order.getPoint())
+                .addedPoint(order.getAddedPoint())
                 .amount(OrderResponse.Amount.of(
                         order.getTotalPrice(),
                         order.getPay()))
