@@ -1,7 +1,6 @@
 package org.example.luckyburger.domain.menu.controller;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
@@ -13,16 +12,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Getter
 @RestController
-@RequestMapping("/api/v1/menus")
+@RequestMapping("/api")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class MenuController {
 
     private final MenuService menuService;
 
     // 메뉴 전체 조회
-    @GetMapping
+    @GetMapping("/v1/menus")
     public ResponseEntity<ApiPageResponse<MenuResponse>> getAllMenu(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -35,7 +33,7 @@ public class MenuController {
     }
 
     // 메뉴 단일 조회
-    @GetMapping("/{menuId}")
+    @GetMapping("/v1/menus/{menuId}")
     public ResponseEntity<ApiResponse<MenuResponse>> getMenu(
             @PathVariable Long menuId
     ) {
