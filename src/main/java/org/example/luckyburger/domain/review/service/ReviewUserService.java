@@ -8,6 +8,7 @@ import org.example.luckyburger.domain.review.dto.request.ReviewCreateRequest;
 import org.example.luckyburger.domain.review.dto.request.ReviewUpdateRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
+import org.example.luckyburger.domain.review.exception.UnauthorizedReviewException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class ReviewUserService {
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getAccount().getId().equals(authAccount.accountId())) {
-            throw new IllegalArgumentException("본인의 주문에만 리뷰를 작성할 수 있습니다.");
+            throw new UnauthorizedReviewException();
         }
 
         Review review = Review.of(
@@ -70,7 +71,7 @@ public class ReviewUserService {
     private void ensureOwnerByAccount(Review review, AuthAccount auth) {
         Long writerAccountId = review.getUser().getAccount().getId();
         if (!writerAccountId.equals(auth.accountId())) {
-            throw new IllegalArgumentException("본인이 작성한 리뷰가 아닙니다.");
+            throw new UnauthorizedReviewException();
         }
     }
 }

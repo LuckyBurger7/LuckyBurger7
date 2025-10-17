@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.review.dto.request.CommentRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
+import org.example.luckyburger.domain.review.exception.CommentAlreadyExistsException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +36,7 @@ public class ReviewOwnerService {
         Review review = reviewEntityFinder.getReview(reviewId);
 
         if (review.getComment() != null && !review.getComment().isEmpty()) {
-            throw new IllegalStateException("이미 댓글이 존재 합니다.");
+            throw new CommentAlreadyExistsException();
         }
         review.writeComment(request.comment());
         return ReviewResponse.from(review);

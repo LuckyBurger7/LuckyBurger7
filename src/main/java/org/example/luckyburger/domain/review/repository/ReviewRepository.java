@@ -1,6 +1,5 @@
 package org.example.luckyburger.domain.review.repository;
 
-import java.util.List;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +12,4 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             value = "select r from Review r join fetch r.user u join fetch r.order o where r.shop.id = :shopId",
             countQuery = "select count(r) from Review r where r.shop.id = :shopId")
     Page<Review> findShopReviews(@Param("shopId") Long shopId, Pageable pageable);
-
-    List<Review> findAllByShopId(Long shopId);
 }
