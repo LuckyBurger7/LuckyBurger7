@@ -1,4 +1,4 @@
-package org.example.luckyburger.domain.auth.dto.request;
+package org.example.luckyburger.domain.user.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 

@@ -9,18 +9,18 @@ import java.util.List;
 @Getter
 public class ApiPageResponse<T> {
 
+    private final List<T> data;
     private final int page;
     private final int size;
     private final int totalPages;
     private final long totalElements;
-    private final List<T> data;
 
-    private ApiPageResponse(int page, int size, int totalPages, long totalElements, List<T> data) {
+    private ApiPageResponse(List<T> data, int page, int size, int totalPages, long totalElements) {
+        this.data = data;
         this.page = page;
         this.size = size;
         this.totalPages = totalPages;
         this.totalElements = totalElements;
-        this.data = data;
     }
 
     /**
@@ -35,11 +35,11 @@ public class ApiPageResponse<T> {
 
     private static <T> ApiPageResponse<T> fromPage(Page<T> pagedData) {
         return new ApiPageResponse<>(
+                pagedData.getContent(),
                 pagedData.getPageable().getPageNumber(),
                 pagedData.getPageable().getPageSize(),
                 pagedData.getTotalPages(),
-                pagedData.getTotalElements(),
-                pagedData.getContent()
+                pagedData.getTotalElements()
         );
     }
 }
