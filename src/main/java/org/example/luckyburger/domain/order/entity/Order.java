@@ -48,7 +48,11 @@ public class Order extends BaseIdEntity {
 
     private Integer point;
 
+    private Integer addedPoint;
+
     private long totalPrice;
+
+    private long pay;
 
     @Column(nullable = false)
     private LocalDateTime orderDate;
@@ -67,7 +71,9 @@ public class Order extends BaseIdEntity {
             String request,
             Coupon coupon,
             Integer point,
+            Integer addedPoint,
             long totalPrice,
+            long pay,
             LocalDateTime orderDate,
             OrderStatus status) {
         this.shop = shop;
@@ -79,7 +85,9 @@ public class Order extends BaseIdEntity {
         this.request = request;
         this.coupon = coupon;
         this.point = point;
+        this.addedPoint = addedPoint;
         this.totalPrice = totalPrice;
+        this.pay = pay;
         this.orderDate = orderDate;
         this.status = status;
     }
@@ -95,7 +103,9 @@ public class Order extends BaseIdEntity {
             String request,
             Coupon coupon,
             Integer point,
+            Integer addedPoint,
             long totalPrice,
+            long pay,
             LocalDateTime orderDate,
             OrderStatus status) {
         return new Order(
@@ -108,10 +118,15 @@ public class Order extends BaseIdEntity {
                 request,
                 coupon,
                 point,
+                addedPoint,
                 totalPrice,
+                pay,
                 orderDate,
                 status
         );
     }
 
+    public void cancel() {
+        this.status = OrderStatus.CANCEL;
+    }
 }

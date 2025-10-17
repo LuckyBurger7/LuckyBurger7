@@ -59,4 +59,13 @@ public class UserService {
 
         return UserResponse.from(user, account);
     }
+
+
+    // TODO:
+    public void deductPoints(Long userId, Integer usePoint) {
+    }
+
+    // TODO:
+    public void addPoints(Long userId, Integer addedPoint) {
+    }
 }
