@@ -22,8 +22,13 @@ public class UserController {
         return ApiResponse.created(userService.createUser(request));
     }
 
-    @PutMapping("/v1/user/profiles")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@Valid @RequestBody UserUpdateRequest request) {
-        return ApiResponse.created(userService.updateUser(request));
+    @PutMapping("/v1/user/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(@Valid @RequestBody UserUpdateRequest request) {
+        return ApiResponse.created(userService.updateProfile(request));
+    }
+
+    @GetMapping("/v1/user/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> getProfile() {
+        return ApiResponse.created(userService.getProfile());
     }
 }

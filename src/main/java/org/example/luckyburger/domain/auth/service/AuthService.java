@@ -5,8 +5,9 @@ import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.common.security.utils.JwtUtil;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
+import org.example.luckyburger.domain.auth.dto.request.AccountUpdateRequest;
+import org.example.luckyburger.domain.auth.dto.request.CredentialRequest;
 import org.example.luckyburger.domain.auth.dto.request.LoginRequest;
-import org.example.luckyburger.domain.auth.dto.request.WithdrawRequest;
 import org.example.luckyburger.domain.auth.dto.response.AccountResponse;
 import org.example.luckyburger.domain.auth.dto.response.TokenResponse;
 import org.example.luckyburger.domain.auth.entity.Account;
@@ -38,8 +39,7 @@ public class AuthService {
     @Transactional
     public AccountResponse createAccount(AccountSignupRequest request, AccountRole accountRole) {
         // 이메일 중복 확인
-        if (accountRepository.existsAccountByEmail(request.email()))
-            throw new DuplicateEmailException();
+        validateDuplicateEmail(request.email());
 
         String encodePassword = passwordEncoder.encode(request.password());
 
@@ -50,23 +50,23 @@ public class AuthService {
                 accountRole
         );
 
-        Account savedAccount = accountRepository.save(account);
-
-        return AccountResponse.of(
-                savedAccount.getId(),
-                savedAccount.getEmail(),
-                savedAccount.getName()
-        );
+        return AccountResponse.from(accountRepository.save(account));
     }
 
-
+    /**
+     * 계정 수정
+     *
+     * @param request 계정 수정 응답 DTO
+     * @return 계정 응답 DTO
+     */
     @Transactional
-    public AccountResponse updateAccount(String name) {
+    public AccountResponse updateAccount(AccountUpdateRequest request) {
+
         AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
 
         Account account = accountEntityFinder.getAccountByEmail(authAccount.email());
 
-        account.updateAccount(name);
+        account.updateAccount(request.name());
 
         return AccountResponse.from(account);
     }
@@ -96,18 +96,32 @@ public class AuthService {
      * @param request 회원 탈퇴 요청 DTO
      */
     @Transactional
-    public void withdraw(WithdrawRequest request) {
+    public void withdraw(CredentialRequest request) {
         AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
 
         Account account = accountEntityFinder.getAccountById(authAccount.accountId());
-        // 유저 권한 검사
-        if (authAccount.role() != AccountRole.ROLE_USER)
-            throw new NoAuthorityException();
+
         // 비밀번호 검사
         if (isMismatchedPassword(request.password(), account.getPassword()))
             throw new AuthenticationFailedException();
 
+        // 권한이 사용자인지 검사
+        if (authAccount.role() != AccountRole.ROLE_USER)
+            throw new NoAuthorityException();
+
+
         account.delete();
+    }
+
+    /**
+     * 이메일 중복 여부 검사
+     *
+     * @param email 검사할 이메일
+     */
+    @Transactional(readOnly = true)
+    public void validateDuplicateEmail(String email) {
+        if (accountRepository.existsAccountByEmail(email))
+            throw new DuplicateEmailException();
     }
 
     /**
@@ -136,4 +150,6 @@ public class AuthService {
     private boolean isMismatchedPassword(String rawPassword, String encodePassword) {
         return !passwordEncoder.matches(rawPassword, encodePassword);
     }
+
+
 }

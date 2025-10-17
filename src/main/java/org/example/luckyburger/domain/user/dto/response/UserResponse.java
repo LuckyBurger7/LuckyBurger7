@@ -2,7 +2,6 @@ package org.example.luckyburger.domain.user.dto.response;
 
 import lombok.AccessLevel;
 import lombok.Builder;
-import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.user.entity.User;
 
 @Builder(access = AccessLevel.PRIVATE)
@@ -37,11 +36,11 @@ public record UserResponse(
                 .build();
     }
 
-    public static UserResponse from(User user, Account account) {
+    public static UserResponse from(User user) {
         return UserResponse.builder()
                 .id(user.getId())
-                .email(account.getEmail())
-                .name(account.getName())
+                .email(user.getAccount().getEmail())
+                .name(user.getAccount().getName())
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .street(user.getStreet())
