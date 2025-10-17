@@ -1,7 +1,6 @@
 package org.example.luckyburger.domain.menu.service;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
 import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
@@ -11,7 +10,6 @@ import org.example.luckyburger.domain.menu.repository.MenuRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Getter
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class MenuAdminService {

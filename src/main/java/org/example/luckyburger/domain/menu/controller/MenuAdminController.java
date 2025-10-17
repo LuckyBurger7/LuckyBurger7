@@ -2,7 +2,6 @@ package org.example.luckyburger.domain.menu.controller;
 
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-@Getter
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)

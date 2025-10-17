@@ -1,7 +1,6 @@
 package org.example.luckyburger.domain.menu.controller;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Getter
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
