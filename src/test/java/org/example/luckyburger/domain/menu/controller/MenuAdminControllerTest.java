@@ -8,7 +8,7 @@ import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
-import org.example.luckyburger.domain.menu.exception.NotFoundMenuException;
+import org.example.luckyburger.domain.menu.exception.MenuNotFoundException;
 import org.example.luckyburger.domain.menu.service.MenuAdminService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,7 +116,7 @@ public class MenuAdminControllerTest {
         MenuUpdateRequest menuUpdateRequest = new MenuUpdateRequest(menuName, category, price);
 
         Long menuId = 1L;
-        when(menuAdminService.updateMenu(menuId, menuUpdateRequest)).thenThrow(new NotFoundMenuException());
+        when(menuAdminService.updateMenu(menuId, menuUpdateRequest)).thenThrow(new MenuNotFoundException());
 
         mockMvc.perform(put("/api/v1/admin/menus/{menuId}", menuId)
                         .with(csrf())
@@ -140,7 +140,7 @@ public class MenuAdminControllerTest {
     @WithMockUser
     void 메뉴가_존재하지_않아_삭제에_실패한다() throws Exception {
         Long menuId = 1L;
-        doThrow(new NotFoundMenuException()).when(menuAdminService).deleteMenu(menuId);
+        doThrow(new MenuNotFoundException()).when(menuAdminService).deleteMenu(menuId);
 
         mockMvc.perform(delete("/api/v1/admin/menus/{menuId}", menuId)
                         .with(csrf()))
