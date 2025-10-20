@@ -49,7 +49,7 @@ public class UserService {
 
     @Transactional
     public UserResponse updateUser(UserUpdateRequest userRequest) {
-        Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().accountId());
+        Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
 
         User user = userEntityFinder.getUserByAccount(account);
 
