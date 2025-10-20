@@ -2,11 +2,12 @@ package org.example.luckyburger.domain.shop.exception.shopMenu;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.code.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum ShopMenuErrorCode {
+public enum ShopMenuErrorCode implements ErrorCode {
 
     SHOP_MENU_ERROR_CODE("SHOPMENU-001", HttpStatus.NOT_FOUND, "상점을 찾을 수가 없습니다.");
 
