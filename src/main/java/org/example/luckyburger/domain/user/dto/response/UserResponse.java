@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import org.example.luckyburger.domain.user.entity.User;
 
+import java.time.LocalDateTime;
+
 @Builder(access = AccessLevel.PRIVATE)
 public record UserResponse(
         Long id,
@@ -16,7 +18,9 @@ public record UserResponse(
 
         String address,
 
-        String street
+        String street,
+
+        LocalDateTime createAt
 ) {
     public static UserResponse of(
             Long id,
@@ -24,7 +28,8 @@ public record UserResponse(
             String name,
             String phone,
             String address,
-            String street
+            String street,
+            LocalDateTime createAt
     ) {
         return UserResponse.builder()
                 .id(id)
@@ -33,6 +38,7 @@ public record UserResponse(
                 .phone(phone)
                 .address(address)
                 .street(street)
+                .createAt(createAt)
                 .build();
     }
 
@@ -44,6 +50,7 @@ public record UserResponse(
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .street(user.getStreet())
+                .createAt(user.getAccount().getCreatedAt())
                 .build();
     }
 }

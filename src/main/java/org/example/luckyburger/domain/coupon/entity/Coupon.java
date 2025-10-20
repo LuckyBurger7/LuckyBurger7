@@ -19,11 +19,7 @@ public class Coupon extends BaseEntity {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(name = "percentage_discount")
-    private Long percentageDiscount;
-
-    @Column(name = "fixed_discount")
-    private Long fixedDiscount;
+    private Double discount;
 
     private int count;
 
@@ -36,15 +32,13 @@ public class Coupon extends BaseEntity {
 
     private Coupon(
             String name,
-            Long percentageDiscount,
-            Long fixedDiscount,
+            Double discount,
             int count,
             LocalDateTime expirationDate,
             CouponType type
     ) {
         this.name = name;
-        this.percentageDiscount = percentageDiscount;
-        this.fixedDiscount = fixedDiscount;
+        this.discount = discount;
         this.count = count;
         this.expirationDate = expirationDate;
         this.type = type;
@@ -53,12 +47,24 @@ public class Coupon extends BaseEntity {
     @Builder
     public static Coupon of(
             String name,
-            Long percentageDiscount,
-            Long fixedDiscount,
+            Double discount,
             int count,
             LocalDateTime expirationDate,
             CouponType type
     ) {
-        return new Coupon(name, percentageDiscount, fixedDiscount, count, expirationDate, type);
+        return new Coupon(name, discount, count, expirationDate, type);
+    }
+
+    public void updateCoupon(
+            String name,
+            Double discount,
+            int count,
+            LocalDateTime expirationDate,
+            CouponType type) {
+        this.name = name;
+        this.discount = discount;
+        this.count = count;
+        this.expirationDate = expirationDate;
+        this.type = type;
     }
 }
