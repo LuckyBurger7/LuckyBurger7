@@ -326,7 +326,6 @@ public class OrderUserServiceTest {
                 "양파 빼주세요",
                 null,
                 5000,
-                null,
                 23000,
                 18000,
                 LocalDateTime.now(),
@@ -373,7 +372,6 @@ public class OrderUserServiceTest {
                 "요청사항",
                 null,
                 0,
-                null,
                 10000,
                 10000,
                 LocalDateTime.now(),
@@ -395,8 +393,8 @@ public class OrderUserServiceTest {
         // given
         Pageable pageable = PageRequest.of(0, 2);
 
-        Order o1 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 230, 23000, 20000, LocalDateTime.now(), OrderStatus.WAITING);
-        Order o2 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 150, 15000, 12000, LocalDateTime.now(), OrderStatus.COOKING);
+        Order o1 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 23000, 20000, LocalDateTime.now(), OrderStatus.WAITING);
+        Order o2 = Order.of(shop, user, "홍길동", "010-0000-0000", "서울", "상세", "", null, 0, 15000, 12000, LocalDateTime.now(), OrderStatus.COOKING);
         ReflectionTestUtils.setField(o1, "id", 101L);
         ReflectionTestUtils.setField(o2, "id", 102L);
 
@@ -449,7 +447,6 @@ public class OrderUserServiceTest {
                 "양파 빼주세요",
                 null,
                 5000,
-                null,
                 23000,
                 18000,
                 LocalDateTime.now(),
@@ -484,7 +481,6 @@ public class OrderUserServiceTest {
                 "양파 빼주세요",
                 null,
                 5000,
-                null,
                 23000,
                 18000,
                 LocalDateTime.now(),

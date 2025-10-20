@@ -173,7 +173,6 @@ public class OrderUserService {
                 request.request(),
                 coupon,
                 usePoint,
-                null,
                 subtotal,
                 pay,
                 LocalDateTime.now(),
@@ -211,7 +210,6 @@ public class OrderUserService {
                 order.getRequest(),
                 couponId,
                 usePoint,
-                null,
                 OrderResponse.Amount.of(subtotal, pay),
                 orderMenuResponses,
                 order.getOrderDate(),
@@ -287,11 +285,7 @@ public class OrderUserService {
             throw new UnauthorizedOrderAccessException();
         }
 
-        if (order.getStatus() != OrderStatus.WAITING) {
-            throw new OrderNotCancelableException();
-        }
-
-        order.cancel();
+        order.cancelByUser();
 
         // TODO: 결제 취소 및 환불
 

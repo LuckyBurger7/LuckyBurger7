@@ -217,7 +217,7 @@ public class OrderUserControllerTest {
                 "홍길동", "010-1234-5678",
                 "서울 강남구 oo", "oo아파트 101동 1001호",
                 "양파 빼주세요",
-                null, 5000, 230,
+                null, 5000,
                 amount, items,
                 LocalDateTime.of(2025, 10, 17, 12, 30),
                 OrderStatus.COOKING
@@ -235,7 +235,7 @@ public class OrderUserControllerTest {
                 "홍길동", "010-1234-5678",
                 "서울 강남구 oo", "oo아파트 101동 1001호",
                 "양파 빼주세요",
-                null, 5000, 230,
+                null, 5000,
                 amount, items,
                 LocalDateTime.of(2025, 10, 17, 12, 30),
                 OrderStatus.COOKING

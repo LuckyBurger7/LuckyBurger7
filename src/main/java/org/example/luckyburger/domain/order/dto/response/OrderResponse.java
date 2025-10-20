@@ -19,7 +19,6 @@ public record OrderResponse(
         String request,
         Long couponId,
         Integer point,
-        Integer addedPoint,
         Amount amount,
         List<OrderMenuResponse> items,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
@@ -38,7 +37,6 @@ public record OrderResponse(
                 .request(order.getRequest())
                 .couponId(order.getCoupon() != null ? order.getCoupon().getId() : null)
                 .point(order.getPoint())
-                .addedPoint(order.getAddedPoint())
                 .amount(OrderResponse.Amount.of(
                         order.getTotalPrice(),
                         order.getPay()))
@@ -48,7 +46,7 @@ public record OrderResponse(
                 .build();
     }
 
-    public static OrderResponse of(Long orderId, Long shopId, String receiver, String phone, String address, String street, String request, Long couponId, Integer point, Integer addedPoint, OrderResponse.Amount amount, List<OrderMenuResponse> items, LocalDateTime orderDate, OrderStatus status) {
+    public static OrderResponse of(Long orderId, Long shopId, String receiver, String phone, String address, String street, String request, Long couponId, Integer point, OrderResponse.Amount amount, List<OrderMenuResponse> items, LocalDateTime orderDate, OrderStatus status) {
         return OrderResponse.builder()
                 .orderId(orderId)
                 .shopId(shopId)
@@ -59,7 +57,6 @@ public record OrderResponse(
                 .request(request)
                 .couponId(couponId)
                 .point(point)
-                .addedPoint(addedPoint)
                 .amount(amount)
                 .items(items)
                 .orderDate(orderDate)

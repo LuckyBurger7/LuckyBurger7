@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
+import org.example.luckyburger.domain.order.exception.OrderNotCancelableException;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.user.entity.User;
 
@@ -48,8 +49,6 @@ public class Order extends BaseIdEntity {
 
     private Integer point;
 
-    private Integer addedPoint;
-
     private long totalPrice;
 
     private long pay;
@@ -71,7 +70,6 @@ public class Order extends BaseIdEntity {
             String request,
             Coupon coupon,
             Integer point,
-            Integer addedPoint,
             long totalPrice,
             long pay,
             LocalDateTime orderDate,
@@ -85,7 +83,6 @@ public class Order extends BaseIdEntity {
         this.request = request;
         this.coupon = coupon;
         this.point = point;
-        this.addedPoint = addedPoint;
         this.totalPrice = totalPrice;
         this.pay = pay;
         this.orderDate = orderDate;
@@ -103,7 +100,6 @@ public class Order extends BaseIdEntity {
             String request,
             Coupon coupon,
             Integer point,
-            Integer addedPoint,
             long totalPrice,
             long pay,
             LocalDateTime orderDate,
@@ -118,7 +114,6 @@ public class Order extends BaseIdEntity {
                 request,
                 coupon,
                 point,
-                addedPoint,
                 totalPrice,
                 pay,
                 orderDate,
@@ -126,7 +121,10 @@ public class Order extends BaseIdEntity {
         );
     }
 
-    public void cancel() {
-        this.status = OrderStatus.CANCEL;
+    public void cancelByUser() {
+        if (this.status == OrderStatus.WAITING) this.status = OrderStatus.CANCEL;
+        else throw new OrderNotCancelableException();
     }
+
+    
 }
