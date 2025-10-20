@@ -28,12 +28,24 @@ public class EventAdminService {
         return EventResponse.from(savedEvent);
     }
 
+    /**
+     * 이벤트 수정
+     *
+     * @param eventId
+     * @param request (타이틀, 내용)
+     * @return 수정된 내용 반환
+     */
     public EventResponse updateEvent(Long eventId, EventCreateRequest request) {
         Event event = eventEntityFinder.getEvent(eventId);
         event.updateEvent(request.title(), request.description());
         return EventResponse.from(event);
     }
 
+    /**
+     * 이벤트 삭제
+     *
+     * @param eventId
+     */
     public void deleteEvent(Long eventId) {
         Event event = eventEntityFinder.getEvent(eventId);
         event.delete();
