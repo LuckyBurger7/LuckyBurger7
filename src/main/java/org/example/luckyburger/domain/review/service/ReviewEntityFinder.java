@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Transactional(readOnly = true)
 public class ReviewEntityFinder {
 
     private final ReviewRepository reviewRepository;
 
-    @Transactional(readOnly = true)
     public Review getReview(Long reviewId) {
         return reviewRepository.findById(reviewId).orElseThrow(
                 NotFoundReviewException::new);

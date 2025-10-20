@@ -40,7 +40,6 @@ public class ReviewOwnerController {
     public ResponseEntity<ApiResponse<ReviewResponse>> createComment(
             @PathVariable Long reviewId,
             @Valid @RequestBody CommentRequest request) {
-        ReviewResponse response = reviewOwnerService.createComment(reviewId, request);
-        return ApiResponse.success(response);
+        return ApiResponse.success(reviewOwnerService.createComment(reviewId, request));
     }
 }
