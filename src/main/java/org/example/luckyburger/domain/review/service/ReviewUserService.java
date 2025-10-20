@@ -25,7 +25,7 @@ public class ReviewUserService {
     public ReviewResponse createOrderReview(AuthAccount authAccount, Long orderId, ReviewRequest request) {
         Order order = orderEntityFinder.getOrderById(orderId);
 
-        if (!order.getUser().getAccount().getId().equals(authAccount.accountId())) {
+        if (!order.getUser().getAccount().getId().equals(authAccount.getAccountId())) {
             throw new UnauthorizedReviewException();
         }
 
@@ -68,7 +68,7 @@ public class ReviewUserService {
 
     private void validateReviewAuthorOrThrow(Review review, AuthAccount auth) {
         Long writerAccountId = review.getUser().getAccount().getId();
-        if (!writerAccountId.equals(auth.accountId())) {
+        if (!writerAccountId.equals(auth.getAccountId())) {
             throw new UnauthorizedReviewException();
         }
     }
