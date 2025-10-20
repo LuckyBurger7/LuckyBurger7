@@ -37,8 +37,10 @@ public class MenuAdminController {
     }
 
     @DeleteMapping("/v1/admin/menus/{menuId}")
-    public void deleteMenu(@PathVariable Long menuId) {
+    public ResponseEntity<ApiResponse<Void>> deleteMenu(@PathVariable Long menuId) {
         menuAdminService.deleteMenu(menuId);
+
+        return ApiResponse.noContent();
     }
 
 }
