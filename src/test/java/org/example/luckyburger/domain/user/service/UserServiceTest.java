@@ -13,6 +13,7 @@ import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 class UserServiceTest {
-
-    final long ACCOUNT_ID = 100000L;
 
     @Autowired
     private AccountEntityFinder accountEntityFinder;
@@ -47,6 +46,7 @@ class UserServiceTest {
                 .address("경기도")
                 .street("000-000")
                 .build();
+
         Account account = Account.of(
                 request.email(),
                 request.name(),
@@ -65,7 +65,8 @@ class UserServiceTest {
     }
 
     @Test
-    @WithMockCustomAccount(id = ACCOUNT_ID, email = "test@example.com", role = AccountRole.ROLE_USER)
+    @DisplayName("프로필 업데이트")
+    @WithMockCustomAccount(id = 1L, email = "test@example.com", role = AccountRole.ROLE_USER)
     void updateProfile() {
         // given
         UserUpdateRequest userUpdaterequest = UserUpdateRequest.builder()
@@ -79,6 +80,9 @@ class UserServiceTest {
         UserResponse response = userService.updateProfile(userUpdaterequest);
 
         // then
-        Assertions.assertEquals("010-1111-1111", response.phone());
+        Assertions.assertEquals(userUpdaterequest.name(), response.name());
+        Assertions.assertEquals(userUpdaterequest.phone(), response.phone());
+        Assertions.assertEquals(userUpdaterequest.address(), response.address());
+        Assertions.assertEquals(userUpdaterequest.street(), response.street());
     }
 }
