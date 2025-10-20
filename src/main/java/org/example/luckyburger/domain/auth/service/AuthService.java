@@ -64,7 +64,7 @@ public class AuthService {
 
         AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
 
-        Account account = accountEntityFinder.getAccountByEmail(authAccount.email());
+        Account account = accountEntityFinder.getAccountByEmail(authAccount.getEmail());
 
         account.updateAccount(request.name());
 
@@ -99,14 +99,14 @@ public class AuthService {
     public void withdraw(CredentialRequest request) {
         AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
 
-        Account account = accountEntityFinder.getAccountById(authAccount.accountId());
+        Account account = accountEntityFinder.getAccountById(authAccount.getAccountId());
 
         // 비밀번호 검사
         if (isMismatchedPassword(request.password(), account.getPassword()))
             throw new AuthenticationFailedException();
 
         // 권한이 사용자인지 검사
-        if (authAccount.role() != AccountRole.ROLE_USER)
+        if (authAccount.getRole() != AccountRole.ROLE_USER)
             throw new NoAuthorityException();
 
 

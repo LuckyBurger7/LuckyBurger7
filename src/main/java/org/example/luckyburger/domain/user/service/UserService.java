@@ -65,7 +65,7 @@ public class UserService {
      */
     @Transactional
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
-        Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().email());
+        Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().getEmail());
         User user = userEntityFinder.getUserByAccount(account);
 
         authService.updateAccount(AccountUpdateRequest.builder()
@@ -84,7 +84,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
-        Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().accountId());
+        Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
 
         User user = userEntityFinder.getUserByAccount(account);
 
