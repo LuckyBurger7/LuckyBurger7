@@ -36,7 +36,7 @@ public class EventAdminService {
      * @return 수정된 내용 반환
      */
     public EventResponse updateEvent(Long eventId, EventCreateRequest request) {
-        Event event = eventEntityFinder.getEvent(eventId);
+        Event event = eventEntityFinder.getEventById(eventId);
         event.updateEvent(request.title(), request.description());
         return EventResponse.from(event);
     }
@@ -47,7 +47,7 @@ public class EventAdminService {
      * @param eventId
      */
     public void deleteEvent(Long eventId) {
-        Event event = eventEntityFinder.getEvent(eventId);
+        Event event = eventEntityFinder.getEventById(eventId);
         event.delete();
     }
 }

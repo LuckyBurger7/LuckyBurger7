@@ -24,7 +24,7 @@ public class EventService {
      * @return 조건에 맞는 이벤트 단건 반환
      */
     public EventResponse getEvent(Long eventId) {
-        Event event = eventEntityFinder.getEvent(eventId);
+        Event event = eventEntityFinder.getEventById(eventId);
         return EventResponse.from(event);
     }
 

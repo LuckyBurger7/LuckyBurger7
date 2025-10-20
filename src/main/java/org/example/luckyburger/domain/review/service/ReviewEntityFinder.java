@@ -16,7 +16,11 @@ public class ReviewEntityFinder {
     private final ReviewRepository reviewRepository;
 
     public Review getReview(Long reviewId) {
-        return reviewRepository.findById(reviewId).orElseThrow(
+        Review review = reviewRepository.findById(reviewId).orElseThrow(
                 ReviewNotFoundException::new);
+        if (review.getDeletedAt() != null) {
+            throw new ReviewNotFoundException();
+        }
+        return review;
     }
 }
