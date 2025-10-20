@@ -7,7 +7,8 @@ import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
-import org.example.luckyburger.domain.review.exception.UnauthorizedReviewException;
+import org.example.luckyburger.domain.review.exception.OrderUnauthorizedException;
+import org.example.luckyburger.domain.review.exception.ReviewUnauthorizedException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +26,8 @@ public class ReviewUserService {
     public ReviewResponse createOrderReview(AuthAccount authAccount, Long orderId, ReviewRequest request) {
         Order order = orderEntityFinder.getOrderById(orderId);
 
-        if (!order.getUser().getAccount().getId().equals(authAccount.accountId())) {
-            throw new UnauthorizedReviewException();
+        if (!order.getUser().getAccount().getId().equals(authAccount.getAccountId())) {
+            throw new OrderUnauthorizedException();
         }
 
         Review review = Review.of(
@@ -45,7 +46,7 @@ public class ReviewUserService {
     public ReviewResponse getOrderReview(Long reviewId, AuthAccount authAccount) {
         // 1) 리뷰 존재여부 확인
         Review review = reviewEntityFinder.getReview(reviewId);
-        validateReviewAuthorOrThrow(review, authAccount);
+        //validateReviewAuthorOrThrow(review, authAccount);
         return ReviewResponse.from(review);
     }
 
@@ -68,8 +69,8 @@ public class ReviewUserService {
 
     private void validateReviewAuthorOrThrow(Review review, AuthAccount auth) {
         Long writerAccountId = review.getUser().getAccount().getId();
-        if (!writerAccountId.equals(auth.accountId())) {
-            throw new UnauthorizedReviewException();
+        if (!writerAccountId.equals(auth.getAccountId())) {
+            throw new ReviewUnauthorizedException();
         }
     }
 }

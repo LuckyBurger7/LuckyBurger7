@@ -3,7 +3,7 @@ package org.example.luckyburger.domain.review.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.review.entity.Review;
-import org.example.luckyburger.domain.review.exception.NotFoundReviewException;
+import org.example.luckyburger.domain.review.exception.ReviewNotFoundException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,6 @@ public class ReviewEntityFinder {
 
     public Review getReview(Long reviewId) {
         return reviewRepository.findById(reviewId).orElseThrow(
-                NotFoundReviewException::new);
+                ReviewNotFoundException::new);
     }
 }
