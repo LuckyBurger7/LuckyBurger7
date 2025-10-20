@@ -53,7 +53,6 @@ public class CouponAdminService {
     }
 
     public Page<CouponResponse> getAllCouponByAvailable(Pageable pageable) {
-        System.out.println("ddddddddddddddddddddddddddddddddddd?ddddddddd");
         Page<Coupon> couponPage = couponRepository.findCouponsByExpirationDateBefore(LocalDateTime.now(), pageable);
 
         return couponPage.map(CouponResponse::from);

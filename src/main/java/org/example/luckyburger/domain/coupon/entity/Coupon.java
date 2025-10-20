@@ -2,7 +2,6 @@ package org.example.luckyburger.domain.coupon.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseEntity;
@@ -44,7 +43,6 @@ public class Coupon extends BaseEntity {
         this.type = type;
     }
 
-    @Builder
     public static Coupon of(
             String name,
             Double discount,
