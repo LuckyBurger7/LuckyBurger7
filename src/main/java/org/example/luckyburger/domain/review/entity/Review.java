@@ -14,12 +14,10 @@ import org.example.luckyburger.common.entity.BaseEntity;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.user.entity.User;
-import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
 @Table(name = "reviews")
-@SQLRestriction("delete_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends BaseEntity {
 
