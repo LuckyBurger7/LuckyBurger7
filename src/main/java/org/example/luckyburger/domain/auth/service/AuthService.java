@@ -38,8 +38,9 @@ public class AuthService {
     @Transactional
     public AccountResponse createAccount(AccountSignupRequest request, AccountRole accountRole) {
         // 이메일 중복 확인
-        if (accountRepository.existsAccountByEmail(request.email()))
+        if (accountRepository.existsAccountByEmail(request.email())) {
             throw new DuplicateEmailException();
+        }
 
         String encodePassword = passwordEncoder.encode(request.password());
 
@@ -64,7 +65,7 @@ public class AuthService {
     public AccountResponse updateAccount(String name) {
         AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
 
-        Account account = accountEntityFinder.getAccountByEmail(authAccount.email());
+        Account account = accountEntityFinder.getAccountByEmail(authAccount.getEmail());
 
         account.updateAccount(name);
 
@@ -82,8 +83,9 @@ public class AuthService {
         // 아이디 검사
         Account account = loadAccountForAuthentication(request.email());
         // 비밀번호 검사
-        if (isMismatchedPassword(request.password(), account.getPassword()))
+        if (isMismatchedPassword(request.password(), account.getPassword())) {
             throw new AuthenticationFailedException();
+        }
 
         String accessToken = jwtUtil.createToken(account.getId(), account.getEmail(), account.getRole());
 
@@ -99,13 +101,15 @@ public class AuthService {
     public void withdraw(WithdrawRequest request) {
         AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
 
-        Account account = accountEntityFinder.getAccountById(authAccount.accountId());
+        Account account = accountEntityFinder.getAccountById(authAccount.getAccountId());
         // 유저 권한 검사
-        if (authAccount.role() != AccountRole.ROLE_USER)
+        if (authAccount.getRole() != AccountRole.ROLE_USER) {
             throw new NoAuthorityException();
+        }
         // 비밀번호 검사
-        if (isMismatchedPassword(request.password(), account.getPassword()))
+        if (isMismatchedPassword(request.password(), account.getPassword())) {
             throw new AuthenticationFailedException();
+        }
 
         account.delete();
     }
@@ -120,8 +124,9 @@ public class AuthService {
     private Account loadAccountForAuthentication(String email) throws AccountNotFoundException {
         Account account = accountRepository.findByEmail(email).orElseThrow(
                 AuthenticationFailedException::new);
-        if (account.getDeletedAt() != null)
+        if (account.getDeletedAt() != null) {
             throw new AuthenticationFailedException();
+        }
 
         return account;
     }

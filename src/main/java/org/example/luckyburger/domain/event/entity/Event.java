@@ -8,10 +8,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseEntity;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
 @Table(name = "events")
+@SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Event extends BaseEntity {
 
@@ -29,5 +31,10 @@ public class Event extends BaseEntity {
     @Builder
     public static Event of(String title, String description) {
         return new Event(title, description);
+    }
+
+    public void updateEvent(String title, String description) {
+        this.title = title;
+        this.description = description;
     }
 }
