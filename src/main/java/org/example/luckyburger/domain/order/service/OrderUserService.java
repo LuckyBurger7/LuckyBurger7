@@ -9,9 +9,12 @@ import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartService;
+import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
-import org.example.luckyburger.domain.order.dto.response.OrderCreateResponse;
+import org.example.luckyburger.domain.order.dto.request.OrderPrepareRequest;
+import org.example.luckyburger.domain.order.dto.response.OrderCouponResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
+import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.entity.OrderMenu;
@@ -51,12 +54,66 @@ public class OrderUserService {
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
 
-    @Transactional
-    public OrderCreateResponse createOrder(AuthAccount account, OrderCreateRequest request) {
+    @Transactional(readOnly = true)
+    public OrderPrepareResponse prepareOrder(AuthAccount account, OrderPrepareRequest request) {
         Account userAccount = accountEntityFinder.getAccountById(account.accountId());
         User user = userEntityFinder.getUserByAccount(userAccount);
+        Cart cart = cartEntityFinder.getCartById(request.cartId());
+
+        // 본인 장바구니인지 확인
+        if (!cart.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedCartAccessException();
+        }
+
+        // TODO: cartMenus 가져오기 (CartEntityFinder -> getMenus 메서드 추가 또는 CartMenuEntityFinder 이용)
+        List<CartMenu> cartMenus = cartMenuEntityFinder.getByCartId(cart.getId());
+        if (cartMenus.isEmpty()) {
+            throw new EmptyCartOrderException();
+        }
+
         Shop shop = shopEntityFinder.getShopById(request.shopId());
-        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
+
+        // 매장 영업 중인지 확인
+        if (shop.getStatus() != BusinessStatus.OPEN) {
+            throw new ShopNotOpenedException();
+        }
+
+        // 총 금액
+        long totalPrice = cart.getTotalPrice();
+
+        // TODO: 쿠폰 불러오기
+        List<OrderCouponResponse> coupons = null;
+
+        // 보유 적립금
+        int userPoint = user.getPoint();
+
+        List<OrderMenuResponse> orderMenuResponses = cartMenus.stream()
+                .map(cartMenu -> OrderMenuResponse.of(
+                        cartMenu.getShopMenu().getId(),
+                        cartMenu.getShopMenu().getMenu().getName(),
+                        cartMenu.getShopMenu().getMenu().getPrice(),
+                        cartMenu.getQuantity()
+                ))
+                .toList();
+
+        return OrderPrepareResponse.of(
+                shop.getName(),
+                userAccount.getName(),
+                user.getPhone(),
+                user.getAddress(),
+                user.getStreet(),
+                coupons,
+                userPoint,
+                totalPrice,
+                orderMenuResponses
+        );
+    }
+
+    @Transactional
+    public OrderResponse createOrder(AuthAccount account, OrderCreateRequest request) {
+        Account userAccount = accountEntityFinder.getAccountById(account.accountId());
+        User user = userEntityFinder.getUserByAccount(userAccount);
+        Cart cart = cartEntityFinder.getCartById(request.cartId());
 
         // TODO: cartMenus 기져오기 (CartEntityFinder -> getMenus 메서드 추가 또는 CartMenuEntityFinder 이용)
         List<CartMenu> cartMenus = cartMenuEntityFinder.getByCartId(cart.getId());
@@ -64,32 +121,35 @@ public class OrderUserService {
             throw new EmptyCartOrderException();
         }
 
+        Shop shop = shopEntityFinder.getShopById(request.shopId());
+
         // 매장 영업 중인지 확인
         if (shop.getStatus() != BusinessStatus.OPEN) {
-            throw new ShopNotOpenedOrderException();
+            throw new ShopNotOpenedException();
         }
 
-        // 총 금액 계산
-        long subtotal = cartMenus.stream()
-                .mapToLong(cartMenu -> cartMenu.getShopMenu().getMenu().getPrice() * cartMenu.getQuantity())
-                .sum();
+        // 총 금액
+        long subtotal = cart.getTotalPrice();
 
         // 할인 금액 계산
         long discount = 0L;
 
-        // TODO: 쿠폰 불러오기 및 금액 확인
+        // TODO: 해당 쿠폰 조회 및 금액 확인
+        Coupon coupon = null;
+        Long couponId = null;
 
-        //적립금 확인
+        // 적립금 확인
         int usePoint = request.point() == null ? 0 : request.point();
         int userPoint = user.getPoint();
         if (usePoint > userPoint) {
-            throw new PointExceedBalanceOrderException();
+            throw new PointExceedBalanceException();
         }
         if (usePoint > subtotal) {
             usePoint = (int) subtotal;
         }
         discount += usePoint;
 
+        // 실제 결제 금액 계산
         long pay = subtotal - discount;
         if (pay < 0) throw new NegativePayOrderException();
 
@@ -99,10 +159,6 @@ public class OrderUserService {
         if (usePoint > 0) {
             userService.deductPoints(user.getId(), usePoint);
         }
-
-        // TODO: 적립금 추가 (할인 적용 전 가격 기준 1% 적립?)
-        int addedPoint = (int) (subtotal * 0.01); //TODO: 상수 적용
-        userService.addPoints(user.getId(), addedPoint);
 
         // TODO: 결제 연동
 
@@ -115,9 +171,9 @@ public class OrderUserService {
                 request.address(),
                 request.street(),
                 request.request(),
-                null,
+                coupon,
                 usePoint,
-                addedPoint,
+                null,
                 subtotal,
                 pay,
                 LocalDateTime.now(),
@@ -125,6 +181,7 @@ public class OrderUserService {
         );
         orderRepository.save(order);
 
+        // CartMenu -> OrderMenu 복사
         for (CartMenu cartMenu : cartMenus) {
             OrderMenu orderMenu = OrderMenu.of(order, cartMenu.getShopMenu(), cartMenu.getQuantity());
             orderMenuRepository.save(orderMenu);
@@ -144,7 +201,7 @@ public class OrderUserService {
                 ))
                 .toList();
 
-        return OrderCreateResponse.of(
+        return OrderResponse.of(
                 order.getId(),
                 shop.getId(),
                 order.getReceiver(),
@@ -152,15 +209,14 @@ public class OrderUserService {
                 order.getAddress(),
                 order.getStreet(),
                 order.getRequest(),
-                null,
+                couponId,
                 usePoint,
-                addedPoint,
-                OrderCreateResponse.Amount.of(subtotal, discount, pay),
+                null,
+                OrderResponse.Amount.of(subtotal, pay),
                 orderMenuResponses,
                 order.getOrderDate(),
                 order.getStatus()
         );
-
     }
 
     @Transactional(readOnly = true)
@@ -189,19 +245,16 @@ public class OrderUserService {
         Account userAccount = accountEntityFinder.getAccountById(account.accountId());
         User user = userEntityFinder.getUserByAccount(userAccount);
 
-        // 주문 ID 페이징 우선 조회
-        Page<Long> idPage = orderRepository.findIdsByUserId(user.getId(), pageable);
-        if (idPage.isEmpty()) {
-            return new PageImpl<>(List.of(), pageable, idPage.getTotalElements());
+        // 주문 페이징 조회
+        Page<Order> orderPage = orderRepository.findByUserId(user.getId(), pageable);
+        if (orderPage.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, orderPage.getTotalElements());
         }
 
-        List<Long> orderIds = idPage.getContent();
+        List<Order> orders = orderPage.getContent();
 
-        // 주문 ID 목록으로 주문 조회
-        List<Order> orders = orderRepository.findWithShopByIdIn(orderIds);
-
-        // 주문 ID 목록으로 주문 메뉴 전체 조회
-        List<OrderMenu> allOrderMenus = orderMenuRepository.findAllByOrderIdsInWithMenu(orderIds);
+        // 주문 메뉴 목록 조회
+        List<OrderMenu> allOrderMenus = orderMenuRepository.findAllByOrderInWithMenu(orders);
 
         // 주문 메뉴 그룹핑
         Map<Long, List<OrderMenu>> itemsByOrderId = allOrderMenus.stream()
@@ -220,7 +273,8 @@ public class OrderUserService {
 
             return OrderResponse.from(order, items);
         }).toList();
-        return new PageImpl<>(contents, pageable, idPage.getTotalElements());
+
+        return new PageImpl<>(contents, pageable, orderPage.getTotalElements());
     }
 
     @Transactional
@@ -243,14 +297,10 @@ public class OrderUserService {
 
         // TODO: 쿠폰 적용 취소
 
-        // 적립금 적용 취소 및 적립금 회수
+        // 적립금 적용 취소
         Integer usedPoint = order.getPoint();
         if (usedPoint != null && usedPoint > 0) {
             userService.addPoints(user.getId(), usedPoint);
-        }
-        Integer addedPoint = order.getAddedPoint();
-        if (addedPoint != null && addedPoint > 0) {
-            userService.deductPoints(user.getId(), addedPoint);
         }
 
         // TODO: ShopMenu 판매량 증가 취소

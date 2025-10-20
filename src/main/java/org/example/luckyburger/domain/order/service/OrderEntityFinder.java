@@ -3,7 +3,7 @@ package org.example.luckyburger.domain.order.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.entity.Order;
-import org.example.luckyburger.domain.order.exception.NotFoundOrderException;
+import org.example.luckyburger.domain.order.exception.OrderNotFoundException;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ public class OrderEntityFinder {
 
     public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(NotFoundOrderException::new);
+                .orElseThrow(OrderNotFoundException::new);
     }
 
     public List<Order> getAllOrderByShopId(Long shopId) {

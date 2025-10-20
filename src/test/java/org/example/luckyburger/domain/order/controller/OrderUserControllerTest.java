@@ -5,8 +5,9 @@ import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.common.security.filter.JwtAuthenticationFilter;
 import org.example.luckyburger.common.security.utils.JwtUtil;
 import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
-import org.example.luckyburger.domain.order.dto.response.OrderCreateResponse;
+import org.example.luckyburger.domain.order.dto.request.OrderPrepareRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
+import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.order.exception.OrderNotCancelableException;
@@ -55,10 +56,34 @@ public class OrderUserControllerTest {
     }
 
     @Test
+    void 주문_정보조회_성공() throws Exception {
+        var auth = authPrincipal(1L);
+        var request = new OrderPrepareRequest(
+                201L,
+                301L
+        );
+
+        var response = samplePrepareResponse();
+
+        given(orderUserService.prepareOrder(nullable(AuthAccount.class),
+                any(OrderPrepareRequest.class))).willReturn(response);
+
+        mockMvc.perform(get("/api/v1/user/orders/info")
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.shopName").value(response.shopName()))
+                .andExpect(jsonPath("$.data.totalPrice").value(18000))
+                .andExpect(jsonPath("$.data.items[0].name").value("치즈버거"));
+    }
+
+    @Test
     void 주문_생성_성공() throws Exception {
         var auth = authPrincipal(1L);
         var request = new OrderCreateRequest(
-                1L,
+                201L,
+                301L,
                 "홍길동",
                 "010-1234-5678",
                 "서울 강남구 oo",
@@ -88,9 +113,10 @@ public class OrderUserControllerTest {
         var auth = authPrincipal(1L);
 
         var invalidRequest = new OrderCreateRequest(
-                7L,
+                201L,
+                301L,
                 "홍길동",
-                "abc-defg", // 잘못된 포맷
+                "010-aaa-bbb",
                 "서울 강남구 oo",
                 "oo아파트 101동 1001호",
                 "양파 빼주세요",
@@ -153,7 +179,7 @@ public class OrderUserControllerTest {
 
         mockMvc.perform(put("/api/v1/user/orders/{orderId}", 9001L)
                         .with(authentication(auth)))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -167,13 +193,26 @@ public class OrderUserControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    private OrderCreateResponse sampleCreateResponse() {
-        var amount = new OrderCreateResponse.Amount(23000, 3000, 20000);
+    private OrderPrepareResponse samplePrepareResponse() {
         var items = List.of(
                 new OrderMenuResponse(101L, "치즈버거", 7000, 2),
                 new OrderMenuResponse(202L, "감자튀김", 4000, 1)
         );
-        return new OrderCreateResponse(
+        return new OrderPrepareResponse(
+                "럭키버거 강남점",
+                "홍길동", "010-1234-5678",
+                "서울 강남구 oo", "oo아파트 101동 1001호",
+                null, 5000, 18000,
+                items);
+    }
+
+    private OrderResponse sampleCreateResponse() {
+        var amount = new OrderResponse.Amount(23000, 20000);
+        var items = List.of(
+                new OrderMenuResponse(101L, "치즈버거", 7000, 2),
+                new OrderMenuResponse(202L, "감자튀김", 4000, 1)
+        );
+        return new OrderResponse(
                 9001L, 1L,
                 "홍길동", "010-1234-5678",
                 "서울 강남구 oo", "oo아파트 101동 1001호",

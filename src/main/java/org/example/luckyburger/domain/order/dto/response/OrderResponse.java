@@ -48,6 +48,25 @@ public record OrderResponse(
                 .build();
     }
 
+    public static OrderResponse of(Long orderId, Long shopId, String receiver, String phone, String address, String street, String request, Long couponId, Integer point, Integer addedPoint, OrderResponse.Amount amount, List<OrderMenuResponse> items, LocalDateTime orderDate, OrderStatus status) {
+        return OrderResponse.builder()
+                .orderId(orderId)
+                .shopId(shopId)
+                .receiver(receiver)
+                .phone(phone)
+                .address(address)
+                .street(street)
+                .request(request)
+                .couponId(couponId)
+                .point(point)
+                .addedPoint(addedPoint)
+                .amount(amount)
+                .items(items)
+                .orderDate(orderDate)
+                .status(status)
+                .build();
+    }
+
     @Builder
     public record Amount(long subtotal, long pay) {
         public static Amount of(long subtotal, long pay) {

@@ -14,15 +14,13 @@ import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.order.code.OrderErrorCode;
 import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
-import org.example.luckyburger.domain.order.dto.response.OrderCreateResponse;
+import org.example.luckyburger.domain.order.dto.request.OrderPrepareRequest;
+import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.entity.OrderMenu;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
-import org.example.luckyburger.domain.order.exception.OrderNotCancelableException;
-import org.example.luckyburger.domain.order.exception.PointExceedBalanceOrderException;
-import org.example.luckyburger.domain.order.exception.ShopNotOpenedOrderException;
-import org.example.luckyburger.domain.order.exception.UnauthorizedOrderAccessException;
+import org.example.luckyburger.domain.order.exception.*;
 import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
@@ -89,8 +87,6 @@ public class OrderUserServiceTest {
 
     @BeforeEach
     void setUp() {
-        //MockitoAnnotations.openMocks(this);
-
         authAccount = mock(AuthAccount.class);
         when(authAccount.accountId()).thenReturn(1L);
 
@@ -100,9 +96,115 @@ public class OrderUserServiceTest {
         cart = Cart.of(user, 0);
 
         ReflectionTestUtils.setField(user, "id", 101L);
+        ReflectionTestUtils.setField(shop, "id", 201L);
+        ReflectionTestUtils.setField(cart, "id", 301L);
 
         when(accountEntityFinder.getAccountById(1L)).thenReturn(account);
         when(userEntityFinder.getUserByAccount(account)).thenReturn(user);
+    }
+
+    @Test
+    void 주문_준비에_성공한다() {
+        //given
+        ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
+        ReflectionTestUtils.setField(user, "point", 10000);
+        Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
+        ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
+        CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
+        ReflectionTestUtils.setField(cart, "totalPrice", 20000);
+        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
+        when(shopEntityFinder.getShopById(any())).thenReturn(shop);
+        when(cartEntityFinder.getCartById(any())).thenReturn(cart);
+
+        var request = new OrderPrepareRequest(201L, 301L);
+
+        //when
+        OrderPrepareResponse resp = orderUserService.prepareOrder(authAccount, request);
+
+        //then
+        assertThat(resp.shopName()).isEqualTo("럭키버거 강남점");
+        assertThat(resp.receiver()).isEqualTo("홍길동");
+        assertThat(resp.phone()).isEqualTo("010-0000-0000");
+        assertThat(resp.address()).isEqualTo("서울 강남구 oo");
+        assertThat(resp.street()).isEqualTo("oo아파트 101동 1001호");
+        assertThat(resp.point()).isEqualTo(10000);
+        assertThat(resp.totalPrice()).isEqualTo(20000);
+
+        assertThat(resp.items()).hasSize(1);
+        assertThat(resp.items().get(0).name()).isEqualTo("치즈버거");
+        assertThat(resp.items().get(0).unitPrice()).isEqualTo(10000);
+        assertThat(resp.items().get(0).quantity()).isEqualTo(2);
+
+        verify(accountEntityFinder).getAccountById(1L);
+        verify(userEntityFinder).getUserByAccount(account);
+        verify(cartEntityFinder).getCartById(301L);
+        verify(cartMenuEntityFinder).getByCartId(301L);
+        verify(shopEntityFinder).getShopById(201L);
+    }
+
+    @Test
+    void 주문_준비_실패_다른유저_장바구니_접근() {
+        //given
+        User otherUser = User.of(account, "010-1111-2222", "서울", "주소");
+        ReflectionTestUtils.setField(otherUser, "id", 99L);
+        ReflectionTestUtils.setField(cart, "user", otherUser);
+
+        ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
+        ReflectionTestUtils.setField(user, "point", 10000);
+        Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
+        ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
+        CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
+        ReflectionTestUtils.setField(cart, "totalPrice", 20000);
+        when(cartEntityFinder.getCartById(any())).thenReturn(cart);
+
+
+        var request = new OrderPrepareRequest(201L, 301L);
+
+        // expect
+        assertThatThrownBy(() -> orderUserService.prepareOrder(authAccount, request))
+                .isInstanceOf(UnauthorizedCartAccessException.class)
+                .extracting(e -> ((GlobalException) e).getErrorCode())
+                .isEqualTo(OrderErrorCode.UNAUTHORIZED_CART_ACCESS);
+    }
+
+    @Test
+    void 주문_준비_실패_매장_영업종료() {
+        //given
+        ReflectionTestUtils.setField(user, "point", 10000);
+        Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
+        ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
+        CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
+        ReflectionTestUtils.setField(cart, "totalPrice", 20000);
+        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
+        when(shopEntityFinder.getShopById(any())).thenReturn(shop);
+        when(cartEntityFinder.getCartById(any())).thenReturn(cart);
+
+        ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
+
+        var request = new OrderPrepareRequest(201L, 301L);
+
+        // expect
+        assertThatThrownBy(() -> orderUserService.prepareOrder(authAccount, request))
+                .isInstanceOf(ShopNotOpenedException.class)
+                .extracting(e -> ((GlobalException) e).getErrorCode())
+                .isEqualTo(OrderErrorCode.SHOP_NOT_OPENED);
+    }
+
+    @Test
+    void 주문_준비_실패_장바구니_비어있음() {
+        //given
+        ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
+        ReflectionTestUtils.setField(user, "point", 10000);
+        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of());
+        when(cartEntityFinder.getCartById(any())).thenReturn(cart);
+
+        var request = new OrderPrepareRequest(201L, 301L);
+
+        // expect
+        assertThatThrownBy(() -> orderUserService.prepareOrder(authAccount, request))
+                .isInstanceOf(EmptyCartOrderException.class)
+                .extracting(e -> ((GlobalException) e).getErrorCode())
+                .isEqualTo(OrderErrorCode.EMPTY_CART);
     }
 
     @Test
@@ -116,11 +218,12 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
         when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+        when(cartEntityFinder.getCartById(any())).thenReturn(cart);
 
 
         var request = new OrderCreateRequest(
-                1L,
+                201L,
+                301L,
                 "홍길동",
                 "010-1234-5678",
                 "서울 강남구 oo",
@@ -131,7 +234,7 @@ public class OrderUserServiceTest {
         );
 
         //when
-        OrderCreateResponse response = orderUserService.createOrder(authAccount, request);
+        OrderResponse response = orderUserService.createOrder(authAccount, request);
 
         //then
         assertThat(response.amount().subtotal()).isEqualTo(20000);
@@ -142,13 +245,11 @@ public class OrderUserServiceTest {
         verify(orderMenuRepository).save(any(OrderMenu.class));
         verify(cartService).clear(any());
         verify(userService).deductPoints(anyLong(), eq(5000));
-        verify(userService).addPoints(anyLong(), anyInt());
     }
 
     @Test
     void 주문_실패_매장_영업_종료() {
         // given
-        ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
         ReflectionTestUtils.setField(user, "point", 10000);
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
@@ -156,16 +257,25 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
         when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+        when(cartEntityFinder.getCartById(any())).thenReturn(cart);
+
+        ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
 
         var request = new OrderCreateRequest(
-                1L, "홍길동", "010-1111-2222",
-                "서울", "테스트", "요청", null, 0
+                201L,
+                301L,
+                "홍길동",
+                "010-1234-5678",
+                "서울 강남구 oo",
+                "oo아파트 101동 1001호",
+                "양파 빼주세요",
+                null,
+                5000
         );
 
         // expect
         assertThatThrownBy(() -> orderUserService.createOrder(authAccount, request))
-                .isInstanceOf(ShopNotOpenedOrderException.class)
+                .isInstanceOf(ShopNotOpenedException.class)
                 .extracting(e -> ((GlobalException) e).getErrorCode())
                 .isEqualTo(OrderErrorCode.SHOP_NOT_OPENED);
     }
@@ -174,23 +284,31 @@ public class OrderUserServiceTest {
     void 주문_실패_포인트_초과_사용() {
         // given
         ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
-        ReflectionTestUtils.setField(user, "point", 0);
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
         CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
         when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+        when(cartEntityFinder.getCartById(any())).thenReturn(cart);
+
+        ReflectionTestUtils.setField(user, "point", 0);
 
         var request = new OrderCreateRequest(
-                1L, "홍길동", "010-1111-2222",
-                "서울", "테스트", "요청", null, 10000
+                201L,
+                301L,
+                "홍길동",
+                "010-1234-5678",
+                "서울 강남구 oo",
+                "oo아파트 101동 1001호",
+                "양파 빼주세요",
+                null,
+                5000
         );
 
         // expect
         assertThatThrownBy(() -> orderUserService.createOrder(authAccount, request))
-                .isInstanceOf(PointExceedBalanceOrderException.class)
+                .isInstanceOf(PointExceedBalanceException.class)
                 .extracting(e -> ((GlobalException) e).getErrorCode())
                 .isEqualTo(OrderErrorCode.POINT_EXCEEDS_BALANCE);
     }
@@ -208,7 +326,7 @@ public class OrderUserServiceTest {
                 "양파 빼주세요",
                 null,
                 5000,
-                230,
+                null,
                 23000,
                 18000,
                 LocalDateTime.now(),
@@ -255,7 +373,7 @@ public class OrderUserServiceTest {
                 "요청사항",
                 null,
                 0,
-                100,
+                null,
                 10000,
                 10000,
                 LocalDateTime.now(),
@@ -283,17 +401,17 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(o2, "id", 102L);
 
         List<Long> ids = List.of(101L, 102L);
-        Page<Long> idPage = new PageImpl<>(ids, pageable, 2);
+        List<Order> orders = List.of(o1, o2);
+        Page<Order> orderPage = new PageImpl<>(orders, pageable, 2);
 
-        when(orderRepository.findIdsByUserId(anyLong(), any(Pageable.class))).thenReturn(idPage);
-        when(orderRepository.findWithShopByIdIn(ids)).thenReturn(List.of(o1, o2));
+        when(orderRepository.findByUserId(anyLong(), any(Pageable.class))).thenReturn(orderPage);
 
         Menu m = Menu.of("치즈버거", MenuCategory.HAMBURGER, 7000);
         ShopMenu sm = ShopMenu.of(shop, m, ShopMenuStatus.ON_SALE, 0);
         OrderMenu om1 = OrderMenu.of(o1, sm, 2);
         OrderMenu om2 = OrderMenu.of(o2, sm, 1);
 
-        when(orderMenuRepository.findAllByOrderIdsInWithMenu(ids))
+        when(orderMenuRepository.findAllByOrderInWithMenu(orders))
                 .thenReturn(List.of(om1, om2));
 
         // when
@@ -308,9 +426,9 @@ public class OrderUserServiceTest {
     @Test
     void 주문_전체조회_성공_비어있음() {
         Pageable pageable = PageRequest.of(0, 2);
-        Page<Long> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+        Page<Order> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-        when(orderRepository.findIdsByUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
+        when(orderRepository.findByUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
 
         Page<OrderResponse> result = orderUserService.getAllOrder(authAccount, pageable);
 
@@ -331,7 +449,7 @@ public class OrderUserServiceTest {
                 "양파 빼주세요",
                 null,
                 5000,
-                230,
+                null,
                 23000,
                 18000,
                 LocalDateTime.now(),
@@ -351,11 +469,6 @@ public class OrderUserServiceTest {
         if (usedPoint != null && usedPoint > 0) {
             verify(userService).addPoints(eq(user.getId()), eq(usedPoint));
         }
-        // 적립 포인트 회수 호출 확인
-        Integer addedPoint = order.getAddedPoint();
-        if (addedPoint != null && addedPoint > 0) {
-            verify(userService).deductPoints(eq(user.getId()), eq(addedPoint));
-        }
     }
 
     @Test
@@ -371,7 +484,7 @@ public class OrderUserServiceTest {
                 "양파 빼주세요",
                 null,
                 5000,
-                230,
+                null,
                 23000,
                 18000,
                 LocalDateTime.now(),
@@ -379,7 +492,7 @@ public class OrderUserServiceTest {
         );
         ReflectionTestUtils.setField(order, "id", 101L);
         when(orderEntityFinder.getOrderById(101L)).thenReturn(order);
-        
+
         // when & then
         assertThatThrownBy(() -> orderUserService.deleteOrder(authAccount, 101L))
                 .isInstanceOf(OrderNotCancelableException.class)
