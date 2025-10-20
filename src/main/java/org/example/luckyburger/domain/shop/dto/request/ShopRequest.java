@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 
 @Getter
-public class UpdateShopRequest {
+public class ShopRequest {
 
     String name;
     BusinessStatus status;

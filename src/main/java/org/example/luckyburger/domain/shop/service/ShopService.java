@@ -1,13 +1,10 @@
 package org.example.luckyburger.domain.shop.service;
 
 import lombok.AllArgsConstructor;
-import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderService;
-import org.example.luckyburger.domain.review.entity.Review;
-import org.example.luckyburger.domain.shop.dto.request.CreateShopRequest;
-import org.example.luckyburger.domain.shop.dto.request.UpdateShopRequest;
-import org.example.luckyburger.domain.shop.entity.CouponPolicy;
+import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
+import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.example.luckyburger.domain.shop.exception.shop.ShopErrorCode;
@@ -26,51 +23,64 @@ public class ShopService {
 
     private final ShopRepository shopRepository;
     private final OrderService orderService;
+    private final ShopEntityFinder shopEntityFinder;
 
-    public Shop createShop(CreateShopRequest shopRequest) {
+    @Transactional
+    public ShopResponse createShop(ShopRequest shopRequest) {
 
-        Shop shop = Shop.createFrom(shopRequest);
+        Shop shopEntity = Shop.of(shopRequest.getName(), shopRequest.getStatus(), shopRequest.getAddress(),shopRequest.getStreet());
 
-        shopRepository.save(shop);
+        shopRepository.save(shopEntity);
 
-        System.out.println(shop);
+        return ShopResponse.from(shopEntity);
 
-        return shop;
     }
 
-    public Shop findShopDetail(String shopName) {
+    @Transactional(readOnly = true)
+    public ShopResponse getShopDetail(String shopName) {
 
-        return shopRepository.findByName(shopName);
+        Shop shop = shopRepository.findByName(shopName)
+                .orElseThrow(() -> new ShopException(ShopErrorCode.SHOP_NOT_FOUND));
+
+        return ShopResponse.from(shop);
     }
 
     // 상점의 상태를 변경
     @Transactional
-    public Shop changeStatus(Long shopId,
+    public Shop updateStatus(Long shopId,
                              BusinessStatus shopStatus) {
 
-        Shop shop = entityFinder(shopId);
-        shop.changeShop(shopStatus);
+        Shop shopEntity = shopEntityFinder.getShopEntity(shopId);
 
-        return shop;
+        shopEntity.changeShop(shopStatus);
+
+        return shopEntity;
     }
 
     // 상점의 정보를 수정
     @Transactional
-    public Shop updateShop(Long shopId, UpdateShopRequest updateShopRequest) {
+    public ShopResponse updateShop(Long shopId, ShopRequest shopRequest) {
 
-        Shop shop = entityFinder(shopId);
+        Shop shopEntity = shopEntityFinder.getShopEntity(shopId);
 
-        Shop updatedShop = shop.updateFrom(updateShopRequest);
+        Shop updatedShop = shopEntity.updateOf(shopRequest.getName(),
+                shopRequest.getStatus(),
+                shopRequest.getAddress(),
+                shopRequest.getStreet());
 
-        return updatedShop;
+        shopRepository.save(updatedShop);
+
+        return ShopResponse.from(updatedShop);
     }
 
     // 상점 삭제
+    @Transactional
     public void deleteShop(Long shopId) {
 
         shopRepository.deleteById(shopId);
     }
 
+    @Transactional(readOnly = true)
     public Long countShop(){
 
         Long count = shopRepository.count();
@@ -85,92 +95,96 @@ public class ShopService {
 
         return shop;
     }
+//
+//    @Transactional(readOnly = true)
+//    public int getTotal(Long shopId){
+//
+//        int totalPrice = 0;
+//
+//        List<Order> orderListByShop = orderService.getTotal(shopId);
+//
+//        for (Order order : orderListByShop) {
+//            totalPrice += order.getTotalPrice();
+//        }
+//
+//        return totalPrice;
+//    }
+//
+//    @Transactional(readOnly = true)
+//    public List<Order> getOrderTodayByShop(LocalDateTime localDateTime, Long shopId){
+//
+//        List<Order> orderList = new ArrayList<>();
+//
+//        List<Order> orderListByShopId = orderService.getTotal(shopId);
+//
+//        for (Order order : orderListByShopId) {
+//            if (order.getOrderDate().equals(localDateTime)){
+//                orderList.add(order);
+//            }
+//        }
+//
+//        return orderList;
+//    }
+//
+//    @Transactional(readOnly = true)
+//    public int getTotalsaleToday(Long shopId,LocalDateTime localDateTime) {
+//
+//        List<Order> orderTodayByShop = getOrderTodayByShop(localDateTime, shopId);
+//
+//        int totalPrice = 0;
+//
+//        List<Order> orderListByShop = orderService.getTotal(shopId);
+//
+//        for (Order order : orderListByShop) {
+//            totalPrice += order.getTotalPrice();
+//        }
+//
+//        return totalPrice;
+//
+//    }
+//
+//    @Transactional(readOnly = true)
+//    public int getTotalSaleByMonthWithShopId(Long shopId,LocalDateTime localDateTime){
+//
+//        int totalSaleByMonth = 0;
+//
+//        List<Order> orderListByShopId = orderService.getTotal(shopId);
+//
+//        for (Order order : orderListByShopId) {
+//            if (order.getOrderDate().equals(localDateTime)){
+//                totalSaleByMonth += (int) order.getTotalPrice();
+//            }
+//        }
+//
+//        return totalSaleByMonth;
+//    }
 
-    public int getTotal(Long shopId){
-
-        int totalPrice = 0;
-
-        List<Order> orderListByShop = orderService.getTotal(shopId);
-
-        for (Order order : orderListByShop) {
-            totalPrice += order.getTotalPrice();
-        }
-
-        return totalPrice;
-    }
-
-    public List<Order> getOrderTodayByShop(LocalDateTime localDateTime, Long shopId){
-
-        List<Order> orderList = new ArrayList<>();
-
-        List<Order> orderListByShopId = orderService.getTotal(shopId);
-
-        for (Order order : orderListByShopId) {
-            if (order.getOrderDate().equals(localDateTime)){
-                orderList.add(order);
-            }
-        }
-
-        return orderList;
-    }
-
-    public int getTotalsaleToday(Long shopId,LocalDateTime localDateTime) {
-
-        List<Order> orderTodayByShop = getOrderTodayByShop(localDateTime, shopId);
-
-        int totalPrice = 0;
-
-        List<Order> orderListByShop = orderService.getTotal(shopId);
-
-        for (Order order : orderListByShop) {
-            totalPrice += order.getTotalPrice();
-        }
-
-        return totalPrice;
-
-    }
-
-    public int getTotalSaleByMonthWithShopId(Long shopId,LocalDateTime localDateTime){
-
-        int totalSaleByMonth = 0;
-
-        List<Order> orderListByShopId = orderService.getTotal(shopId);
-
-        for (Order order : orderListByShopId) {
-            if (order.getOrderDate().equals(localDateTime)){
-                totalSaleByMonth += (int) order.getTotalPrice();
-            }
-        }
-
-        return totalSaleByMonth;
-    }
-
-    public int getRatingByShop(Long shopId){
-
-        int totalRating = 0;
-        int count = 0;
-
-        List<Review> reviewList = reviewService.getReviewListByShopId(shopId);
-
-        for (Review review : reviewList) {
-            totalRating += review.getRating();
-            count++;
-        }
-
-        return totalRating/count;
-    }
-
-    public boolean getCouponListByShopId(Long shopId,Long couponId){
-
-        //해당 couponId를 가진 쿠폰을 추출
-        CouponPolicy couponPolicy = couponPolicyService.findByCouponId(couponId);
-
-        if (couponPolicy.getShop().getId().equals(shopId)){
-
-            Boolean available = couponPolicy.getAvailable();
-
-        }
-        return false;
-    }
+//    public int getRatingByShop(Long shopId){
+//
+//        int totalRating = 0;
+//        int count = 0;
+//
+//        List<Review> reviewList = reviewService.getReviewListByShopId(shopId);
+//
+//        for (Review review : reviewList) {
+//            totalRating += review.getRating();
+//            count++;
+//        }
+//
+//        return totalRating/count;
+//    }
+//
+//    public boolean getCouponListByShopId(Long shopId,Long couponId){
+//
+//        //해당 couponId를 가진 쿠폰을 추출
+//        CouponPolicy couponPolicy = couponPolicyService.findByCouponId(couponId);
+//
+//        if (couponPolicy.getShop().getId().equals(shopId)){
+//
+//            Boolean available = couponPolicy.getAvailable();
+//
+//        }
+//        return false;
+//    }
 
 }
