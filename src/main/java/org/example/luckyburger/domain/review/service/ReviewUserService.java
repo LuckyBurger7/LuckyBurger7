@@ -46,7 +46,7 @@ public class ReviewUserService {
     public ReviewResponse getOrderReview(Long reviewId, AuthAccount authAccount) {
         // 1) 리뷰 존재여부 확인
         Review review = reviewEntityFinder.getReview(reviewId);
-        //validateReviewAuthorOrThrow(review, authAccount);
+        validateReviewAuthorOrThrow(review, authAccount);
         return ReviewResponse.from(review);
     }
 

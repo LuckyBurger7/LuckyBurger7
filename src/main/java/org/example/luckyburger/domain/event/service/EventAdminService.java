@@ -10,27 +10,30 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EventAdminService {
 
     private final EventRepository eventRepository;
     private final EventEntityFinder eventEntityFinder;
 
-    @Transactional
+    /**
+     * 이벤트 생성
+     *
+     * @param request (타이틀, 내용)
+     * @return 생성된 이벤트 반환
+     */
     public EventResponse createEvent(EventCreateRequest request) {
-
         Event event = Event.of(request.title(), request.description());
         Event savedEvent = eventRepository.save(event);
         return EventResponse.from(savedEvent);
     }
 
-    @Transactional
     public EventResponse updateEvent(Long eventId, EventCreateRequest request) {
         Event event = eventEntityFinder.getEvent(eventId);
         event.updateEvent(request.title(), request.description());
         return EventResponse.from(event);
     }
 
-    @Transactional
     public void deleteEvent(Long eventId) {
         Event event = eventEntityFinder.getEvent(eventId);
         event.delete();

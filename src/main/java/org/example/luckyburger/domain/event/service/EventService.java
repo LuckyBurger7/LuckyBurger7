@@ -11,17 +11,29 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventService {
 
     private final EventRepository eventRepository;
     private final EventEntityFinder eventEntityFinder;
 
-    @Transactional(readOnly = true)
+    /**
+     * 이벤트 단건 조회
+     *
+     * @param eventId
+     * @return 조건에 맞는 이벤트 단건 반환
+     */
     public EventResponse getEvent(Long eventId) {
         Event event = eventEntityFinder.getEvent(eventId);
         return EventResponse.from(event);
     }
 
+    /**
+     * 이벤트 전체 조회
+     *
+     * @param pageable
+     * @return 생성 된 이벤트 전체 반환 (페이지네이션 사용)
+     */
     @Transactional(readOnly = true)
     public Page<EventResponse> getAllEvent(Pageable pageable) {
         Page<Event> events = eventRepository.findAll(pageable);

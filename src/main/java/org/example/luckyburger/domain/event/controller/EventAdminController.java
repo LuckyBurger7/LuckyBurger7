@@ -41,7 +41,8 @@ public class EventAdminController {
     }
 
     @DeleteMapping("/v1/admin/events/{eventId}")
-    public void deleteEvent(@PathVariable Long eventId) {
+    public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long eventId) {
         eventAdminService.deleteEvent(eventId);
+        return ApiResponse.noContent();
     }
 }

@@ -13,6 +13,12 @@ public class EventEntityFinder {
 
     private final EventRepository eventRepository;
 
+    /**
+     * 이벤트가 있는지 확인
+     *
+     * @param eventId
+     * @return 조건에 맞는 이벤트가 없을 경우 NotFoundEventException 반환
+     */
     public Event getEvent(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 NotFoundEventException::new);
