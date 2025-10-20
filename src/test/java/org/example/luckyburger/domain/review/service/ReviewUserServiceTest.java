@@ -18,7 +18,7 @@ import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
-import org.example.luckyburger.domain.review.exception.UnauthorizedReviewException;
+import org.example.luckyburger.domain.review.exception.ReviewUnauthorizedException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.example.luckyburger.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
@@ -124,7 +124,7 @@ public class ReviewUserServiceTest {
         assertThatThrownBy(() ->
                 reviewUserService.createOrderReview(authAccount, orderId, request)
         )
-                .isInstanceOf(UnauthorizedReviewException.class)
+                .isInstanceOf(ReviewUnauthorizedException.class)
                 .hasMessage("본인이 작성한 리뷰가 아닙니다.");
 
         verify(orderEntityFinder).getOrderById(orderId);

@@ -41,6 +41,5 @@ public class DummyDataLoader implements CommandLineRunner {
                 "주소",
                 "상세 주소"
         ));
-
     }
 }

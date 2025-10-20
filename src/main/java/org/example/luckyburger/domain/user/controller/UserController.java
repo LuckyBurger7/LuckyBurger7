@@ -3,11 +3,13 @@ package org.example.luckyburger.domain.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
+import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.user.dto.request.UserSignupRequest;
 import org.example.luckyburger.domain.user.dto.request.UserUpdateRequest;
 import org.example.luckyburger.domain.user.dto.response.UserResponse;
 import org.example.luckyburger.domain.user.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,8 +24,15 @@ public class UserController {
         return ApiResponse.created(userService.createUser(request));
     }
 
-    @PutMapping("/v1/user/profiles")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(@Valid @RequestBody UserUpdateRequest request) {
-        return ApiResponse.created(userService.updateUser(request));
+    @Secured(AccountRole.Authority.USER)
+    @PutMapping("/v1/user/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(@Valid @RequestBody UserUpdateRequest request) {
+        return ApiResponse.created(userService.updateProfile(request));
+    }
+    
+    @Secured(AccountRole.Authority.USER)
+    @GetMapping("/v1/user/profile")
+    public ResponseEntity<ApiResponse<UserResponse>> getProfile() {
+        return ApiResponse.created(userService.getProfile());
     }
 }

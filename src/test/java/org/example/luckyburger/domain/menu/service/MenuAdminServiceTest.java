@@ -5,7 +5,7 @@ import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
-import org.example.luckyburger.domain.menu.exception.NotFoundMenuException;
+import org.example.luckyburger.domain.menu.exception.MenuNotFoundException;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,10 +76,10 @@ public class MenuAdminServiceTest {
         Long menuId = 1L;
         MenuUpdateRequest updateRequest = new MenuUpdateRequest(menuName, category, price);
 
-        given(menuEntityFinder.getMenu(menuId)).willThrow(new NotFoundMenuException());
+        given(menuEntityFinder.getMenu(menuId)).willThrow(new MenuNotFoundException());
 
         // when & then
-        assertThrows(NotFoundMenuException.class, () -> menuAdminService.updateMenu(menuId, updateRequest));
+        assertThrows(MenuNotFoundException.class, () -> menuAdminService.updateMenu(menuId, updateRequest));
     }
 
     @Test
@@ -100,9 +100,9 @@ public class MenuAdminServiceTest {
     void 메뉴가_존재하지_않아_삭제에_실패한다() {
         // given
         Long menuId = 1L;
-        given(menuEntityFinder.getMenu(menuId)).willThrow(new NotFoundMenuException());
+        given(menuEntityFinder.getMenu(menuId)).willThrow(new MenuNotFoundException());
 
         // when & then
-        assertThrows(NotFoundMenuException.class, () -> menuAdminService.deleteMenu(menuId));
+        assertThrows(MenuNotFoundException.class, () -> menuAdminService.deleteMenu(menuId));
     }
 }
