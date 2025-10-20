@@ -1,7 +1,7 @@
 package org.example.luckyburger.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.common.security.dto.AuthAccount;
+import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
 import org.example.luckyburger.domain.cart.entity.Cart;
@@ -11,7 +11,6 @@ import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartService;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
-import org.example.luckyburger.domain.order.dto.request.OrderPrepareRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderCouponResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
@@ -55,15 +54,10 @@ public class OrderUserService {
     private final CartMenuEntityFinder cartMenuEntityFinder;
 
     @Transactional(readOnly = true)
-    public OrderPrepareResponse prepareOrder(AuthAccount account, OrderPrepareRequest request) {
-        Account userAccount = accountEntityFinder.getAccountById(account.accountId());
+    public OrderPrepareResponse prepareOrderResponse() {
+        Account userAccount = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
         User user = userEntityFinder.getUserByAccount(userAccount);
-        Cart cart = cartEntityFinder.getCartById(request.cartId());
-
-        // 본인 장바구니인지 확인
-        if (!cart.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedCartAccessException();
-        }
+        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // TODO: cartMenus 가져오기 (CartEntityFinder -> getMenus 메서드 추가 또는 CartMenuEntityFinder 이용)
         List<CartMenu> cartMenus = cartMenuEntityFinder.getByCartId(cart.getId());
@@ -71,7 +65,7 @@ public class OrderUserService {
             throw new EmptyCartOrderException();
         }
 
-        Shop shop = shopEntityFinder.getShopById(request.shopId());
+        Shop shop = shopEntityFinder.getShopById(cartMenus.get(0).getShopMenu().getShop().getId());
 
         // 매장 영업 중인지 확인
         if (shop.getStatus() != BusinessStatus.OPEN) {
@@ -110,10 +104,9 @@ public class OrderUserService {
     }
 
     @Transactional
-    public OrderResponse createOrder(AuthAccount account, OrderCreateRequest request) {
-        Account userAccount = accountEntityFinder.getAccountById(account.accountId());
-        User user = userEntityFinder.getUserByAccount(userAccount);
-        Cart cart = cartEntityFinder.getCartById(request.cartId());
+    public OrderResponse createOrderResponse(OrderCreateRequest request) {
+        User user = getUserByAuthAccount();
+        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // TODO: cartMenus 기져오기 (CartEntityFinder -> getMenus 메서드 추가 또는 CartMenuEntityFinder 이용)
         List<CartMenu> cartMenus = cartMenuEntityFinder.getByCartId(cart.getId());
@@ -218,9 +211,8 @@ public class OrderUserService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrder(AuthAccount account, Long orderId) {
-        Account userAccount = accountEntityFinder.getAccountById(account.accountId());
-        User user = userEntityFinder.getUserByAccount(userAccount);
+    public OrderResponse getOrderResponse(Long orderId) {
+        User user = getUserByAuthAccount();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -239,9 +231,8 @@ public class OrderUserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderResponse> getAllOrder(AuthAccount account, Pageable pageable) {
-        Account userAccount = accountEntityFinder.getAccountById(account.accountId());
-        User user = userEntityFinder.getUserByAccount(userAccount);
+    public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
+        User user = getUserByAuthAccount();
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByUserId(user.getId(), pageable);
@@ -276,9 +267,8 @@ public class OrderUserService {
     }
 
     @Transactional
-    public void deleteOrder(AuthAccount account, Long orderId) {
-        Account userAccount = accountEntityFinder.getAccountById(account.accountId());
-        User user = userEntityFinder.getUserByAccount(userAccount);
+    public void cancelOrder(Long orderId) {
+        User user = getUserByAuthAccount();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -298,6 +288,12 @@ public class OrderUserService {
         }
 
         // TODO: ShopMenu 판매량 증가 취소
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserByAuthAccount() {
+        Account userAccount = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
+        return userEntityFinder.getUserByAccount(userAccount);
     }
 }
 

@@ -125,6 +125,4 @@ public class Order extends BaseIdEntity {
         if (this.status == OrderStatus.WAITING) this.status = OrderStatus.CANCEL;
         else throw new OrderNotCancelableException();
     }
-
-    
 }

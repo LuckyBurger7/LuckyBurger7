@@ -5,7 +5,6 @@ import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.common.security.filter.JwtAuthenticationFilter;
 import org.example.luckyburger.common.security.utils.JwtUtil;
 import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
-import org.example.luckyburger.domain.order.dto.request.OrderPrepareRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
@@ -26,7 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -51,27 +51,20 @@ public class OrderUserControllerTest {
 
     private TestingAuthenticationToken authPrincipal(long accountId) {
         AuthAccount principal = mock(AuthAccount.class);
-        when(principal.accountId()).thenReturn(accountId);
+        when(principal.getAccountId()).thenReturn(accountId);
         return new TestingAuthenticationToken(principal, null);
     }
 
     @Test
     void 주문_정보조회_성공() throws Exception {
         var auth = authPrincipal(1L);
-        var request = new OrderPrepareRequest(
-                201L,
-                301L
-        );
 
         var response = samplePrepareResponse();
 
-        given(orderUserService.prepareOrder(nullable(AuthAccount.class),
-                any(OrderPrepareRequest.class))).willReturn(response);
+        given(orderUserService.prepareOrderResponse()).willReturn(response);
 
-        mockMvc.perform(get("/api/v1/user/orders/info")
-                        .with(authentication(auth))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(get("/api/v1/user/orderInfo")
+                        .with(authentication(auth)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.shopName").value(response.shopName()))
                 .andExpect(jsonPath("$.data.totalPrice").value(18000))
@@ -83,7 +76,6 @@ public class OrderUserControllerTest {
         var auth = authPrincipal(1L);
         var request = new OrderCreateRequest(
                 201L,
-                301L,
                 "홍길동",
                 "010-1234-5678",
                 "서울 강남구 oo",
@@ -95,8 +87,7 @@ public class OrderUserControllerTest {
 
         var response = sampleCreateResponse();
 
-        given(orderUserService.createOrder(nullable(AuthAccount.class),
-                any(OrderCreateRequest.class))).willReturn(response);
+        given(orderUserService.createOrderResponse(any(OrderCreateRequest.class))).willReturn(response);
 
         mockMvc.perform(post("/api/v1/user/orders")
                         .with(authentication(auth))
@@ -114,7 +105,6 @@ public class OrderUserControllerTest {
 
         var invalidRequest = new OrderCreateRequest(
                 201L,
-                301L,
                 "홍길동",
                 "010-aaa-bbb",
                 "서울 강남구 oo",
@@ -136,7 +126,7 @@ public class OrderUserControllerTest {
         var auth = authPrincipal(1L);
         var response = sampleOrderResponse(9001L);
 
-        given(orderUserService.getOrder(nullable(AuthAccount.class), eq(9001L)))
+        given(orderUserService.getOrderResponse(eq(9001L)))
                 .willReturn(response);
 
         mockMvc.perform(get("/api/v1/user/orders/{orderId}", 9001L)
@@ -158,7 +148,7 @@ public class OrderUserControllerTest {
         );
         Page<OrderResponse> page = new PageImpl<>(content, pageReq, 5);
 
-        given(orderUserService.getAllOrder(nullable(AuthAccount.class), any(Pageable.class)))
+        given(orderUserService.getAllOrderResponse(any(Pageable.class)))
                 .willReturn(page);
 
         mockMvc.perform(get("/api/v1/user/orders")
@@ -175,7 +165,7 @@ public class OrderUserControllerTest {
     void 주문_취소_성공() throws Exception {
         var auth = authPrincipal(1L);
 
-        doNothing().when(orderUserService).deleteOrder(nullable(AuthAccount.class), eq(9001L));
+        doNothing().when(orderUserService).cancelOrder(eq(9001L));
 
         mockMvc.perform(put("/api/v1/user/orders/{orderId}", 9001L)
                         .with(authentication(auth)))
@@ -186,7 +176,7 @@ public class OrderUserControllerTest {
     void 주문_취소_실패() throws Exception {
         var auth = authPrincipal(1L);
 
-        doThrow(new OrderNotCancelableException()).when(orderUserService).deleteOrder(nullable(AuthAccount.class), eq(9001L));
+        doThrow(new OrderNotCancelableException()).when(orderUserService).cancelOrder(eq(9001L));
 
         mockMvc.perform(put("/api/v1/user/orders/{orderId}", 9001L)
                         .with(authentication(auth)))

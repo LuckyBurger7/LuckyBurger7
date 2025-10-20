@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartEntityFinder {
 
     // TODO: OrElseThrow NOTFOUND
-    public Cart getCartById(@NotNull Long cartId) {
+    public Cart getCartByUserId(@NotNull Long userId) {
         return null;
     }
 }
