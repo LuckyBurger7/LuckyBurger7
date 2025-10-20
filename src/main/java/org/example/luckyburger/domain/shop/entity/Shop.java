@@ -6,13 +6,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseEntity;
-import org.example.luckyburger.domain.shop.dto.request.CreateShopRequest;
-import org.example.luckyburger.domain.shop.dto.request.UpdateShopRequest;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 
 @Getter
 @Entity
-@Table
+@Table(name = "shops")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Shop extends BaseEntity {
 
@@ -37,38 +35,20 @@ public class Shop extends BaseEntity {
         this.street = street;
     }
 
-//    @Builder
-//    public static Shop of(String name, BusinessStatus status, String address, String street) {
-//
-//        return new Shop(name, status, address, street);
-//    }
+    public Shop updateOf(String name, BusinessStatus status, String address, String street){
 
-    public static Shop createFrom(CreateShopRequest shopRequest) {
-
-        return Shop.builder()
-                .name(shopRequest.getName())
-                .status(shopRequest.getStatus())
-                .address(shopRequest.getAddress())
-                .street(shopRequest.getStreet())
-                .build();
-    }
-
-    public Shop updateFrom(UpdateShopRequest shopRequest) {
-
-        if (shopRequest.getName() != null) {
-            this.name = shopRequest.getName();
-        }
-        if (shopRequest.getStatus() != null) {
-            this.status = shopRequest.getStatus();
-        }
-        if (shopRequest.getAddress() != null) {
-            this.address = shopRequest.getAddress();
-        }
-        if (shopRequest.getStreet() != null) {
-            this.street = shopRequest.getStreet();
-        }
+        this.name = name;
+        this.status = status;
+        this.address = address;
+        this.street = street;
 
         return this;
+    }
+
+    @Builder
+    public static Shop of(String name, BusinessStatus status, String address, String street) {
+
+        return new Shop(name, status, address, street);
     }
 
     public void changeShop(BusinessStatus status) {

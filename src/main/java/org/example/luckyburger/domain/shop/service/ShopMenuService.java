@@ -1,13 +1,17 @@
 package org.example.luckyburger.domain.shop.service;
 
 import lombok.AllArgsConstructor;
+import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
-import org.example.luckyburger.domain.shop.exception.shop.ShopErrorCode;
-import org.example.luckyburger.domain.shop.exception.shop.ShopException;
+import org.example.luckyburger.domain.shop.exception.shopMenu.ShopMenuErrorCode;
+import org.example.luckyburger.domain.shop.exception.shopMenu.ShopMenuException;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,36 +22,52 @@ public class ShopMenuService {
 
     private final ShopMenuRepository shopMenuRepository;
 
-    public List<Menu> getShopMenuList(Long shopId){
+    //MenuResponse로 반환하도록 변경하기
+    @Transactional(readOnly = true)
+    public Page<Menu> getShopMenuList(Long shopId,int page,int size){
 
-        List<ShopMenu> getMenuList = shopMenuRepository.findAllByShopId(shopId);
+        PageRequest pageable = PageRequest.of(page, size);
 
-        return getMenuList.stream()
-                .map(ShopMenu::getMenu)
-                .collect(Collectors.toList());
+        Page<ShopMenu> byShopId = shopMenuRepository.getByShopId(shopId, pageable);
+
+        Page<Menu> map = byShopId.map(ShopMenu::getMenu);
+
+        return map;
     }
 
-    //shopId 필요??
-    public Menu getMenuDetail(Long shopId, Long menuId){
+    @Transactional(readOnly = true)
+    public MenuResponse getMenuDetail(Long shopId, Long menuId){
 
-        ShopMenu menuDetail = shopMenuRepository.findByMenuId(menuId);
+        List<ShopMenu> getMenuList = shopMenuRepository.getAllByShopId(shopId);
 
-        Menu menu = menuDetail.getMenu();
+        //shopId 검증 필터 추가
+        ShopMenu getShopMenu = getMenuList.stream()
+                .filter(m -> m.getShop().getId().equals(shopId))
+                .filter(m-> m.getMenu().getId().equals(menuId))
+                .findFirst()
+                .orElseThrow(()->new ShopMenuException(ShopMenuErrorCode.SHOP_MENU_ERROR_CODE));
 
-        return menu;
+        ShopMenu shopMenu = ShopMenu.of(getShopMenu.getShop(),
+                getShopMenu.getMenu(),
+                getShopMenu.getStatus(),
+                getShopMenu.getSalesVolume());
+
+        Menu menu = shopMenu.getMenu();
+
+        return MenuResponse.from(menu);
     }
 
     //가게에 해당하는 메뉴를 변경
+    @Transactional
     public Menu updateMenuStatus(Long shopId, Long menuId,ShopMenuStatus shopMenuStatus){
 
-        List<ShopMenu> getMenuList = shopMenuRepository.findAllByShopId(shopId);
+        List<ShopMenu> getMenuList = shopMenuRepository.getAllByShopId(shopId);
 
         ShopMenu menu = getMenuList.stream()
                 .filter(m -> m.getId().equals(menuId))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(()->new ShopMenuException(ShopMenuErrorCode.SHOP_MENU_ERROR_CODE));
 
-        assert menu != null;
         menu.changeShopMenuStatus(shopMenuStatus);
 
         Menu changedMenu = menu.getMenu();
