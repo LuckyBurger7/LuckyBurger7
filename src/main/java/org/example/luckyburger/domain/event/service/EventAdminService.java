@@ -22,7 +22,7 @@ public class EventAdminService {
      * @param request (타이틀, 내용)
      * @return 생성된 이벤트 반환
      */
-    public EventResponse createEvent(EventCreateRequest request) {
+    public EventResponse createEventResponse(EventCreateRequest request) {
         Event event = Event.of(request.title(), request.description());
         Event savedEvent = eventRepository.save(event);
         return EventResponse.from(savedEvent);
@@ -35,7 +35,7 @@ public class EventAdminService {
      * @param request (타이틀, 내용)
      * @return 수정된 내용 반환
      */
-    public EventResponse updateEvent(Long eventId, EventCreateRequest request) {
+    public EventResponse updateEventResponse(Long eventId, EventCreateRequest request) {
         Event event = eventEntityFinder.getEventById(eventId);
         event.updateEvent(request.title(), request.description());
         return EventResponse.from(event);

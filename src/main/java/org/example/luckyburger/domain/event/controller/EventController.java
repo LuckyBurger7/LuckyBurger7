@@ -5,7 +5,6 @@ import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.event.dto.response.EventResponse;
 import org.example.luckyburger.domain.event.service.EventService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +23,26 @@ public class EventController {
 
     @GetMapping("/v1/events/{eventId}")
     public ResponseEntity<ApiResponse<EventResponse>> getEvent(@PathVariable Long eventId) {
-        EventResponse response = eventService.getEvent(eventId);
-        return ApiResponse.success(response);
+        return ApiResponse.success(eventService.getEventResponse(eventId));
     }
 
-    @GetMapping("/v1/events")
+    @GetMapping("/v1/events/all")
     public ResponseEntity<ApiPageResponse<EventResponse>> getAllEvent(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<EventResponse> events = eventService.getAllEvent(pageable);
 
-        return ApiPageResponse.success(events);
+        return ApiPageResponse.success(eventService.getAllEventResponse(pageable));
+    }
+
+    @GetMapping("/v1/events")
+    public ResponseEntity<ApiPageResponse<EventResponse>> getAllEventByNotDeleted(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return ApiPageResponse.success(eventService.getAllEventByNotDeletedResponse(pageable));
     }
 }
