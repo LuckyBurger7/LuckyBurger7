@@ -17,9 +17,11 @@ import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
+import org.example.luckyburger.domain.order.entity.OrderForm;
 import org.example.luckyburger.domain.order.entity.OrderMenu;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.order.exception.*;
+import org.example.luckyburger.domain.order.repository.OrderFormRepository;
 import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
@@ -60,6 +62,8 @@ public class OrderUserServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private OrderMenuRepository orderMenuRepository;
+    @Mock
+    private OrderFormRepository orderFormRepository;
     @Mock
     private UserEntityFinder userEntityFinder;
     @Mock
@@ -175,9 +179,9 @@ public class OrderUserServiceTest {
 
         // expect
         assertThatThrownBy(() -> orderUserService.prepareOrderResponse())
-                .isInstanceOf(EmptyCartOrderException.class)
+                .isInstanceOf(EmptyOrderException.class)
                 .extracting(e -> ((GlobalException) e).getErrorCode())
-                .isEqualTo(OrderErrorCode.EMPTY_CART);
+                .isEqualTo(OrderErrorCode.EMPTY_ORDER);
     }
 
     @Test
@@ -187,11 +191,10 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(user, "point", 10000);
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
-        CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
-        ReflectionTestUtils.setField(cart, "totalPrice", 20000);
-        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
+        OrderForm orderForm = OrderForm.of(user, shopMenu, 2);
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
         when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+        when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
 
         var request = new OrderCreateRequest(
@@ -225,11 +228,10 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(user, "point", 10000);
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
-        CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
-        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
+        OrderForm orderForm = OrderForm.of(user, shopMenu, 2);
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+        when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
         ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
 
@@ -257,11 +259,10 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
-        CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
-        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
+        OrderForm orderForm = OrderForm.of(user, shopMenu, 2);
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+        when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
         ReflectionTestUtils.setField(user, "point", 0);
 
@@ -312,7 +313,7 @@ public class OrderUserServiceTest {
         OrderMenu om1 = OrderMenu.of(order, shopMenu1, 2);
         OrderMenu om2 = OrderMenu.of(order, shopMenu2, 1);
 
-        when(orderMenuEntityFinder.getAllOrderMenu(101L))
+        when(orderMenuEntityFinder.getAllOrderMenuByOrderId(101L))
                 .thenReturn(List.of(om1, om2));
 
         //when
@@ -368,7 +369,6 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(o1, "id", 101L);
         ReflectionTestUtils.setField(o2, "id", 102L);
 
-        List<Long> ids = List.of(101L, 102L);
         List<Order> orders = List.of(o1, o2);
         Page<Order> orderPage = new PageImpl<>(orders, pageable, 2);
 

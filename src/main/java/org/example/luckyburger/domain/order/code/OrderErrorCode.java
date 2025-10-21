@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum OrderErrorCode implements ErrorCode {
 
-    EMPTY_CART(HttpStatus.BAD_REQUEST, "장바구니에 담긴 메뉴가 없습니다."),
+    EMPTY_ORDER(HttpStatus.BAD_REQUEST, "장바구니에 담긴 메뉴가 없습니다."),
     POINT_EXCEEDS_BALANCE(HttpStatus.BAD_REQUEST, "사용 가능한 적립금 금액을 초과합니다."),
     NEGATIVE_PAY(HttpStatus.BAD_REQUEST, "결제 금액은 0원 이상이어야 합니다."),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문을 찾을 수 없습니다."),

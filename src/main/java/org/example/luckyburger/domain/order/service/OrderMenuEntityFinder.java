@@ -15,7 +15,7 @@ import java.util.List;
 public class OrderMenuEntityFinder {
     private final OrderMenuRepository orderMenuRepository;
 
-    public List<OrderMenu> getAllOrderMenu(Long orderId) {
+    public List<OrderMenu> getAllOrderMenuByOrderId(Long orderId) {
         return orderMenuRepository.findAllByOrderId(orderId);
     }
 }

@@ -2,7 +2,6 @@ package org.example.luckyburger.domain.order.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
@@ -89,7 +88,6 @@ public class Order extends BaseIdEntity {
         this.status = status;
     }
 
-    @Builder
     public static Order of(
             Shop shop,
             User user,

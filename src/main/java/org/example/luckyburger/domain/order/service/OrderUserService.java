@@ -16,9 +16,11 @@ import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
+import org.example.luckyburger.domain.order.entity.OrderForm;
 import org.example.luckyburger.domain.order.entity.OrderMenu;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.order.exception.*;
+import org.example.luckyburger.domain.order.repository.OrderFormRepository;
 import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
@@ -43,6 +45,7 @@ import java.util.stream.Collectors;
 public class OrderUserService {
     private final OrderRepository orderRepository;
     private final OrderMenuRepository orderMenuRepository;
+    private final OrderFormRepository orderFormRepository;
     private final OrderEntityFinder orderEntityFinder;
     private final OrderMenuEntityFinder orderMenuEntityFinder;
     private final UserEntityFinder userEntityFinder;
@@ -53,7 +56,7 @@ public class OrderUserService {
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
         Account userAccount = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
         User user = userEntityFinder.getUserByAccount(userAccount);
@@ -62,7 +65,14 @@ public class OrderUserService {
         // TODO: cartMenus 가져오기 (CartEntityFinder -> getMenus 메서드 추가 또는 CartMenuEntityFinder 이용)
         List<CartMenu> cartMenus = cartMenuEntityFinder.getByCartId(cart.getId());
         if (cartMenus.isEmpty()) {
-            throw new EmptyCartOrderException();
+            throw new EmptyOrderException();
+        }
+
+        // 주문서 저장 (이전 주문서 삭제)
+        orderFormRepository.deleteAllByUser(user);
+        for (CartMenu cartMenu : cartMenus) {
+            OrderForm orderForm = OrderForm.of(user, cartMenu.getShopMenu(), cartMenu.getQuantity());
+            orderFormRepository.save(orderForm);
         }
 
         Shop shop = shopEntityFinder.getShopById(cartMenus.get(0).getShopMenu().getShop().getId());
@@ -106,12 +116,11 @@ public class OrderUserService {
     @Transactional
     public OrderResponse createOrderResponse(OrderCreateRequest request) {
         User user = getUserByAuthAccount();
-        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
-        // TODO: cartMenus 기져오기 (CartEntityFinder -> getMenus 메서드 추가 또는 CartMenuEntityFinder 이용)
-        List<CartMenu> cartMenus = cartMenuEntityFinder.getByCartId(cart.getId());
-        if (cartMenus.isEmpty()) {
-            throw new EmptyCartOrderException();
+        // 주문서 조회
+        List<OrderForm> orderForms = orderFormRepository.findAllByUser(user);
+        if (orderForms.isEmpty()) {
+            throw new EmptyOrderException();
         }
 
         Shop shop = shopEntityFinder.getShopById(request.shopId());
@@ -122,7 +131,9 @@ public class OrderUserService {
         }
 
         // 총 금액
-        long subtotal = cart.getTotalPrice();
+        long subtotal = orderForms.stream()
+                .mapToLong(orderForm -> orderForm.getShopMenu().getMenu().getPrice() * orderForm.getQuantity())
+                .sum();
 
         // 할인 금액 계산
         long discount = 0L;
@@ -171,25 +182,28 @@ public class OrderUserService {
                 LocalDateTime.now(),
                 OrderStatus.WAITING
         );
-        orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
 
-        // CartMenu -> OrderMenu 복사
-        for (CartMenu cartMenu : cartMenus) {
-            OrderMenu orderMenu = OrderMenu.of(order, cartMenu.getShopMenu(), cartMenu.getQuantity());
+        // OrderForm -> OrderMenu 복사
+        for (OrderForm orderForm : orderForms) {
+            OrderMenu orderMenu = OrderMenu.of(savedOrder, orderForm.getShopMenu(), orderForm.getQuantity());
             orderMenuRepository.save(orderMenu);
         }
+        // 주문서 삭제
+        orderFormRepository.deleteAllByUser(user);
 
         // TODO: 장바구니 비우기 및 삭제
+        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
         cartService.clear(cart.getId());
 
         // TODO: ShopMenu 별 판매량 증가
 
-        List<OrderMenuResponse> orderMenuResponses = cartMenus.stream()
-                .map(cartMenu -> OrderMenuResponse.of(
-                        cartMenu.getShopMenu().getId(),
-                        cartMenu.getShopMenu().getMenu().getName(),
-                        cartMenu.getShopMenu().getMenu().getPrice(),
-                        cartMenu.getQuantity()
+        List<OrderMenuResponse> orderMenuResponses = orderForms.stream()
+                .map(orderForm -> OrderMenuResponse.of(
+                        orderForm.getShopMenu().getId(),
+                        orderForm.getShopMenu().getMenu().getName(),
+                        orderForm.getShopMenu().getMenu().getPrice(),
+                        orderForm.getQuantity()
                 ))
                 .toList();
 
@@ -219,7 +233,7 @@ public class OrderUserService {
             throw new UnauthorizedOrderAccessException();
         }
 
-        List<OrderMenuResponse> items = orderMenuEntityFinder.getAllOrderMenu(orderId).stream()
+        List<OrderMenuResponse> items = orderMenuEntityFinder.getAllOrderMenuByOrderId(orderId).stream()
                 .map(item -> OrderMenuResponse.of(
                         item.getShopMenu().getId(),
                         item.getShopMenu().getMenu().getName(),
