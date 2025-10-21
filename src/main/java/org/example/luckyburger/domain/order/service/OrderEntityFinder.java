@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.exception.OrderNotFoundException;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +22,7 @@ public class OrderEntityFinder {
     }
 
     public List<Order> getAllOrderByShopId(Long shopId) {
-        return orderRepository.findAllByShopId(shopId);
-    }
-
-    public Page<Order> getAllOrderByUserId(Long userId, Pageable pageable) {
-        return orderRepository.findByUserId(userId, pageable);
-    }
-
-    public Page<Order> getAllOrderByShopId(Long shopId, Pageable pageable) {
-        return orderRepository.findByShopId(shopId, pageable);
+        List<Order> orders = orderRepository.findAllByShopId(shopId);
+        return orders;
     }
 }

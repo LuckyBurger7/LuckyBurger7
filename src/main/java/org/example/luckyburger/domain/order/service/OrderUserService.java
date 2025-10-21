@@ -55,7 +55,6 @@ public class OrderUserService {
     private final CartService cartService;
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
-    private final OrderFormEntityFinder orderFormEntityFinder;
 
     @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
@@ -119,7 +118,7 @@ public class OrderUserService {
         User user = getUserByAuthAccount();
 
         // 주문서 조회
-        List<OrderForm> orderForms = orderFormEntityFinder.getAllOrderFormByUser(user);
+        List<OrderForm> orderForms = orderFormRepository.findAllByUser(user);
         if (orderForms.isEmpty()) {
             throw new EmptyOrderException();
         }
@@ -250,7 +249,7 @@ public class OrderUserService {
         User user = getUserByAuthAccount();
 
         // 주문 페이징 조회
-        Page<Order> orderPage = orderEntityFinder.getAllOrderByUserId(user.getId(), pageable);
+        Page<Order> orderPage = orderRepository.findByUserId(user.getId(), pageable);
         if (orderPage.isEmpty()) {
             return new PageImpl<>(List.of(), pageable, orderPage.getTotalElements());
         }
@@ -258,7 +257,7 @@ public class OrderUserService {
         List<Order> orders = orderPage.getContent();
 
         // 주문 메뉴 목록 조회
-        List<OrderMenu> allOrderMenus = orderMenuEntityFinder.getAllOrderMenuByOrderIdIn(orders);
+        List<OrderMenu> allOrderMenus = orderMenuRepository.findAllByOrderInWithMenu(orders);
 
         // 주문 메뉴 그룹핑
         Map<Long, List<OrderMenu>> itemsByOrderId = allOrderMenus.stream()

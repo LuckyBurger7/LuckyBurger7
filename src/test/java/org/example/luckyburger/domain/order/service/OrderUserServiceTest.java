@@ -73,8 +73,6 @@ public class OrderUserServiceTest {
     @Mock
     private OrderMenuEntityFinder orderMenuEntityFinder;
     @Mock
-    private OrderFormEntityFinder orderFormEntityFinder;
-    @Mock
     private UserService userService;
     @Mock
     private ShopEntityFinder shopEntityFinder;
@@ -196,7 +194,7 @@ public class OrderUserServiceTest {
         OrderForm orderForm = OrderForm.of(user, shopMenu, 2);
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
         when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
-        when(orderFormEntityFinder.getAllOrderFormByUser(any(User.class))).thenReturn(List.of(orderForm));
+        when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
 
         var request = new OrderCreateRequest(
@@ -233,7 +231,7 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
         OrderForm orderForm = OrderForm.of(user, shopMenu, 2);
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(orderFormEntityFinder.getAllOrderFormByUser(any(User.class))).thenReturn(List.of(orderForm));
+        when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
         ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
 
@@ -264,7 +262,7 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
         OrderForm orderForm = OrderForm.of(user, shopMenu, 2);
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(orderFormEntityFinder.getAllOrderFormByUser(any(User.class))).thenReturn(List.of(orderForm));
+        when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
         ReflectionTestUtils.setField(user, "point", 0);
 
@@ -374,14 +372,14 @@ public class OrderUserServiceTest {
         List<Order> orders = List.of(o1, o2);
         Page<Order> orderPage = new PageImpl<>(orders, pageable, 2);
 
-        when(orderEntityFinder.getAllOrderByUserId(anyLong(), any(Pageable.class))).thenReturn(orderPage);
+        when(orderRepository.findByUserId(anyLong(), any(Pageable.class))).thenReturn(orderPage);
 
         Menu m = Menu.of("치즈버거", MenuCategory.HAMBURGER, 7000);
         ShopMenu sm = ShopMenu.of(shop, m, ShopMenuStatus.ON_SALE, 0);
         OrderMenu om1 = OrderMenu.of(o1, sm, 2);
         OrderMenu om2 = OrderMenu.of(o2, sm, 1);
 
-        when(orderMenuEntityFinder.getAllOrderMenuByOrderIdIn(orders))
+        when(orderMenuRepository.findAllByOrderInWithMenu(orders))
                 .thenReturn(List.of(om1, om2));
 
         // when
@@ -398,7 +396,7 @@ public class OrderUserServiceTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Order> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-        when(orderEntityFinder.getAllOrderByUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
+        when(orderRepository.findByUserId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
 
         Page<OrderResponse> result = orderUserService.getAllOrderResponse(pageable);
 
