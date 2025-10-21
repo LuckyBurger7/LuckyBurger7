@@ -32,7 +32,7 @@ public class ReviewUserController {
             @PathVariable Long orderId,
             @RequestBody ReviewRequest request) {
 
-        return ApiResponse.created(reviewUserService.createOrderReview(authAccount, orderId, request));
+        return ApiResponse.created(reviewUserService.createOrderReviewResponse(authAccount, orderId, request));
     }
 
     // 작성한 리뷰 단일 조회
@@ -41,7 +41,7 @@ public class ReviewUserController {
             @AuthenticationPrincipal AuthAccount authAccount,
             @PathVariable Long reviewId) {
 
-        return ApiResponse.success(reviewUserService.getOrderReview(reviewId, authAccount));
+        return ApiResponse.success(reviewUserService.getOrderReviewResponse(reviewId, authAccount));
     }
 
     // 주문에 대한 리뷰 수정
@@ -50,8 +50,8 @@ public class ReviewUserController {
             @AuthenticationPrincipal AuthAccount authAccount,
             @Valid @RequestBody ReviewRequest request,
             @PathVariable Long reviewId) {
-        
-        return ApiResponse.success(reviewUserService.updateReview(request, reviewId, authAccount));
+
+        return ApiResponse.success(reviewUserService.updateReviewResponse(request, reviewId, authAccount));
     }
 
     // 작성한 리뷰 삭제

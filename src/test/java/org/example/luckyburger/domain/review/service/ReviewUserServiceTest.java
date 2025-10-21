@@ -79,7 +79,7 @@ public class ReviewUserServiceTest {
         given(reviewRepository.save(any())).willReturn(savedReview);
 
         // when
-        ReviewResponse response = reviewUserService.createOrderReview(authAccount, orderId, request);
+        ReviewResponse response = reviewUserService.createOrderReviewResponse(authAccount, orderId, request);
 
         // then
         assertThat(response).isNotNull();
@@ -122,7 +122,7 @@ public class ReviewUserServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                reviewUserService.createOrderReview(authAccount, orderId, request)
+                reviewUserService.createOrderReviewResponse(authAccount, orderId, request)
         )
                 .isInstanceOf(ReviewUnauthorizedException.class)
                 .hasMessage("본인이 작성한 리뷰가 아닙니다.");
@@ -150,7 +150,7 @@ public class ReviewUserServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                reviewUserService.createOrderReview(authAccount, orderId, request)
+                reviewUserService.createOrderReviewResponse(authAccount, orderId, request)
         )
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("주문을 찾을 수 없습니다.");
@@ -185,7 +185,7 @@ public class ReviewUserServiceTest {
         given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
         // when
-        ReviewResponse response = reviewUserService.getOrderReview(reviewId, authAccount);
+        ReviewResponse response = reviewUserService.getOrderReviewResponse(reviewId, authAccount);
 
         // then
         assertThat(response).isNotNull();

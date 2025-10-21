@@ -1,11 +1,13 @@
 package org.example.luckyburger.domain.review.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,7 +67,7 @@ public class ReviewOwnerServiceTest {
                 .willReturn(new PageImpl<>(List.of(r1, r2), PageRequest.of(0, 3), 2));
 
         // when
-        Page<ReviewResponse> page = reviewOwnerService.getShopReviews(input, shopId);
+        Page<ReviewResponse> page = reviewOwnerService.getShopReviewsResponse(input, shopId);
 
         // then
         assertThat(page.getTotalElements()).isEqualTo(2);
@@ -91,22 +93,16 @@ public class ReviewOwnerServiceTest {
         CommentRequest request = new CommentRequest(newComment);
 
         Review review = mock(Review.class);
-        given(review.getComment()).willReturn(null, newComment);
-        given(review.getId()).willReturn(reviewId);
-        given(review.getContent()).willReturn("맛있어요");
-        given(review.getRating()).willReturn(5.0);
-        given(review.getCreatedAt()).willReturn(LocalDateTime.now());
-        given(review.getModifiedAt()).willReturn(LocalDateTime.now());
-
+        given(review.getComment()).willReturn(null);
         given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
         // when
-        ReviewResponse res = reviewOwnerService.createComment(reviewId, request);
+        assertThatCode(() -> reviewOwnerService.createComment(reviewId, request))
+                .doesNotThrowAnyException();
 
         // then
-        assertThat(res.id()).isEqualTo(reviewId);
-        assertThat(res.comment()).isEqualTo(newComment);
-
         verify(reviewEntityFinder).getReviewById(reviewId);
+        verify(review).writeComment(newComment);
+        verifyNoMoreInteractions(reviewEntityFinder, review);
     }
 }

@@ -19,8 +19,15 @@ public class ReviewOwnerService {
     private final ReviewRepository reviewRepository;
     private final ReviewEntityFinder reviewEntityFinder;
 
+    /**
+     * 점포의 작성된 리뷰 조회 (페이지 당 최대 3개), 사용자 : 점주
+     *
+     * @param pageable
+     * @param shopId
+     * @return 작성된 리뷰 반환
+     */
     @Transactional(readOnly = true)
-    public Page<ReviewResponse> getShopReviews(Pageable pageable, Long shopId) {
+    public Page<ReviewResponse> getShopReviewsResponse(Pageable pageable, Long shopId) {
 
         Pageable limited = PageRequest.of(
                 Math.max(0, pageable.getPageNumber()),
@@ -31,14 +38,19 @@ public class ReviewOwnerService {
         return reviews.map(ReviewResponse::from);
     }
 
+    /**
+     * 작성된 리뷰의 댓글 작성, 사용자 : 점주
+     *
+     * @param reviewId
+     * @param request
+     */
     @Transactional
-    public ReviewResponse createComment(Long reviewId, CommentRequest request) {
+    public void createComment(Long reviewId, CommentRequest request) {
         Review review = reviewEntityFinder.getReviewById(reviewId);
 
         if (review.getComment() != null && !review.getComment().isEmpty()) {
             throw new CommentAlreadyExistsException();
         }
         review.writeComment(request.comment());
-        return ReviewResponse.from(review);
     }
 }

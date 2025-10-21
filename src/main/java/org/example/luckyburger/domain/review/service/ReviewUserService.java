@@ -22,7 +22,7 @@ public class ReviewUserService {
 
     // 메뉴에 대한 리뷰 작성
     @Transactional
-    public ReviewResponse createOrderReview(AuthAccount authAccount, Long orderId, ReviewRequest request) {
+    public ReviewResponse createOrderReviewResponse(AuthAccount authAccount, Long orderId, ReviewRequest request) {
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getAccount().getId().equals(authAccount.getAccountId())) {
@@ -42,7 +42,7 @@ public class ReviewUserService {
 
     // 작성한 리뷰 단일 조회
     @Transactional(readOnly = true)
-    public ReviewResponse getOrderReview(Long reviewId, AuthAccount authAccount) {
+    public ReviewResponse getOrderReviewResponse(Long reviewId, AuthAccount authAccount) {
         // 1) 리뷰 존재여부 확인
         Review review = reviewEntityFinder.getReviewById(reviewId);
         validateReviewAuthorOrThrow(review, authAccount);
@@ -51,7 +51,7 @@ public class ReviewUserService {
 
     // 리뷰 수정
     @Transactional
-    public ReviewResponse updateReview(ReviewRequest request, Long reviewId, AuthAccount authAccount) {
+    public ReviewResponse updateReviewResponse(ReviewRequest request, Long reviewId, AuthAccount authAccount) {
         Review review = reviewEntityFinder.getReviewById(reviewId);
         validateReviewAuthorOrThrow(review, authAccount);
 
