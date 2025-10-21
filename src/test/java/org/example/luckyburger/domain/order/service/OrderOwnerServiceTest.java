@@ -18,8 +18,6 @@ import org.example.luckyburger.domain.order.entity.OrderMenu;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.order.exception.OrderStatusInvalidUpdateException;
 import org.example.luckyburger.domain.order.exception.UnauthorizedOrderAccessException;
-import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
-import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
@@ -52,10 +50,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class OrderOwnerServiceTest {
-    @Mock
-    private OrderRepository orderRepository;
-    @Mock
-    private OrderMenuRepository orderMenuRepository;
     @Mock
     private OwnerEntityFinder ownerEntityFinder;
     @Mock
@@ -185,14 +179,14 @@ public class OrderOwnerServiceTest {
         List<Order> orders = List.of(o1, o2);
         Page<Order> orderPage = new PageImpl<>(orders, pageable, 2);
 
-        when(orderRepository.findByShop(any(Shop.class), any(Pageable.class))).thenReturn(orderPage);
+        when(orderEntityFinder.getAllOrderByShopId(anyLong(), any(Pageable.class))).thenReturn(orderPage);
 
         Menu m = Menu.of("치즈버거", MenuCategory.HAMBURGER, 7000);
         ShopMenu sm = ShopMenu.of(shop, m, ShopMenuStatus.ON_SALE, 0);
         OrderMenu om1 = OrderMenu.of(o1, sm, 2);
         OrderMenu om2 = OrderMenu.of(o2, sm, 1);
 
-        when(orderMenuRepository.findAllByOrderInWithMenu(orders))
+        when(orderMenuEntityFinder.getAllOrderMenuByOrderIdIn(orders))
                 .thenReturn(List.of(om1, om2));
 
         // when
@@ -209,7 +203,7 @@ public class OrderOwnerServiceTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Order> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-        when(orderRepository.findByShop(any(Shop.class), any(Pageable.class))).thenReturn(emptyPage);
+        when(orderEntityFinder.getAllOrderByShopId(anyLong(), any(Pageable.class))).thenReturn(emptyPage);
 
         Page<OrderResponse> result = orderOwnerService.getAllOrderResponse(pageable);
 

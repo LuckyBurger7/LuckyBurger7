@@ -13,8 +13,6 @@ import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.entity.OrderMenu;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.order.exception.UnauthorizedOrderAccessException;
-import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
-import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.user.constant.UserConstant;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.service.UserService;
@@ -31,8 +29,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderOwnerService {
-    private final OrderRepository orderRepository;
-    private final OrderMenuRepository orderMenuRepository;
     private final OrderEntityFinder orderEntityFinder;
     private final OrderMenuEntityFinder orderMenuEntityFinder;
     private final OwnerEntityFinder ownerEntityFinder;
@@ -64,7 +60,7 @@ public class OrderOwnerService {
         Owner owner = getOwnerByAuthAccount();
 
         // 주문 페이징 조회
-        Page<Order> orderPage = orderRepository.findByShop(owner.getShop(), pageable);
+        Page<Order> orderPage = orderEntityFinder.getAllOrderByShopId(owner.getShop().getId(), pageable);
         if (orderPage.isEmpty()) {
             return new PageImpl<>(List.of(), pageable, orderPage.getTotalElements());
         }
@@ -72,7 +68,7 @@ public class OrderOwnerService {
         List<Order> orders = orderPage.getContent();
 
         // 주문 메뉴 목록 조회
-        List<OrderMenu> allOrderMenus = orderMenuRepository.findAllByOrderInWithMenu(orders);
+        List<OrderMenu> allOrderMenus = orderMenuEntityFinder.getAllOrderMenuByOrderIdIn(orders);
 
         // 주문 메뉴 그룹핑
         Map<Long, List<OrderMenu>> itemsByOrderId = allOrderMenus.stream()
