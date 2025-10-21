@@ -2,7 +2,6 @@ package org.example.luckyburger.domain.cart.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
@@ -26,8 +25,11 @@ public class Cart extends BaseIdEntity {
         this.totalPrice = totalPrice;
     }
 
-    @Builder
     public static Cart of(User user, long totalPrice) {
         return new Cart(user, totalPrice);
+    }
+
+    public void updateTotalPrice(long totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }
