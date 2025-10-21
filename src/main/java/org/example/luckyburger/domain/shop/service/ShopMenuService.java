@@ -5,8 +5,8 @@ import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
-import org.example.luckyburger.domain.shop.exception.shopMenu.ShopMenuErrorCode;
-import org.example.luckyburger.domain.shop.exception.shopMenu.ShopMenuException;
+import org.example.luckyburger.domain.shop.exception.shopMenuCode.ShopMenuErrorCode;
+import org.example.luckyburger.domain.shop.exception.shopMenuCode.ShopMenuException;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor

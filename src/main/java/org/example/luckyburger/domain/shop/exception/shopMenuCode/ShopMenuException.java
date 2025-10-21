@@ -1,4 +1,4 @@
-package org.example.luckyburger.domain.shop.exception.shopMenu;
+package org.example.luckyburger.domain.shop.exception.shopMenuCode;
 
 import org.example.luckyburger.common.code.ErrorCode;
 import org.example.luckyburger.common.exception.GlobalException;
