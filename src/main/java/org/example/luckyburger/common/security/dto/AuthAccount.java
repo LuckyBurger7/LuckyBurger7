@@ -1,12 +1,11 @@
 package org.example.luckyburger.common.security.dto;
 
+import java.util.Collection;
+import java.util.List;
 import lombok.Getter;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.util.Collection;
-import java.util.List;
 
 @Getter
 public class AuthAccount {

@@ -4,7 +4,6 @@ import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
-
     private final AuthAccount authAccount;
 
     public JwtAuthenticationToken(AuthAccount authAccount) {
