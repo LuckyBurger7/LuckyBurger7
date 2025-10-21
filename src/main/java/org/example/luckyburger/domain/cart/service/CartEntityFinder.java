@@ -1,16 +1,23 @@
 package org.example.luckyburger.domain.cart.service;
 
-import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.cart.entity.Cart;
+import org.example.luckyburger.domain.cart.exception.CartNotFoundException;
+import org.example.luckyburger.domain.cart.repository.CartRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Transactional(readOnly = true)
 public class CartEntityFinder {
 
-    // TODO: OrElseThrow NOTFOUND
-    public Cart getCartByUserId(@NotNull Long userId) {
-        return null;
+    private final CartRepository cartRepository;
+
+    // userId로 찾기
+    public Cart getCartByUserId(Long userId) {
+        return cartRepository.findByUserId(userId)
+                .orElseThrow(CartNotFoundException::new);
     }
 }
