@@ -2,12 +2,12 @@ package org.example.luckyburger.domain.order.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
+import org.example.luckyburger.domain.order.exception.OrderNotCancelableException;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.user.entity.User;
 
@@ -50,6 +50,8 @@ public class Order extends BaseIdEntity {
 
     private long totalPrice;
 
+    private long pay;
+
     @Column(nullable = false)
     private LocalDateTime orderDate;
 
@@ -68,6 +70,7 @@ public class Order extends BaseIdEntity {
             Coupon coupon,
             Integer point,
             long totalPrice,
+            long pay,
             LocalDateTime orderDate,
             OrderStatus status) {
         this.shop = shop;
@@ -80,11 +83,11 @@ public class Order extends BaseIdEntity {
         this.coupon = coupon;
         this.point = point;
         this.totalPrice = totalPrice;
+        this.pay = pay;
         this.orderDate = orderDate;
         this.status = status;
     }
 
-    @Builder
     public static Order of(
             Shop shop,
             User user,
@@ -96,6 +99,7 @@ public class Order extends BaseIdEntity {
             Coupon coupon,
             Integer point,
             long totalPrice,
+            long pay,
             LocalDateTime orderDate,
             OrderStatus status) {
         return new Order(
@@ -109,9 +113,14 @@ public class Order extends BaseIdEntity {
                 coupon,
                 point,
                 totalPrice,
+                pay,
                 orderDate,
                 status
         );
     }
 
+    public void cancelByUser() {
+        if (this.status == OrderStatus.WAITING) this.status = OrderStatus.CANCEL;
+        else throw new OrderNotCancelableException();
+    }
 }

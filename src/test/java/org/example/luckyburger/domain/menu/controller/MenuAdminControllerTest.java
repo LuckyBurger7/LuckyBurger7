@@ -133,7 +133,7 @@ public class MenuAdminControllerTest {
 
         mockMvc.perform(delete("/api/v1/admin/menus/{menuId}", menuId)
                         .with(csrf()))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @Test

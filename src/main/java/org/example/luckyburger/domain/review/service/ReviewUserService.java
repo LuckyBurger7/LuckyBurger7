@@ -54,7 +54,7 @@ public class ReviewUserService {
         // 1) 리뷰 존재여부 확인
         Review review = reviewEntityFinder.getReviewById(reviewId);
         validateReviewAuthorOrThrow(review, authUser);
-        
+
         return ReviewResponse.from(review);
     }
 
