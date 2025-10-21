@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record CouponResponse(
+        Long id,
+
         String name,
 
         Double discount,
@@ -23,6 +25,7 @@ public record CouponResponse(
 ) {
     public static CouponResponse of(Coupon coupon) {
         return CouponResponse.builder()
+                .id(coupon.getId())
                 .name(coupon.getName())
                 .discount(coupon.getDiscount())
                 .count(coupon.getCount())
@@ -34,6 +37,7 @@ public record CouponResponse(
 
     public static CouponResponse from(Coupon coupon) {
         return CouponResponse.builder()
+                .id(coupon.getId())
                 .name(coupon.getName())
                 .discount(coupon.getDiscount())
                 .count(coupon.getCount())

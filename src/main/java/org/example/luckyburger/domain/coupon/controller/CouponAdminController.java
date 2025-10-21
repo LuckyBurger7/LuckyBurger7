@@ -43,6 +43,6 @@ public class CouponAdminController {
     @GetMapping("/v1/admin/coupons/availability")
     public ResponseEntity<ApiPageResponse<CouponResponse>> getAllCouponsByAvailable(
             @PageableDefault Pageable pageable) {
-        return ApiPageResponse.success(couponAdminService.getAllCouponByAvailable(pageable));
+        return ApiPageResponse.success(couponAdminService.getAllAvailableCoupon(pageable));
     }
 }

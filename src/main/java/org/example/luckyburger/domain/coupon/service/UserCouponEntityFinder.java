@@ -1,0 +1,45 @@
+package org.example.luckyburger.domain.coupon.service;
+
+import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.security.utils.AuthAccountUtil;
+import org.example.luckyburger.domain.coupon.entity.Coupon;
+import org.example.luckyburger.domain.coupon.entity.UserCoupon;
+import org.example.luckyburger.domain.coupon.exception.CouponExpiredException;
+import org.example.luckyburger.domain.coupon.exception.UserCouponNotFoundException;
+import org.example.luckyburger.domain.coupon.repository.UserCouponRepository;
+import org.example.luckyburger.domain.user.entity.User;
+import org.example.luckyburger.domain.user.service.UserEntityFinder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class UserCouponEntityFinder {
+
+    private final UserCouponRepository userCouponRepository;
+    private final UserEntityFinder userEntityFinder;
+
+    /**
+     * 로그인한 유저의 보유 쿠폰을 반환
+     *
+     * @param coupon 쿠폰 엔티티
+     * @return 유저 쿠폰 엔티티 반환
+     */
+    public UserCoupon getVerifiedUserCouponByCoupon(Coupon coupon) {
+
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+        UserCoupon userCoupon = userCouponRepository.findByUserAndCoupon(user, coupon).orElseThrow(
+                UserCouponNotFoundException::new
+        );
+
+        if (userCoupon.getCoupon().getDeletedAt() != null // 쿠폰이 삭제됐는지
+                || userCoupon.getCoupon().isExpired() // 쿠폰이 만료됐는지
+                || userCoupon.getUsedDate() != null // 쿠폰이 사용됐는지
+        ) {
+            throw new CouponExpiredException();
+        }
+
+        return userCoupon;
+    }
+}

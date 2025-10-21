@@ -31,4 +31,15 @@ public class UserEntityFinder {
 
         return user;
     }
+
+    public User getUserByAccountId(Long accountId) {
+        User user = userRepository.findByAccountId(accountId).orElseThrow(
+                UserNotFoundException::new
+        );
+
+        if (user.getAccount().getDeletedAt() != null)
+            throw new UserNotFoundException();
+
+        return user;
+    }
 }

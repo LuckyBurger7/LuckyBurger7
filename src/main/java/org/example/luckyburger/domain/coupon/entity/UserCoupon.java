@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
+import org.example.luckyburger.domain.coupon.exception.CouponExpiredException;
 import org.example.luckyburger.domain.user.entity.User;
 
 import java.time.LocalDateTime;
@@ -40,6 +41,13 @@ public class UserCoupon extends BaseIdEntity {
     }
 
     public void useCoupon() {
+        if (this.coupon.getDeletedAt() != null // 쿠폰이 삭제됐는지
+                || this.coupon.isExpired() // 쿠폰이 만료됐는지
+                || this.usedDate != null) // 쿠폰이 사용됐는지
+        {
+            throw new CouponExpiredException();
+        }
+
         this.usedDate = LocalDateTime.now();
     }
 }

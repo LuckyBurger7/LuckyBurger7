@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseEntity;
 import org.example.luckyburger.domain.coupon.enums.CouponType;
+import org.example.luckyburger.domain.coupon.exception.CouponOutOfStockException;
 
 import java.time.LocalDateTime;
 
@@ -64,5 +65,16 @@ public class Coupon extends BaseEntity {
         this.count = count;
         this.expirationDate = expirationDate;
         this.type = type;
+    }
+
+    public void issueCoupon() {
+        if (count <= 0)
+            throw new CouponOutOfStockException();
+
+        this.count -= 1;
+    }
+
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expirationDate);
     }
 }
