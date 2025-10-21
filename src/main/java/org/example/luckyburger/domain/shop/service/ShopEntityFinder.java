@@ -15,7 +15,7 @@ public class ShopEntityFinder {
     private final ShopRepository shopRepository;
 
     @Transactional(readOnly = true)
-    public Shop getShopEntity(Long shopId){
+    public Shop getShopById(Long shopId){
         Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new ShopException(ShopErrorCode.SHOP_NOT_FOUND));
 
