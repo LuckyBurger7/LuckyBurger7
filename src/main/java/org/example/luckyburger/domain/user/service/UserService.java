@@ -101,4 +101,13 @@ public class UserService {
         if (userRepository.existsUserByPhone(phone))
             throw new DuplicatePhoneException();
     }
+
+
+    // TODO:
+    public void deductPoints(Long userId, Integer usePoint) {
+    }
+
+    // TODO:
+    public void addPoints(Long userId, Integer addedPoint) {
+    }
 }
