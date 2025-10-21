@@ -182,7 +182,7 @@ public class ReviewUserServiceTest {
         given(review.getCreatedAt()).willReturn(LocalDateTime.now());
         given(review.getModifiedAt()).willReturn(LocalDateTime.now());
 
-        given(reviewEntityFinder.getReview(reviewId)).willReturn(review);
+        given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
         // when
         ReviewResponse response = reviewUserService.getOrderReview(reviewId, authAccount);
@@ -195,7 +195,7 @@ public class ReviewUserServiceTest {
         assertThat(response.createdAt()).isNotNull();
         assertThat(response.modifiedAt()).isNotNull();
 
-        verify(reviewEntityFinder).getReview(reviewId);
+        verify(reviewEntityFinder).getReviewById(reviewId);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class ReviewUserServiceTest {
         Review review = mock(Review.class);
         given(review.getUser()).willReturn(user);
 
-        given(reviewEntityFinder.getReview(reviewId)).willReturn(review);
+        given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
         // when
         reviewUserService.deleteReview(reviewId, auth);

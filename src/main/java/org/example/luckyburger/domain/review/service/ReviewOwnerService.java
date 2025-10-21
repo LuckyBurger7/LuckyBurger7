@@ -33,7 +33,7 @@ public class ReviewOwnerService {
 
     @Transactional
     public ReviewResponse createComment(Long reviewId, CommentRequest request) {
-        Review review = reviewEntityFinder.getReview(reviewId);
+        Review review = reviewEntityFinder.getReviewById(reviewId);
 
         if (review.getComment() != null && !review.getComment().isEmpty()) {
             throw new CommentAlreadyExistsException();

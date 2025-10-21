@@ -15,7 +15,7 @@ public class ReviewEntityFinder {
 
     private final ReviewRepository reviewRepository;
 
-    public Review getReview(Long reviewId) {
+    public Review getReviewById(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(
                 ReviewNotFoundException::new);
         if (review.getDeletedAt() != null) {

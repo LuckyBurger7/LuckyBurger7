@@ -7,7 +7,7 @@ import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
-import org.example.luckyburger.domain.review.exception.UnauthorizedReviewException;
+import org.example.luckyburger.domain.review.exception.ReviewUnauthorizedException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class ReviewUserService {
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getAccount().getId().equals(authAccount.getAccountId())) {
-            throw new UnauthorizedReviewException();
+            throw new ReviewUnauthorizedException();
         }
 
         Review review = Review.of(
@@ -44,7 +44,7 @@ public class ReviewUserService {
     @Transactional(readOnly = true)
     public ReviewResponse getOrderReview(Long reviewId, AuthAccount authAccount) {
         // 1) 리뷰 존재여부 확인
-        Review review = reviewEntityFinder.getReview(reviewId);
+        Review review = reviewEntityFinder.getReviewById(reviewId);
         validateReviewAuthorOrThrow(review, authAccount);
         return ReviewResponse.from(review);
     }
@@ -52,7 +52,7 @@ public class ReviewUserService {
     // 리뷰 수정
     @Transactional
     public ReviewResponse updateReview(ReviewRequest request, Long reviewId, AuthAccount authAccount) {
-        Review review = reviewEntityFinder.getReview(reviewId);
+        Review review = reviewEntityFinder.getReviewById(reviewId);
         validateReviewAuthorOrThrow(review, authAccount);
 
         review.update(request.content(), request.rating());
@@ -61,7 +61,7 @@ public class ReviewUserService {
 
     @Transactional
     public void deleteReview(Long reviewId, AuthAccount authAccount) {
-        Review review = reviewEntityFinder.getReview(reviewId);
+        Review review = reviewEntityFinder.getReviewById(reviewId);
         validateReviewAuthorOrThrow(review, authAccount);
         review.delete();
     }
@@ -69,7 +69,7 @@ public class ReviewUserService {
     private void validateReviewAuthorOrThrow(Review review, AuthAccount auth) {
         Long writerAccountId = review.getUser().getAccount().getId();
         if (!writerAccountId.equals(auth.getAccountId())) {
-            throw new UnauthorizedReviewException();
+            throw new ReviewUnauthorizedException();
         }
     }
 }

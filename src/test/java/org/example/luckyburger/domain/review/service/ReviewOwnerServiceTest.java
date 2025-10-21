@@ -98,7 +98,7 @@ public class ReviewOwnerServiceTest {
         given(review.getCreatedAt()).willReturn(LocalDateTime.now());
         given(review.getModifiedAt()).willReturn(LocalDateTime.now());
 
-        given(reviewEntityFinder.getReview(reviewId)).willReturn(review);
+        given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
         // when
         ReviewResponse res = reviewOwnerService.createComment(reviewId, request);
@@ -107,6 +107,6 @@ public class ReviewOwnerServiceTest {
         assertThat(res.id()).isEqualTo(reviewId);
         assertThat(res.comment()).isEqualTo(newComment);
 
-        verify(reviewEntityFinder).getReview(reviewId);
+        verify(reviewEntityFinder).getReviewById(reviewId);
     }
 }
