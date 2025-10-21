@@ -44,12 +44,12 @@ public class ShopAdminController {
         return ApiResponse.noContent();
     }
 
-//    @GetMapping("/v1/admin/shops/sales/total")
-//    public ResponseEntity<ApiResponse<Integer>> getTotalSaleByShop(Long shopId){
-//
-//        Integer total = shopService.getTotal(shopId);
-//
-//        return ApiResponse.success(total);
-//    }
+    @GetMapping("/v1/admin/shops/sales/total/{shopId}")
+    public ResponseEntity<ApiResponse<Integer>> getTotalSaleByShop(@PathVariable Long shopId){
+
+        Integer total = shopService.getTotal(shopId);
+
+        return ApiResponse.success(total);
+    }
 
 }

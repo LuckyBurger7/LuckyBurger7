@@ -12,7 +12,9 @@ import org.example.luckyburger.domain.shop.service.ShopService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -41,14 +43,14 @@ public class ShopOwnerController {
 //
 //    }
 
-//    @GetMapping("/owner/shops/{shopId}/ratings")
-//    public ResponseEntity<ApiResponse<Integer>> getRatingByShop(@PathVariable Long shopId){
-//
-//        int ratingByShop = shopService.getRatingByShop(shopId);
-//
-//        return ApiResponse.success(ratingByShop);
-//    }
-//
+    @GetMapping("/v1/owner/shops/{shopId}/ratings")
+    public ResponseEntity<ApiResponse<Double>> getRatingByShop(@PathVariable Long shopId){
+
+        double ratingByShop = shopService.getRatingByShop(shopId);
+
+        return ApiResponse.success(ratingByShop);
+    }
+
 //    @PutMapping("/owner/shops/{shopId}/coupons/{couponId}/availability")
 //    public boolean couponAvailabilityByOwner(@PathVariable Long shopId,
 //                                             @PathVariable Long couponId){
@@ -58,15 +60,17 @@ public class ShopOwnerController {
 //        return couponListByShopId;
 //    }
 
-//    @GetMapping("/v1/owner/shops/{shopId}/orders/daily?date=YYYY-MM-DD")
-//    public List<Order> getOrderTodayByShop(@RequestParam LocalDateTime localDateTime,
-//                                           @PathVariable Long shopId){
-//
-//        List<Order> orderTodayByShop = shopService.getOrderTodayByShop(localDateTime, shopId);
-//
-//        return orderTodayByShop;
-//
-//    }
+    @GetMapping("/v1/owner/shops/{shopId}/orders/daily")
+    public List<Order> getOrderTodayByShop(@RequestParam LocalDate date,
+                                           @PathVariable Long shopId){
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.atTime(LocalTime.MAX);
+
+        List<Order> orderTodayByShop = shopService.getOrderTodayByShop(start, end, shopId);
+
+        return orderTodayByShop;
+
+    }
 //
 //    @GetMapping("/v1/owner/shops/{shopId}/sales/daily?date=YYYY-MM-DD")
 //    public ResponseEntity<ApiResponse<Integer>> getTotalOrderPrice(@PathVariable Long shopId, @RequestParam LocalDateTime localDateTime){
