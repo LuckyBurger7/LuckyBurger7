@@ -8,6 +8,7 @@ import org.example.luckyburger.common.entity.BaseIdEntity;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.order.exception.OrderNotCancelableException;
+import org.example.luckyburger.domain.order.exception.OrderStatusInvalidUpdateException;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.user.entity.User;
 
@@ -122,5 +123,25 @@ public class Order extends BaseIdEntity {
     public void cancelByUser() {
         if (this.status == OrderStatus.WAITING) this.status = OrderStatus.CANCEL;
         else throw new OrderNotCancelableException();
+    }
+
+    public void updateStatusByOwner(OrderStatus status) {
+        if (this.status == status) return;
+
+        switch (this.status) {
+            case WAITING -> {
+                if (status == OrderStatus.COOKING || status == OrderStatus.CANCEL) this.status = status;
+                else throw new OrderStatusInvalidUpdateException();
+            }
+            case COOKING -> {
+                if (status == OrderStatus.ON_DELIVERY) this.status = status;
+                else throw new OrderStatusInvalidUpdateException();
+            }
+            case ON_DELIVERY -> {
+                if (status == OrderStatus.COMPLETED) this.status = status;
+                else throw new OrderStatusInvalidUpdateException();
+            }
+            default -> throw new OrderStatusInvalidUpdateException();
+        }
     }
 }
