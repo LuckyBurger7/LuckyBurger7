@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.order.repository;
 
 import org.example.luckyburger.domain.order.entity.Order;
+import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @EntityGraph(attributePaths = {"user", "shop"})
     Optional<Order> findById(Long orderId);
+
+    long countByStatusNot(OrderStatus status);
 }
