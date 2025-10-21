@@ -25,6 +25,12 @@ public class DummyDataLoader implements CommandLineRunner {
                 "관리자"
         ), AccountRole.ROLE_ADMIN);
 
+        authService.createAccount(new AccountSignupRequest(
+                "owner@naver.com",
+                "password",
+                "점주"
+        ), AccountRole.ROLE_OWNER);
+
         userService.createUser(new UserSignupRequest(
                 "user1@naver.com",
                 "password",

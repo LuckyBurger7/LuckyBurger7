@@ -32,14 +32,15 @@ public class ReviewOwnerController {
     public ResponseEntity<ApiPageResponse<ReviewResponse>> getShopReviews(
             @PageableDefault Pageable pageable,
             @PathVariable Long shopId) {
-        return ApiPageResponse.success(reviewOwnerService.getShopReviews(pageable, shopId));
+        return ApiPageResponse.success(reviewOwnerService.getShopReviewsResponse(pageable, shopId));
     }
 
     // 리뷰에 대한 댓글 작성
     @PostMapping("/v1/owner/reviews/{reviewId}/comments")
-    public ResponseEntity<ApiResponse<ReviewResponse>> createComment(
+    public ResponseEntity<ApiResponse<Void>> createComment(
             @PathVariable Long reviewId,
             @Valid @RequestBody CommentRequest request) {
-        return ApiResponse.success(reviewOwnerService.createComment(reviewId, request));
+        reviewOwnerService.createComment(reviewId, request);
+        return ApiResponse.noContent();
     }
 }
