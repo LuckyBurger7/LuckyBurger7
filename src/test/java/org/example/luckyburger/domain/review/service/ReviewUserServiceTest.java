@@ -5,14 +5,13 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
-import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.entity.Account;
-import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
@@ -26,12 +25,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewUserService 테스트")
 public class ReviewUserServiceTest {
 
+    @Spy
     @InjectMocks
     private ReviewUserService reviewUserService;
 
@@ -51,7 +52,12 @@ public class ReviewUserServiceTest {
         Long accountId = 1L;
         Long orderId = 100L;
 
-        AuthAccount authAccount = new AuthAccount(accountId, "user@test.com", AccountRole.ROLE_USER);
+        // 인증 사용자
+        Account authAccount = mock(Account.class);
+        given(authAccount.getId()).willReturn(accountId);
+        User authUser = mock(User.class);
+        given(authUser.getAccount()).willReturn(authAccount);
+        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
 
         // 리뷰에 대한 소유권과 점포 일치 하는지 검증을 위한 로직
         Account account = mock(Account.class);
@@ -79,7 +85,7 @@ public class ReviewUserServiceTest {
         given(reviewRepository.save(any())).willReturn(savedReview);
 
         // when
-        ReviewResponse response = reviewUserService.createOrderReviewResponse(authAccount, orderId, request);
+        ReviewResponse response = reviewUserService.createOrderReviewResponse(orderId, request);
 
         // then
         assertThat(response).isNotNull();
@@ -101,7 +107,12 @@ public class ReviewUserServiceTest {
         Long otherAccountId = 2L;
         Long orderId = 100L;
 
-        AuthAccount authAccount = new AuthAccount(accountId, "user@test.com", AccountRole.ROLE_USER);
+        // 사용자 인증
+        Account authAccount = mock(Account.class);
+        given(authAccount.getId()).willReturn(accountId);
+        User authUser = mock(User.class);
+        given(authUser.getAccount()).willReturn(authAccount);
+        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
 
         // 주문을 한 사람이 다른 상황일때 로직
         Account otherAccount = mock(Account.class);
@@ -122,7 +133,7 @@ public class ReviewUserServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                reviewUserService.createOrderReviewResponse(authAccount, orderId, request)
+                reviewUserService.createOrderReviewResponse(orderId, request)
         )
                 .isInstanceOf(ReviewUnauthorizedException.class)
                 .hasMessage("본인이 작성한 리뷰가 아닙니다.");
@@ -135,10 +146,12 @@ public class ReviewUserServiceTest {
     @DisplayName("존재하지 않는 주문 ID - 실패")
     void createOrderReview_OrderNotFound_ThrowsException() {
         // given
-        Long accountId = 1L;
         Long orderId = 999L;
 
-        AuthAccount authAccount = new AuthAccount(accountId, "user@test.com", AccountRole.ROLE_USER);
+        // 인증 사용자(User)
+        Account authAccount = mock(Account.class);
+        User authUser = mock(User.class);
+        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
 
         ReviewRequest request = new ReviewRequest(
                 "맛있어요",
@@ -150,7 +163,7 @@ public class ReviewUserServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                reviewUserService.createOrderReviewResponse(authAccount, orderId, request)
+                reviewUserService.createOrderReviewResponse(orderId, request)
         )
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("주문을 찾을 수 없습니다.");
@@ -166,7 +179,12 @@ public class ReviewUserServiceTest {
         Long accountId = 1L;
         Long reviewId = 10L;
 
-        AuthAccount authAccount = new AuthAccount(accountId, "user@test.com", AccountRole.ROLE_USER);
+        // 인증 사용자(User)
+        Account authAccount = mock(Account.class);
+        given(authAccount.getId()).willReturn(accountId);
+        User authUser = mock(User.class);
+        given(authUser.getAccount()).willReturn(authAccount);
+        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
 
         Account account = mock(Account.class);
         given(account.getId()).willReturn(accountId);
@@ -185,7 +203,7 @@ public class ReviewUserServiceTest {
         given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
         // when
-        ReviewResponse response = reviewUserService.getOrderReviewResponse(reviewId, authAccount);
+        ReviewResponse response = reviewUserService.getOrderReviewResponse(reviewId);
 
         // then
         assertThat(response).isNotNull();
@@ -204,7 +222,13 @@ public class ReviewUserServiceTest {
         // given
         Long accountId = 1L;
         Long reviewId = 11L;
-        AuthAccount auth = new AuthAccount(accountId, "user@test.com", AccountRole.ROLE_USER);
+
+        // 인증 사용자(User)
+        Account authAccount = mock(Account.class);
+        given(authAccount.getId()).willReturn(accountId);
+        User authUser = mock(User.class);
+        given(authUser.getAccount()).willReturn(authAccount);
+        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
 
         Account account = mock(Account.class);
         given(account.getId()).willReturn(accountId);
@@ -218,7 +242,7 @@ public class ReviewUserServiceTest {
         given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
         // when
-        reviewUserService.deleteReview(reviewId, auth);
+        reviewUserService.deleteReview(reviewId);
 
         // then
         verify(reviewRepository, never()).delete(any());
