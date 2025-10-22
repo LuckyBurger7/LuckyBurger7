@@ -108,8 +108,7 @@ public class AuthService {
         // 권한이 사용자인지 검사
         if (authAccount.getRole() != AccountRole.ROLE_USER)
             throw new NoAuthorityException();
-
-
+        
         account.delete();
     }
 
