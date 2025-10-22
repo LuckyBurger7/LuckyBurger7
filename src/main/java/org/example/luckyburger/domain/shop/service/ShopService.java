@@ -25,20 +25,13 @@ public class ShopService {
     private final ShopMenuRepository shopMenuRepository;
     private final ShopMenuEntityFinder shopMenuEntityFinder;
 
-    public Page<ShopResponse> getShopDetail(String shopName, Pageable pageable) {
-
-        Page<Shop> shops;
-
-        if (shopName != null && !shopName.isBlank()) {
-            shops = shopRepository.findByNameContaining(shopName, pageable);
-        } else {
-            shops = shopRepository.findAll(pageable);
-        }
+    public Page<ShopResponse> searchShopByName(String shopName, Pageable pageable) {
+        Page<Shop> shops = shopRepository.findAllByNameContaining(shopName, pageable);
 
         return shops.map(ShopResponse::from);
     }
 
-    public Page<ShopMenuResponse> getAllShopMenuResponse(Long shopId, Pageable pageable) {
+    public Page<ShopMenuResponse> getAllShopMenuByShopIdResponse(Long shopId, Pageable pageable) {
 
         Page<ShopMenu> shopMenus = shopMenuRepository.findByShopIdAndStatusIsNot(shopId, ShopMenuStatus.DEACTIVATE, pageable);
 

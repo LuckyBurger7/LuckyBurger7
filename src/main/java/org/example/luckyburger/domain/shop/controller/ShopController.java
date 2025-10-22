@@ -19,14 +19,14 @@ public class ShopController {
     private final ShopService shopService;
 
     @GetMapping("/v1/shops/search")
-    public ResponseEntity<ApiPageResponse<ShopResponse>> findShopDetail(
+    public ResponseEntity<ApiPageResponse<ShopResponse>> searchShopDetail(
             @RequestParam(required = false) String shopName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
 
-        return ApiPageResponse.success(shopService.getShopDetail(shopName, pageable));
+        return ApiPageResponse.success(shopService.searchShopByName(shopName, pageable));
     }
 
     @GetMapping("/v1/shops/{shopId}/shop-menus")
@@ -37,7 +37,7 @@ public class ShopController {
     ) {
         PageRequest pageable = PageRequest.of(page, size);
 
-        return ApiPageResponse.success(shopService.getAllShopMenuResponse(shopId, pageable));
+        return ApiPageResponse.success(shopService.getAllShopMenuByShopIdResponse(shopId, pageable));
     }
 
     @GetMapping("/v1/shops/{shopId}/shop-menus/{shopMenuId}")
