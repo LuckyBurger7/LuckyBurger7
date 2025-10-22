@@ -2,17 +2,15 @@ package org.example.luckyburger.domain.shop.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
+import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.example.luckyburger.domain.shop.repository.ShopRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,40 +21,38 @@ public class ShopAdminService {
     private final OrderEntityFinder orderEntityFinder;
 
     @Transactional
-    public ShopResponse createShop(ShopRequest shopRequest) {
+    public ShopResponse createShop(ShopRequest request) {
+        // 초기 매장 상태 Close
+        Shop shopEntity = Shop.of(request.name(), BusinessStatus.CLOSED, request.address(), request.street());
 
-        Shop shopEntity = Shop.of(shopRequest.getName(), shopRequest.getStatus(), shopRequest.getAddress(),shopRequest.getStreet());
-
-        shopRepository.save(shopEntity);
-
-        return ShopResponse.from(shopEntity);
+        return ShopResponse.from(shopRepository.save(shopEntity));
 
     }
 
     // 상점의 상태를 변경
     @Transactional
-    public Shop updateStatus(Long shopId,
-                             BusinessStatus shopStatus) {
+    public Shop updateShopStatus(Long shopId,
+                                 ShopUpdateRequest request) {
 
         Shop shopEntity = shopEntityFinder.getShopById(shopId);
 
-        shopEntity.changeShop(shopStatus);
+        shopEntity.updateShopStatus(request.businessStatus());
 
         return shopEntity;
     }
 
     // 상점의 정보를 수정
     @Transactional
-    public ShopResponse updateShop(Long shopId, ShopRequest shopRequest) {
+    public ShopResponse updateShop(Long shopId, ShopRequest request) {
 
         Shop shopEntity = shopEntityFinder.getShopById(shopId);
 
-        shopEntity.updateOfShop(shopRequest.getName(),shopRequest.getStatus(),shopRequest.getAddress(),shopRequest.getStreet());
+        shopEntity.updateShop(request.name(), request.address(), request.street());
 
         return ShopResponse.from(shopEntity);
     }
 
-    // 상점 삭제 soft로 변경
+    // 상점 삭제
     @Transactional
     public void deleteShop(Long shopId) {
 
@@ -64,19 +60,19 @@ public class ShopAdminService {
 
     }
 
-    //점포 총 매출 조회
+    // 점포 총 매출 조회
     @Transactional(readOnly = true)
-    public int getTotal(Long shopId){
+    public Long getTotalPrice(Long shopId) {
 
-        int totalPrice = 0;
+        Shop shop = shopEntityFinder.getShopById(shopId);
 
-        List<Order> orderListByShop = orderEntityFinder.getAllOrderByShopId(shopId);
+        return orderEntityFinder.getTotalPrice(shop);
+    }
 
-        for (Order order : orderListByShop) {
-            totalPrice += order.getTotalPrice();
-        }
-
-        return totalPrice;
+    // 점포 총 갯수
+    @Transactional(readOnly = true)
+    public long getTotalStoreCount() {
+        return shopRepository.count();
     }
 
 }

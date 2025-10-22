@@ -40,7 +40,7 @@ public class ShopOwnerService {
 
         Shop shopEntity = shopEntityFinder.getShopById(shopId);
 
-        shopEntity.changeShop(shopStatus);
+        shopEntity.updateShopStatus(shopStatus);
 
         return shopEntity;
     }
@@ -75,7 +75,9 @@ public class ShopOwnerService {
         double totalRating = 0;
         double count = 0;
 
-        List<Review> reviewList = null;
+        Shop shop = shopEntityFinder.getShopById(shopId);
+
+        List<Review> reviewList = reviewEntityFinder.getReviewListByShop(shop);
 
         for (Review review : reviewList) {
             totalRating += review.getRating();

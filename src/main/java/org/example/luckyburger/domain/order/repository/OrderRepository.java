@@ -26,4 +26,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findById(Long orderId);
 
     long countByStatusNot(OrderStatus status);
+
+    Long findSumOfTotalPriceByShop(Shop shop);
 }
