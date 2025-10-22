@@ -77,4 +77,11 @@ public class Coupon extends BaseEntity {
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expirationDate);
     }
+
+    public long calculateDiscount(long totalPrice) {
+        if (type == CouponType.FIXED) {
+            return Math.round(discount);
+        }
+        return Math.round(totalPrice * discount);
+    }
 }

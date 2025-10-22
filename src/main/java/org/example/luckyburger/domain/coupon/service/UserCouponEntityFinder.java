@@ -12,6 +12,8 @@ import org.example.luckyburger.domain.user.service.UserEntityFinder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,5 +43,17 @@ public class UserCouponEntityFinder {
         }
 
         return userCoupon;
+    }
+
+    public UserCoupon getUserCouponByCoupon(Coupon coupon) {
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+
+        return userCouponRepository.findByUserAndCoupon(user, coupon).orElseThrow(
+                UserCouponNotFoundException::new
+        );
+    }
+
+    public List<UserCoupon> getAllVerifiedUserCouponByUserId(Long userId) {
+        return userCouponRepository.findAvailableByUserId(userId);
     }
 }

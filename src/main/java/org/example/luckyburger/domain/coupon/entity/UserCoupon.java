@@ -50,4 +50,8 @@ public class UserCoupon extends BaseIdEntity {
 
         this.usedDate = LocalDateTime.now();
     }
+
+    public void restoreCoupon() {
+        this.usedDate = null;
+    }
 }
