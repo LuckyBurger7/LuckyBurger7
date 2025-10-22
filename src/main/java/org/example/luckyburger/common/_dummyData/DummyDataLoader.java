@@ -155,9 +155,24 @@ public class DummyDataLoader implements CommandLineRunner {
                 .status(OrderStatus.COMPLETED)
                 .build();
 
+        Order order4 = Order.builder()
+                .shop(shop2)
+                .user(user1)
+                .receiver("김기수")
+                .phone("010-3333-5555")
+                .address("서울시 마포구 양화로 123")
+                .street("홍대거리 3길 9")
+                .request(null)
+                .point(0)
+                .totalPrice(20000)
+                .orderDate(LocalDateTime.now().plusDays(1))
+                .status(OrderStatus.COMPLETED)
+                .build();
+
         orderRepository.save(order1);
         orderRepository.save(order2);
         orderRepository.save(order3);
+        orderRepository.save(order4);
 
         Review review1 = Review.builder()
                 .user(user1)

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @Secured(AccountRole.Authority.ADMIN)
 public class ShopAdminController {
 
-    private final ShopService shopService;
     private final ShopAdminService shopAdminService;
 
     @PostMapping("/v1/admin/shops")
@@ -43,7 +42,7 @@ public class ShopAdminController {
     @DeleteMapping("/v1/admin/shops/{shopId}")
     public ResponseEntity<ApiResponse<Void>> deleteShop(@PathVariable Long shopId) {
 
-        shopAdminService.deleteShop(shopId);
+            shopAdminService.deleteShop(shopId);
 
         return ApiResponse.noContent();
     }

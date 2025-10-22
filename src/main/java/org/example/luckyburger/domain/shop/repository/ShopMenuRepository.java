@@ -16,8 +16,6 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Id> {
 
     List<ShopMenu> getAllByShopId(Long shopId);
 
-    ShopMenu getByMenuId(Long menuId);
-
     @Query("SELECT sm FROM ShopMenu sm JOIN FETCH sm.menu WHERE sm.shop.id = :shopId")
     Page<ShopMenu> getByShopId(@Param("shopId")Long shopId, PageRequest pageRequest);
 }

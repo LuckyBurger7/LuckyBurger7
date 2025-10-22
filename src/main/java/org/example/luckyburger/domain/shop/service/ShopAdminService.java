@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.shop.service;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShopAdminService {
 
     private final ShopRepository shopRepository;
@@ -50,14 +51,9 @@ public class ShopAdminService {
 
         Shop shopEntity = shopEntityFinder.getShopById(shopId);
 
-        Shop updatedShop = shopEntity.updateOf(shopRequest.getName(),
-                shopRequest.getStatus(),
-                shopRequest.getAddress(),
-                shopRequest.getStreet());
+        shopEntity.updateOfShop(shopRequest.getName(),shopRequest.getStatus(),shopRequest.getAddress(),shopRequest.getStreet());
 
-        shopRepository.save(updatedShop);
-
-        return ShopResponse.from(updatedShop);
+        return ShopResponse.from(shopEntity);
     }
 
     // 상점 삭제 soft로 변경

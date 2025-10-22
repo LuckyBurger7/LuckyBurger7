@@ -1,6 +1,8 @@
 package org.example.luckyburger.domain.shop.service;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
@@ -25,7 +27,7 @@ import java.util.List;
 
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShopOwnerService {
 
     private final ShopEntityFinder shopEntityFinder;
@@ -45,7 +47,10 @@ public class ShopOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public int getTotalSaleByMonthWithShopId(Long shopId, int year, int month){
+    public int getTotalSaleByMonthWithShopId(Long shopId, LocalDate localDate){
+
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
 
         LocalDateTime start = LocalDate.of(year, month, 1).atStartOfDay();
         LocalDateTime end = LocalDate.of(year, month,

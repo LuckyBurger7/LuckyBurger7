@@ -33,9 +33,9 @@ public class ShopOwnerController {
     private final ShopMenuService shopMenuService;
     private final ShopOwnerService shopOwnerService;
 
-    @PutMapping("/v1/owner/shops/{shopId}/{shopStatus}")
+    @PutMapping("/v1/owner/shops/{shopId}")
     public ResponseEntity<ApiResponse<Shop>> changeShopStatus(@PathVariable Long shopId,
-                                                              @PathVariable BusinessStatus shopStatus) {
+                                                              @RequestBody BusinessStatus shopStatus) {
 
         Shop shop = shopOwnerService.updateStatus(shopId, shopStatus);
 
@@ -45,10 +45,9 @@ public class ShopOwnerController {
     //월 정산 조회
     @GetMapping("/v1/owner/shops/{shopId}/sales/monthly")
     public ResponseEntity<ApiResponse<Integer>> getTotalSaleByMonthWithShopId(@PathVariable Long shopId,
-                                                                              @RequestParam int year,
-                                                                              @RequestParam int month){
+                                                                              @RequestParam LocalDate date){
 
-        int totalSaleByMonthWithShopId = shopOwnerService.getTotalSaleByMonthWithShopId(shopId, year, month);
+        int totalSaleByMonthWithShopId = shopOwnerService.getTotalSaleByMonthWithShopId(shopId,date);
 
         return ApiResponse.success(totalSaleByMonthWithShopId);
 
@@ -101,10 +100,10 @@ public class ShopOwnerController {
     }
 
     //shopId는 접속된 로그인에서 추출해서 사용하도록 변경
-    @PutMapping("/v1/shops/{shopId}/menus/{menuId}/{shopMenuStatus}")
+    @PutMapping("/v1/owner/shops/{shopId}/menus/{menuId}")
     public ResponseEntity<ApiResponse<Menu>> updateMenuStatusByOwner(@PathVariable Long shopId,
                                                                      @PathVariable Long menuId,
-                                                                     @PathVariable ShopMenuStatus shopMenuStatus){
+                                                                     @RequestBody ShopMenuStatus shopMenuStatus){
         Menu menu = shopMenuService.updateMenuStatus(shopId, menuId,shopMenuStatus);
 
         return ApiResponse.success(menu);

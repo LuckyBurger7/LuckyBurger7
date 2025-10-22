@@ -1,4 +1,4 @@
-package org.example.luckyburger.domain.shop.exception.shopCode;
+package org.example.luckyburger.domain.shop.code;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

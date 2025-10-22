@@ -35,14 +35,12 @@ public class Shop extends BaseEntity {
         this.street = street;
     }
 
-    public Shop updateOf(String name, BusinessStatus status, String address, String street){
+    public void updateOfShop(String name, BusinessStatus status, String address, String street){
 
         this.name = name;
         this.status = status;
         this.address = address;
         this.street = street;
-
-        return this;
     }
 
     @Builder
@@ -54,4 +52,5 @@ public class Shop extends BaseEntity {
     public void changeShop(BusinessStatus status) {
         this.status = status;
     }
+
 }
