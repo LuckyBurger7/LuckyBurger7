@@ -2,7 +2,6 @@ package org.example.luckyburger.domain.cart.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
@@ -30,8 +29,11 @@ public class CartMenu extends BaseIdEntity {
         this.quantity = quantity;
     }
 
-    @Builder
     public static CartMenu of(Cart cart, ShopMenu shopMenu, int quantity) {
         return new CartMenu(cart, shopMenu, quantity);
+    }
+
+    public void updateQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }
