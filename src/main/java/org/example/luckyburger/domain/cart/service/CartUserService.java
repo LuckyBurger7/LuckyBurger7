@@ -46,7 +46,7 @@ public class CartUserService {
                 .orElseGet(() -> cartRepository.save(Cart.of(user, 0)));
 
         // shopMenu 및 cartMenus 조회
-        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenu(request.shopMenuId());
+        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(request.shopMenuId());
         List<CartMenu> cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
 
         CartMenu sameCartMenu = null;

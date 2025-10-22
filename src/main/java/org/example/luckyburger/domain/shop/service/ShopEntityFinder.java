@@ -16,15 +16,7 @@ public class ShopEntityFinder {
     private final ShopRepository shopRepository;
 
     public Shop getShopById(Long shopId) {
-
         return shopRepository.findById(shopId)
                 .orElseThrow(ShopNotFoundException::new);
     }
-
-    public Shop getShopByName(String shopName) {
-
-        return shopRepository.findByName(shopName)
-                .orElseThrow(ShopNotFoundException::new);
-    }
-
 }
