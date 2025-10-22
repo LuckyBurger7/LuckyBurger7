@@ -41,4 +41,8 @@ public class ShopMenu extends BaseIdEntity {
     public static ShopMenu of(Shop shop, Menu menu, ShopMenuStatus status, long salesVolume) {
         return new ShopMenu(shop, menu, status, salesVolume);
     }
+
+    public void changeShopMenuStatus(ShopMenuStatus status) {
+        this.status = status;
+    }
 }

@@ -27,7 +27,16 @@ public class Shop extends BaseEntity {
     @Column(length = 100, nullable = false)
     private String street;
 
+    @Builder
     private Shop(String name, BusinessStatus status, String address, String street) {
+        this.name = name;
+        this.status = status;
+        this.address = address;
+        this.street = street;
+    }
+
+    public void updateOfShop(String name, BusinessStatus status, String address, String street){
+
         this.name = name;
         this.status = status;
         this.address = address;
@@ -36,6 +45,12 @@ public class Shop extends BaseEntity {
 
     @Builder
     public static Shop of(String name, BusinessStatus status, String address, String street) {
+
         return new Shop(name, status, address, street);
     }
+
+    public void changeShop(BusinessStatus status) {
+        this.status = status;
+    }
+
 }
