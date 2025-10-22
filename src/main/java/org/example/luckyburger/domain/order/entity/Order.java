@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.order.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.luckyburger.common.entity.BaseIdEntity;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class Order extends BaseIdEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

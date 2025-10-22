@@ -45,4 +45,8 @@ public class ShopMenu extends BaseIdEntity {
     public void changeShopMenuStatus(ShopMenuStatus status) {
         this.status = status;
     }
+
+    public void increaseSalesVolume(long salesVolume) {
+        this.salesVolume += salesVolume;
+    }
 }

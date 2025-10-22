@@ -6,6 +6,10 @@ import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.entity.Owner;
 import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
 import org.example.luckyburger.domain.auth.service.OwnerEntityFinder;
+import org.example.luckyburger.domain.coupon.entity.Coupon;
+import org.example.luckyburger.domain.coupon.entity.UserCoupon;
+import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
+import org.example.luckyburger.domain.coupon.service.UserCouponEntityFinder;
 import org.example.luckyburger.domain.order.dto.request.OrderUpdateRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
@@ -37,6 +41,8 @@ public class OrderOwnerService {
     private final OrderMenuEntityFinder orderMenuEntityFinder;
     private final OwnerEntityFinder ownerEntityFinder;
     private final AccountEntityFinder accountEntityFinder;
+    private final UserCouponEntityFinder userCouponEntityFinder;
+    private final CouponEntityFinder couponEntityFinder;
     private final UserService userService;
 
     @Transactional(readOnly = true)
@@ -49,12 +55,7 @@ public class OrderOwnerService {
         }
 
         List<OrderMenuResponse> items = orderMenuEntityFinder.getAllOrderMenuByOrderId(orderId).stream()
-                .map(item -> OrderMenuResponse.of(
-                        item.getShopMenu().getId(),
-                        item.getShopMenu().getMenu().getName(),
-                        item.getShopMenu().getMenu().getPrice(),
-                        item.getQuantity()
-                ))
+                .map(OrderMenuResponse::from)
                 .toList();
         return OrderResponse.from(order, items);
     }
@@ -81,12 +82,7 @@ public class OrderOwnerService {
         List<OrderResponse> contents = orders.stream().map(order -> {
             List<OrderMenuResponse> items = itemsByOrderId.getOrDefault(order.getId(), List.of())
                     .stream()
-                    .map(om -> OrderMenuResponse.of(
-                            om.getShopMenu().getId(),
-                            om.getShopMenu().getMenu().getName(),
-                            om.getShopMenu().getMenu().getPrice(),
-                            om.getQuantity()
-                    ))
+                    .map(OrderMenuResponse::from)
                     .toList();
 
             return OrderResponse.from(order, items);
@@ -112,19 +108,28 @@ public class OrderOwnerService {
 
             // TODO: 결제 취소 및 환불
 
-            // TODO: 쿠폰 적용 취소
+            // 쿠폰 적용 취소
+            if (order.getCoupon() != null) {
+                Coupon coupon = couponEntityFinder.getCouponById(order.getCoupon().getId());
+                UserCoupon userCoupon = userCouponEntityFinder.getUserCouponByCoupon(coupon);
+                userCoupon.restoreCoupon();
+            }
 
             // 적립금 적용 취소
             Integer usedPoint = order.getPoint();
             if (usedPoint != null && usedPoint > 0) {
-                userService.addPoints(user.getId(), usedPoint);
+                userService.addPoints(user, usedPoint);
             }
-
-            // TODO: ShopMenu 판매량 증가 취소
 
         } else if (status == OrderStatus.COMPLETED) {
             int addedPoint = (int) (order.getTotalPrice() * UserConstant.POINT_RATIO);
-            userService.addPoints(user.getId(), addedPoint);
+            userService.addPoints(user, addedPoint);
+
+            // ShopMenu 별 판매량 증가
+            List<OrderMenu> orderMenus = orderMenuEntityFinder.getAllOrderMenuByOrderId(orderId);
+            for (OrderMenu om : orderMenus) {
+                om.getShopMenu().increaseSalesVolume(om.getQuantity());
+            }
         }
     }
 

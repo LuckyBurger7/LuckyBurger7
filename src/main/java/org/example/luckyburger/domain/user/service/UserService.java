@@ -103,11 +103,13 @@ public class UserService {
     }
 
 
-    // TODO:
-    public void deductPoints(Long userId, Integer usePoint) {
+    @Transactional
+    public void deductPoints(User user, Integer usePoint) {
+        user.usePoint(usePoint);
     }
 
-    // TODO:
-    public void addPoints(Long userId, Integer addedPoint) {
+    @Transactional
+    public void addPoints(User user, Integer addedPoint) {
+        user.accumulatePoint(addedPoint);
     }
 }

@@ -248,7 +248,7 @@ public class OrderOwnerServiceTest {
         // 사용 포인트 환원 호출 확인
         Integer usedPoint = order.getPoint();
         if (usedPoint != null && usedPoint > 0) {
-            verify(userService).addPoints(eq(user.getId()), eq(usedPoint));
+            verify(userService).addPoints(eq(user), eq(usedPoint));
         }
     }
 

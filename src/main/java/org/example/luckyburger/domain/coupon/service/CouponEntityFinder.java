@@ -12,14 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class CouponEntityFinder {
 
-  private final CouponRepository couponRepository;
+    private final CouponRepository couponRepository;
 
     public Coupon getCouponById(long id) {
-        Coupon coupon= couponRepository.findById(id).orElseThrow(
+        Coupon coupon = couponRepository.findById(id).orElseThrow(
                 CouponNotFoundException::new
         );
 
-        if(coupon.getDeletedAt()!=null){
+        if (coupon.getDeletedAt() != null) {
             throw new CouponNotFoundException();
         }
 

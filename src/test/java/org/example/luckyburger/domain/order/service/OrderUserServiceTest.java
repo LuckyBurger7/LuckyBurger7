@@ -9,7 +9,11 @@ import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
-import org.example.luckyburger.domain.cart.service.CartService;
+import org.example.luckyburger.domain.cart.service.CartMenuService;
+import org.example.luckyburger.domain.coupon.entity.Coupon;
+import org.example.luckyburger.domain.coupon.entity.UserCoupon;
+import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
+import org.example.luckyburger.domain.coupon.service.UserCouponEntityFinder;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.order.code.OrderErrorCode;
@@ -73,15 +77,20 @@ public class OrderUserServiceTest {
     @Mock
     private OrderMenuEntityFinder orderMenuEntityFinder;
     @Mock
+    private UserCouponEntityFinder userCouponEntityFinder;
+    @Mock
     private UserService userService;
     @Mock
-    private ShopEntityFinder shopEntityFinder;
+    private CartMenuService cartMenuService;
     @Mock
-    private CartService cartService;
+    private ShopEntityFinder shopEntityFinder;
     @Mock
     private CartEntityFinder cartEntityFinder;
     @Mock
     private CartMenuEntityFinder cartMenuEntityFinder;
+    @Mock
+    private CouponEntityFinder couponEntityFinder;
+
     @InjectMocks
     private OrderUserService orderUserService;
 
@@ -116,13 +125,17 @@ public class OrderUserServiceTest {
         //given
         ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
         ReflectionTestUtils.setField(user, "point", 10000);
+
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
         CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
-        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
-        when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+
+        when(cartEntityFinder.getCartByUserId(101L)).thenReturn(cart);
+        when(cartMenuEntityFinder.getAllCartMenuByCartId(301L)).thenReturn(List.of(cartMenu));
+        when(shopEntityFinder.getShopById(201L)).thenReturn(shop);
+        when(userCouponEntityFinder.getAllVerifiedUserCouponByUserId(101L))
+                .thenReturn(List.of());
 
         //when
         OrderPrepareResponse resp = orderUserService.prepareOrderResponse();
@@ -144,7 +157,7 @@ public class OrderUserServiceTest {
         verify(accountEntityFinder).getAccountById(1L);
         verify(userEntityFinder).getUserByAccount(account);
         verify(cartEntityFinder).getCartByUserId(101L);
-        verify(cartMenuEntityFinder).getByCartId(301L);
+        verify(cartMenuEntityFinder).getAllCartMenuByCartId(301L);
         verify(shopEntityFinder).getShopById(201L);
     }
 
@@ -156,9 +169,10 @@ public class OrderUserServiceTest {
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
         CartMenu cartMenu = CartMenu.of(cart, shopMenu, 2);
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);
-        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of(cartMenu));
-        when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+
+        when(cartEntityFinder.getCartByUserId(101L)).thenReturn(cart);
+        when(cartMenuEntityFinder.getAllCartMenuByCartId(301L)).thenReturn(List.of(cartMenu));
+        when(shopEntityFinder.getShopById(201L)).thenReturn(shop);
 
         ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
 
@@ -174,8 +188,9 @@ public class OrderUserServiceTest {
         //given
         ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
         ReflectionTestUtils.setField(user, "point", 10000);
-        when(cartMenuEntityFinder.getByCartId(cart.getId())).thenReturn(List.of());
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
+
+        when(cartEntityFinder.getCartByUserId(101L)).thenReturn(cart);
+        when(cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId())).thenReturn(List.of());
 
         // expect
         assertThatThrownBy(() -> orderUserService.prepareOrderResponse())
@@ -192,10 +207,24 @@ public class OrderUserServiceTest {
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
         OrderForm orderForm = OrderForm.of(user, shopMenu, 2);
-        when(shopEntityFinder.getShopById(any())).thenReturn(shop);
-        when(cartEntityFinder.getCartByUserId(any())).thenReturn(cart);
-        when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
+        Coupon coupon = mock(Coupon.class);
+        when(coupon.getId()).thenReturn(401L);
+        when(coupon.calculateDiscount(20_000L)).thenReturn(3_000L);
+
+        UserCoupon userCoupon = mock(UserCoupon.class);
+        when(userCoupon.getCoupon()).thenReturn(coupon);
+
+        when(shopEntityFinder.getShopById(201L)).thenReturn(shop);
+        when(cartEntityFinder.getCartByUserId(101L)).thenReturn(cart);
+        when(orderFormRepository.findAllByUser(user)).thenReturn(List.of(orderForm));
+        when(couponEntityFinder.getCouponById(401L)).thenReturn(coupon);
+        when(userCouponEntityFinder.getVerifiedUserCouponByCoupon(coupon)).thenReturn(userCoupon);
+        when(orderRepository.save(any(Order.class))).thenAnswer(inv -> {
+            Order o = inv.getArgument(0);
+            ReflectionTestUtils.setField(o, "id", 1001L);
+            return o;
+        });
 
         var request = new OrderCreateRequest(
                 201L,
@@ -204,7 +233,7 @@ public class OrderUserServiceTest {
                 "서울 강남구 oo",
                 "oo아파트 101동 1001호",
                 "양파 빼주세요",
-                null,
+                coupon.getId(),
                 5000
         );
 
@@ -213,13 +242,17 @@ public class OrderUserServiceTest {
 
         //then
         assertThat(response.amount().subtotal()).isEqualTo(20000);
-        assertThat(response.amount().pay()).isEqualTo(15000);
+        assertThat(response.amount().pay()).isEqualTo(12000);
         assertThat(response.status()).isEqualTo(OrderStatus.WAITING);
+        assertThat(response.couponId()).isEqualTo(401L);
 
         verify(orderRepository).save(any(Order.class));
-        verify(orderMenuRepository).save(any(OrderMenu.class));
-        verify(cartService).clear(any());
-        verify(userService).deductPoints(anyLong(), eq(5000));
+        verify(orderMenuRepository).saveAll(anyList());
+        verify(cartMenuService).clear(any());
+        verify(couponEntityFinder).getCouponById(401L);
+        verify(userCouponEntityFinder).getVerifiedUserCouponByCoupon(coupon);
+        verify(userCoupon).useCoupon();
+        verify(userService).deductPoints(eq(user), eq(5000));
     }
 
     @Test
@@ -434,7 +467,7 @@ public class OrderUserServiceTest {
         // 사용 포인트 환원 호출 확인
         Integer usedPoint = order.getPoint();
         if (usedPoint != null && usedPoint > 0) {
-            verify(userService).addPoints(eq(user.getId()), eq(usedPoint));
+            verify(userService).addPoints(eq(user), eq(usedPoint));
         }
     }
 
