@@ -35,21 +35,19 @@ public class Shop extends BaseEntity {
         this.street = street;
     }
 
-    public void updateOfShop(String name, BusinessStatus status, String address, String street){
-
-        this.name = name;
-        this.status = status;
-        this.address = address;
-        this.street = street;
-    }
-
-    @Builder
     public static Shop of(String name, BusinessStatus status, String address, String street) {
 
         return new Shop(name, status, address, street);
     }
 
-    public void changeShop(BusinessStatus status) {
+    public void updateShop(String name, String address, String street) {
+
+        this.name = name;
+        this.address = address;
+        this.street = street;
+    }
+
+    public void updateShopStatus(BusinessStatus status) {
         this.status = status;
     }
 
