@@ -1,7 +1,6 @@
 package org.example.luckyburger.domain.shop.service;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
@@ -47,7 +46,7 @@ public class ShopOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public int getTotalSaleByMonthWithShopId(Long shopId, LocalDate localDate){
+    public int getTotalSaleByMonthWithShopId(Long shopId, LocalDate localDate) {
 
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
@@ -71,26 +70,26 @@ public class ShopOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public double getRatingByShop(Long shopId){
+    public double getRatingByShop(Long shopId) {
 
         double totalRating = 0;
         double count = 0;
 
-        List<Review> reviewList = reviewEntityFinder.getReviewListByShopId(shopId);
+        List<Review> reviewList = null;
 
         for (Review review : reviewList) {
             totalRating += review.getRating();
             count++;
         }
 
-        double shopRating = totalRating/count;
+        double shopRating = totalRating / count;
 
         return shopRating;
     }
 
 
     @Transactional(readOnly = true)
-    public Page<OrderResponse> getOrderTodayByShop(LocalDateTime start, LocalDateTime end, Long shopId, int page, int size){
+    public Page<OrderResponse> getOrderTodayByShop(LocalDateTime start, LocalDateTime end, Long shopId, int page, int size) {
 
         List<Order> orderList = new ArrayList<>();
 
