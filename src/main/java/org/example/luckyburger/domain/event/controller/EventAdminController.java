@@ -29,7 +29,7 @@ public class EventAdminController {
     public ResponseEntity<ApiResponse<EventResponse>> createEvent(
             @Valid @RequestBody EventCreateRequest request
     ) {
-        return ApiResponse.created(eventAdminService.createEvent(request));
+        return ApiResponse.created(eventAdminService.createEventResponse(request));
     }
 
     @PutMapping("/v1/admin/events/{eventId}")
@@ -37,7 +37,7 @@ public class EventAdminController {
             @PathVariable Long eventId,
             @Valid @RequestBody EventCreateRequest request
     ) {
-        return ApiResponse.success(eventAdminService.updateEvent(eventId, request));
+        return ApiResponse.success(eventAdminService.updateEventResponse(eventId, request));
     }
 
     @DeleteMapping("/v1/admin/events/{eventId}")

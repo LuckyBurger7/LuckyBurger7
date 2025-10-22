@@ -23,20 +23,31 @@ public class EventService {
      * @param eventId
      * @return 조건에 맞는 이벤트 단건 반환
      */
-    public EventResponse getEvent(Long eventId) {
+    public EventResponse getEventResponse(Long eventId) {
         Event event = eventEntityFinder.getEventById(eventId);
         return EventResponse.from(event);
     }
 
     /**
-     * 이벤트 전체 조회
+     * 이벤트 전체 조회 (삭제된 내용 포함)
      *
      * @param pageable
      * @return 생성 된 이벤트 전체 반환 (페이지네이션 사용)
      */
     @Transactional(readOnly = true)
-    public Page<EventResponse> getAllEvent(Pageable pageable) {
+    public Page<EventResponse> getAllEventResponse(Pageable pageable) {
         Page<Event> events = eventRepository.findAll(pageable);
+        return events.map(EventResponse::from);
+    }
+
+    /**
+     * 이벤트 전체 조회 (삭제된 내용 미포함)
+     *
+     * @param pageable
+     * @return 생성된 이벤트 전체 반환 (페이지네이션 사용)
+     */
+    public Page<EventResponse> getAllEventByNotDeletedResponse(Pageable pageable) {
+        Page<Event> events = eventRepository.findAllByDeletedAtIsNull(pageable);
         return events.map(EventResponse::from);
     }
 }

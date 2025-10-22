@@ -27,12 +27,20 @@ public class ReviewOwnerController {
 
     private final ReviewOwnerService reviewOwnerService;
 
-    // 주문에 대한 리뷰를 전체 불러오기
-    @GetMapping("/v1/owner/shops/{shopId}/reviews")
+    // 주문에 대한 리뷰 전체 조회 (삭제내역 포함)
+    @GetMapping("/v1/owner/shops/{shopId}/reviews/all")
     public ResponseEntity<ApiPageResponse<ReviewResponse>> getShopReviews(
             @PageableDefault Pageable pageable,
             @PathVariable Long shopId) {
         return ApiPageResponse.success(reviewOwnerService.getShopReviewsResponse(pageable, shopId));
+    }
+
+    // 주문에 대한 리뷰 전체 조회 (삭제내역 미포함)
+    @GetMapping("/v1/owner/shops/{shopId}/reviews")
+    public ResponseEntity<ApiPageResponse<ReviewResponse>> getShopReviewsByNotDeleted(
+            @PageableDefault Pageable pageable,
+            @PathVariable Long shopId) {
+        return ApiPageResponse.success(reviewOwnerService.getShopReviewsByNotDeletedResponse(pageable, shopId));
     }
 
     // 리뷰에 대한 댓글 작성

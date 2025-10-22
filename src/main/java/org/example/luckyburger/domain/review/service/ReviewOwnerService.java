@@ -24,7 +24,7 @@ public class ReviewOwnerService {
      *
      * @param pageable
      * @param shopId
-     * @return 작성된 리뷰 반환
+     * @return 작성된 리뷰 반환 (삭제된 내용 포함)
      */
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getShopReviewsResponse(Pageable pageable, Long shopId) {
@@ -52,5 +52,23 @@ public class ReviewOwnerService {
             throw new CommentAlreadyExistsException();
         }
         review.writeComment(request.comment());
+    }
+
+    /**
+     * 점포의 작성된 리뷰 조회 (페이지 당 최대 3개), 사용자 : 점주
+     *
+     * @param pageable
+     * @param shopId
+     * @return 작성된 리뷰 반환 (삭제된 내용 미포함)
+     */
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getShopReviewsByNotDeletedResponse(Pageable pageable, Long shopId) {
+        Pageable limited = PageRequest.of(
+                Math.max(0, pageable.getPageNumber()),
+                Math.min(pageable.getPageSize(), 3),
+                pageable.getSort()
+        );
+        Page<Review> reviews = reviewRepository.findShopReviewsNotDeleted(shopId, limited);
+        return reviews.map(ReviewResponse::from);
     }
 }
