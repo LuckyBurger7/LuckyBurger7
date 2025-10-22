@@ -203,7 +203,7 @@ public class OrderUserService {
 
         // 장바구니 비우기 및 삭제
         Cart cart = cartEntityFinder.getCartByUserId(user.getId());
-        cartMenuService.clear(cart.getId());
+        cartMenuService.clear(cart);
 
         List<OrderMenuResponse> orderMenuResponses = orderForms.stream()
                 .map(OrderMenuResponse::from)
