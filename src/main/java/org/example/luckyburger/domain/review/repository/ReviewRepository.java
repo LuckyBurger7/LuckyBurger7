@@ -1,11 +1,14 @@
 package org.example.luckyburger.domain.review.repository;
 
 import org.example.luckyburger.domain.review.entity.Review;
+import org.example.luckyburger.domain.shop.entity.Shop;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(
@@ -18,4 +21,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             countQuery = "select count(r) from Review r where r.shop.id = :shopId and r.deletedAt is null"
     )
     Page<Review> findShopReviewsNotDeleted(@Param("shopId") Long shopId, Pageable pageable);
+
+    List<Review> findAllByShop(Shop shop);
 }
