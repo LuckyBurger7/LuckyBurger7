@@ -23,6 +23,7 @@ jwt:
       - /api/v1/login
       - /api/v1/menus/**
       - /api/v1/coupons/**
+      - /api/v1/shops/**
   token:
     prefix: 'Bearer '
     expiration: ${JWT_EXPIRATION}
