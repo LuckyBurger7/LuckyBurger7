@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
-import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.service.ReviewEntityFinder;
+import org.example.luckyburger.domain.shop.dto.response.ShopDashboardResponse;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.springframework.data.domain.Page;
@@ -70,27 +70,6 @@ public class ShopOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public double getRatingByShop(Long shopId) {
-
-        double totalRating = 0;
-        double count = 0;
-
-        Shop shop = shopEntityFinder.getShopById(shopId);
-
-        List<Review> reviewList = reviewEntityFinder.getReviewListByShop(shop);
-
-        for (Review review : reviewList) {
-            totalRating += review.getRating();
-            count++;
-        }
-
-        double shopRating = totalRating / count;
-
-        return shopRating;
-    }
-
-
-    @Transactional(readOnly = true)
     public Page<OrderResponse> getOrderTodayByShop(LocalDateTime start, LocalDateTime end, Long shopId, int page, int size) {
 
         List<Order> orderList = new ArrayList<>();
@@ -125,20 +104,40 @@ public class ShopOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public int getTotalSaleToday(LocalDateTime start, LocalDateTime end, Long shopId) {
+    public ShopDashboardResponse getShopDashboardByShopId(Long shopId) {
 
-        int totalPrice = 0;
+        Shop shop = shopEntityFinder.getShopById(shopId);
 
-        List<Order> orderListByShop = orderEntityFinder.getAllOrderByShopId(shopId);
+        Integer todayOrderCount = getTodayOrderCount(shop);
+        Long todayTotalSales = getTotalSaleToday(shop);
+        Float averageRating = getRatingByShop(shop);
 
-        for (Order order : orderListByShop) {
-            if (order.getOrderDate().isBefore(end) && order.getOrderDate().isAfter(start)) {
-                totalPrice += order.getTotalPrice();
-            }
-        }
+        return ShopDashboardResponse.of(
+                todayOrderCount,
+                todayTotalSales,
+                averageRating
+        );
+    }
 
-        return totalPrice;
+    private Integer getTodayOrderCount(Shop shop) {
+        LocalDateTime midnightToday = LocalDate.now().atStartOfDay();
+
+        return orderEntityFinder.getCountOrderByShopAndToday(shop, midnightToday);
+    }
+
+    private Long getTotalSaleToday(Shop shop) {
+
+        LocalDateTime midnightToday = LocalDate.now().atStartOfDay();
+
+        return orderEntityFinder.getTotalSalesByShopAndToday(shop, midnightToday);
 
     }
 
+    private Float getRatingByShop(Shop shop) {
+
+        double totalRating = reviewEntityFinder.getSumOfRatingByShop(shop);
+        double count = reviewEntityFinder.getCountByShop(shop);
+
+        return Math.round((totalRating / count) * 100) / 100.0f;
+    }
 }

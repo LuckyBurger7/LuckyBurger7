@@ -23,4 +23,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findShopReviewsNotDeleted(@Param("shopId") Long shopId, Pageable pageable);
 
     List<Review> findAllByShop(Shop shop);
+
+    List<Review> shop(Shop shop);
+
+    Long countByShop(Shop shop);
+
+    Integer findSumOfRatingByShop(Shop shop);
 }

@@ -30,4 +30,12 @@ public class ReviewEntityFinder {
     public List<Review> getReviewListByShop(Shop shop) {
         return reviewRepository.findAllByShop(shop);
     }
+
+    public Integer getSumOfRatingByShop(Shop shop) {
+        return reviewRepository.findSumOfRatingByShop(shop);
+    }
+
+    public Long getCountByShop(Shop shop) {
+        return reviewRepository.countByShop(shop);
+    }
 }
