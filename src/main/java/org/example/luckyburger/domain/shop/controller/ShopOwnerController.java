@@ -1,27 +1,26 @@
 package org.example.luckyburger.domain.shop.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
-import org.example.luckyburger.domain.menu.entity.Menu;
-import org.example.luckyburger.domain.order.dto.response.OrderResponse;
-import org.example.luckyburger.domain.order.entity.Order;
-import org.example.luckyburger.domain.shop.entity.Shop;
-import org.example.luckyburger.domain.shop.enums.BusinessStatus;
-import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
-import org.example.luckyburger.domain.shop.service.ShopMenuService;
+import org.example.luckyburger.domain.shop.dto.request.CouponPolicyRequest;
+import org.example.luckyburger.domain.shop.dto.request.ShopMenuRequest;
+import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
+import org.example.luckyburger.domain.shop.dto.response.CouponPolicyResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopTotalSalesResponse;
 import org.example.luckyburger.domain.shop.service.ShopOwnerService;
-import org.example.luckyburger.domain.shop.service.ShopService;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
@@ -29,83 +28,82 @@ import java.util.List;
 @Secured(AccountRole.Authority.OWNER)
 public class ShopOwnerController {
 
-    private final ShopService shopService;
-    private final ShopMenuService shopMenuService;
     private final ShopOwnerService shopOwnerService;
 
+    /**
+     * 점포별 쿠폰 사용 여부 수정
+     *
+     * @param shopId
+     * @param couponId
+     * @return
+     */
+    @PutMapping("/v1/owner/shops/{shopId}/coupons/{couponId}")
+    public ResponseEntity<ApiResponse<CouponPolicyResponse>> couponAvailabilityByShop(
+            @PathVariable Long shopId,
+            @PathVariable Long couponId,
+            @Valid @RequestBody CouponPolicyRequest cpr
+    ) {
+        return ApiResponse.success(shopOwnerService.updateCouponStatus(shopId, couponId, cpr));
+    }
+
+    /**
+     * 점포 쿠폰 조회
+     *
+     * @param couponId
+     * @param shopId
+     * @return
+     */
+    @GetMapping("/v1/owner/shops/{shopId}/coupons/{couponId}")
+    public ResponseEntity<ApiResponse<CouponPolicyResponse>> getCouponByShop(
+            @PathVariable Long couponId,
+            @PathVariable Long shopId
+    ) {
+        return ApiResponse.success(shopOwnerService.getCouponResponse(shopId, couponId));
+    }
+
+    /**
+     * 점포 상태 변경
+     *
+     * @param shopId
+     * @param request
+     * @return
+     */
     @PutMapping("/v1/owner/shops/{shopId}")
-    public ResponseEntity<ApiResponse<Shop>> changeShopStatus(@PathVariable Long shopId,
-                                                              @RequestBody BusinessStatus shopStatus) {
+    public ResponseEntity<ApiResponse<ShopResponse>> updateShopStatus(@PathVariable Long shopId,
+                                                                      @RequestBody ShopUpdateRequest request) {
 
-        Shop shop = shopOwnerService.updateStatus(shopId, shopStatus);
-
-        return ApiResponse.success(shop);
+        return ApiResponse.success(shopOwnerService.updateShopStatusResponse(shopId, request));
     }
 
-    //월 정산 조회
-    @GetMapping("/v1/owner/shops/{shopId}/sales/monthly")
-    public ResponseEntity<ApiResponse<Integer>> getTotalSaleByMonthWithShopId(@PathVariable Long shopId,
-                                                                              @RequestParam LocalDate date){
-
-        int totalSaleByMonthWithShopId = shopOwnerService.getTotalSaleByMonthWithShopId(shopId,date);
-
-        return ApiResponse.success(totalSaleByMonthWithShopId);
-
-    }
-
-    @GetMapping("/v1/owner/shops/{shopId}/ratings")
-    public ResponseEntity<ApiResponse<Double>> getRatingByShop(@PathVariable Long shopId){
-
-        double ratingByShop = shopOwnerService.getRatingByShop(shopId);
-
-        return ApiResponse.success(ratingByShop);
-    }
-
-//    @PutMapping("/owner/shops/{shopId}/coupons/{couponId}/availability")
-//    public boolean couponAvailabilityByOwner(@PathVariable Long shopId,
-//                                             @PathVariable Long couponId){
-//
-//        boolean couponListByShopId = shopService.getCouponListByShopId(shopId, couponId);
-//
-//        return couponListByShopId;
-//    }
-
-    @GetMapping("/v1/owner/shops/{shopId}/orders/daily")
-    public ResponseEntity<ApiPageResponse<OrderResponse>> getOrderTodayByShop(@RequestParam LocalDate date,
-                                           @PathVariable Long shopId,
-                                           @RequestParam int page,
-                                           @RequestParam int size){
-
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.atTime(LocalTime.MAX);
-
-        Page<OrderResponse> orderTodayByShop = shopOwnerService.getOrderTodayByShop(start, end, shopId,page,size);
-
-        return ApiPageResponse.success(orderTodayByShop);
-
-    }
-
-    //일일 매출 조회
-    @GetMapping("/v1/owner/shops/{shopId}/sales/daily")
-    public ResponseEntity<ApiResponse<Integer>> getTotalOrderPrice(@PathVariable Long shopId,
-                                                                   @RequestParam LocalDate date){
-
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.atTime(LocalTime.MAX);
-
-        int totalSaleToday = shopOwnerService.getTotalSaleToday(start, end, shopId);
-
-        return ApiResponse.success(totalSaleToday);
-
-    }
-
-    //shopId는 접속된 로그인에서 추출해서 사용하도록 변경
+    /**
+     * 점포 메뉴 상태 변경
+     *
+     * @param shopId
+     * @param menuId
+     * @param request
+     * @return
+     */
     @PutMapping("/v1/owner/shops/{shopId}/menus/{menuId}")
-    public ResponseEntity<ApiResponse<Menu>> updateMenuStatusByOwner(@PathVariable Long shopId,
-                                                                     @PathVariable Long menuId,
-                                                                     @RequestBody ShopMenuStatus shopMenuStatus){
-        Menu menu = shopMenuService.updateMenuStatus(shopId, menuId,shopMenuStatus);
+    public ResponseEntity<ApiResponse<ShopMenuResponse>> updateMenuStatus(
+            @PathVariable Long shopId,
+            @PathVariable Long menuId,
+            @Valid @RequestBody ShopMenuRequest request) {
+        return ApiResponse.success(shopOwnerService.updateMenuStatusResponse(shopId, menuId, request));
+    }
 
-        return ApiResponse.success(menu);
+    /**
+     * 월 정산
+     *
+     * @param shopId
+     * @param month
+     * @return
+     */
+    @GetMapping("/v1/owner/shops/{shopId}/sales/monthly")
+    public ResponseEntity<ApiResponse<ShopTotalSalesResponse>> getMonthlySales(
+            @PathVariable Long shopId,
+            @RequestParam(value = "month", required = false) Integer month
+    ) {
+        var res = shopOwnerService.getMonthlySalesResponse(shopId, month);
+        return ApiResponse.success(res);
     }
 }

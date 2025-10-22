@@ -1,5 +1,6 @@
 package org.example.luckyburger.common._dummyData;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.entity.Account;
@@ -27,8 +28,6 @@ import org.example.luckyburger.domain.user.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -169,10 +168,40 @@ public class DummyDataLoader implements CommandLineRunner {
                 .status(OrderStatus.COMPLETED)
                 .build();
 
+        Order order5 = Order.builder()
+                .shop(shop2)
+                .user(user1)
+                .receiver("김기수")
+                .phone("010-3333-5555")
+                .address("서울시 마포구 양화로 123")
+                .street("홍대거리 3길 9")
+                .request(null)
+                .point(0)
+                .totalPrice(15000)
+                .orderDate(LocalDateTime.of(2025, 9, 5, 12, 15))
+                .status(OrderStatus.COMPLETED)
+                .build();
+
+        Order order6 = Order.builder()
+                .shop(shop2)
+                .user(user1)
+                .receiver("김기수")
+                .phone("010-3333-5555")
+                .address("서울시 마포구 양화로 123")
+                .street("홍대거리 3길 9")
+                .request(null)
+                .point(0)
+                .totalPrice(115500)
+                .orderDate(LocalDateTime.of(2025, 9, 22, 12, 15))
+                .status(OrderStatus.COMPLETED)
+                .build();
+
         orderRepository.save(order1);
         orderRepository.save(order2);
         orderRepository.save(order3);
         orderRepository.save(order4);
+        orderRepository.save(order5);
+        orderRepository.save(order6);
 
         Review review1 = Review.builder()
                 .user(user1)
