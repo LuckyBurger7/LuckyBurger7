@@ -31,7 +31,7 @@ public class CouponAdminController {
     public ResponseEntity<ApiResponse<CouponResponse>> updateCoupon(
             @PathVariable Long couponId,
             @Valid @RequestBody CouponRequest couponRequest) {
-        return ApiResponse.created(couponAdminService.updateCoupon(couponId, couponRequest));
+        return ApiResponse.success(couponAdminService.updateCoupon(couponId, couponRequest));
     }
 
     @DeleteMapping("/v1/admin/coupons/{couponId}")
