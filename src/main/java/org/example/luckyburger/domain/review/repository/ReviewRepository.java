@@ -28,5 +28,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Long countByShop(Shop shop);
 
-    Integer findSumOfRatingByShop(Shop shop);
+    @Query("""
+                SELECT SUM(r.rating)
+                FROM Review r
+                WHERE r.shop = :shop
+            """)
+    Double findSumOfRatingByShop(Shop shop);
 }

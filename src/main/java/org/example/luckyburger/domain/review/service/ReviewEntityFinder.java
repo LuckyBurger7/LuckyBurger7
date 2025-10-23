@@ -31,7 +31,7 @@ public class ReviewEntityFinder {
         return reviewRepository.findAllByShop(shop);
     }
 
-    public Integer getSumOfRatingByShop(Shop shop) {
+    public Double getSumOfRatingByShop(Shop shop) {
         return reviewRepository.findSumOfRatingByShop(shop);
     }
 
