@@ -43,7 +43,7 @@ public class ShopOwnerController {
             @PathVariable Long couponId,
             @Valid @RequestBody CouponPolicyRequest cpr
     ) {
-        return ApiResponse.success(shopOwnerService.updateCouponStatus(shopId, couponId, cpr));
+        return ApiResponse.success(shopOwnerService.updateCouponStatusResponse(shopId, couponId, cpr));
     }
 
     /**

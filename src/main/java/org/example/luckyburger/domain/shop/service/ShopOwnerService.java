@@ -45,7 +45,7 @@ public class ShopOwnerService {
 
     // 상점의 쿠폰 사용여부 수정
     @Transactional
-    public CouponPolicyResponse updateCouponStatus(Long shopId, Long couponId, CouponPolicyRequest cpr) {
+    public CouponPolicyResponse updateCouponStatusResponse(Long shopId, Long couponId, CouponPolicyRequest cpr) {
         // 점포 및 쿠폰 존재 여부 체크
         shopEntityFinder.getShopById(shopId);
         couponEntityFinder.getCouponById(couponId);
@@ -99,7 +99,7 @@ public class ShopOwnerService {
         LocalDateTime start = startDate.atStartOfDay(zone).toLocalDateTime();
         LocalDateTime end = endDate.atStartOfDay(zone).toLocalDateTime();
 
-        long total = orderEntityFinder.sumMonthlySalesTotal(shopId, start, end); // 내부에서 COMPLETED 합계 등
+        long total = orderEntityFinder.sumMonthlySalesTotal(shopId, start, end);
         return new ShopTotalSalesResponse(total);
     }
 }
