@@ -9,6 +9,7 @@ import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
+import org.example.luckyburger.domain.review.exception.OrderUnauthorizedException;
 import org.example.luckyburger.domain.review.exception.ReviewUnauthorizedException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.example.luckyburger.domain.user.entity.User;
@@ -33,7 +34,7 @@ public class ReviewUserService {
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getAccount().getId().equals(authUser.getAccount().getId())) {
-            throw new ReviewUnauthorizedException();
+            throw new OrderUnauthorizedException();
         }
 
         Review review = Review.of(
