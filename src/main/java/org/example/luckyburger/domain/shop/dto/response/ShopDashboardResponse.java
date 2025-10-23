@@ -6,12 +6,12 @@ import lombok.Builder;
 public record ShopDashboardResponse(
         Integer todayOrderCount,
         Long todayTotalSales,
-        Float averageRating
+        Double averageRating
 ) {
     public static ShopDashboardResponse of(
             Integer todayOrderCount,
             Long todayTotalSales,
-            Float averageRating) {
+            Double averageRating) {
         return ShopDashboardResponse.builder()
                 .todayOrderCount(todayOrderCount)
                 .todayTotalSales(todayTotalSales)

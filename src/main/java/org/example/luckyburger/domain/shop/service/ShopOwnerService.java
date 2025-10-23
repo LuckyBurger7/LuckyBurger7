@@ -110,7 +110,7 @@ public class ShopOwnerService {
 
         Integer todayOrderCount = getTodayOrderCount(shop);
         Long todayTotalSales = getTotalSaleToday(shop);
-        Float averageRating = getRatingByShop(shop);
+        Double averageRating = getRatingByShop(shop);
 
         return ShopDashboardResponse.of(
                 todayOrderCount,
@@ -133,11 +133,8 @@ public class ShopOwnerService {
 
     }
 
-    private Float getRatingByShop(Shop shop) {
+    private Double getRatingByShop(Shop shop) {
 
-        double totalRating = reviewEntityFinder.getSumOfRatingByShop(shop);
-        double count = reviewEntityFinder.getCountByShop(shop);
-
-        return Math.round((totalRating / count) * 100) / 100.0f;
+        return reviewEntityFinder.getAvgOfRatingByShop(shop);
     }
 }
