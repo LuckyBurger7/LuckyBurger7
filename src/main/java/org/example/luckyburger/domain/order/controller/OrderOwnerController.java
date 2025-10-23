@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.order.controller;
 
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
@@ -15,7 +16,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @RequestMapping("/api")
 @Secured(AccountRole.Authority.OWNER)
 public class OrderOwnerController {

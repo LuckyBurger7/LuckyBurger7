@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.event.controller;
 
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
@@ -9,16 +10,10 @@ import org.example.luckyburger.domain.event.dto.response.EventResponse;
 import org.example.luckyburger.domain.event.service.EventAdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @RequestMapping("/api")
 @Secured(AccountRole.Authority.ADMIN)
 public class EventAdminController {

@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.shop.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
@@ -12,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/api")
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShopController {
 
     private final ShopService shopService;

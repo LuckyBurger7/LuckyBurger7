@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.auth.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthService {
 
     private final AccountRepository accountRepository;
@@ -108,7 +109,7 @@ public class AuthService {
         // 권한이 사용자인지 검사
         if (authAccount.getRole() != AccountRole.ROLE_USER)
             throw new NoAuthorityException();
-        
+
         account.delete();
     }
 

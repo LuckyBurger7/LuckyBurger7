@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.coupon.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.coupon.dto.response.UserCouponResponse;
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CouponUserService {
 
     private final UserCouponRepository userCouponRepository;

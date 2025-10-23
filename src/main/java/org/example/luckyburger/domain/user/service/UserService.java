@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.user.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserService {
 
     private final AccountEntityFinder accountEntityFinder;

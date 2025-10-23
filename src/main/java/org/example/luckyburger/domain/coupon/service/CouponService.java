@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.coupon.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.coupon.dto.response.CouponResponse;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CouponService {
 
     private final CouponRepository couponRepository;

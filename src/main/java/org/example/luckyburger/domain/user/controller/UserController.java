@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.user.controller;
 
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
@@ -13,7 +14,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @RequestMapping("/api")
 public class UserController {
 
@@ -29,7 +30,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateProfile(@Valid @RequestBody UserUpdateRequest request) {
         return ApiResponse.created(userService.updateProfile(request));
     }
-    
+
     @Secured(AccountRole.Authority.USER)
     @GetMapping("/v1/user/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getProfile() {
