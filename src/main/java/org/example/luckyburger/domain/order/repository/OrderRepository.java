@@ -11,6 +11,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Query;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -29,6 +34,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByStatusNot(OrderStatus status);
 
     Long findSumOfTotalPriceByShop(Shop shop);
+
+    @Query("""
+                SELECT SUM(o.totalPrice)
+                FROM Order o
+                WHERE o.shop = :shop AND o.orderDate >= :orderDateAfter
+            """)
+    Long findSumOfTotalPriceByShopAndOrderDateAfter(Shop shop, LocalDateTime orderDateAfter);
+
+    Integer countByShopAndOrderDateAfter(Shop shop, LocalDateTime midnightToday);
 
     @Query("""
                 select coalesce(sum(o.totalPrice), 0)

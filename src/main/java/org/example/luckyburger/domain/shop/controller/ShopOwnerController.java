@@ -7,20 +7,11 @@ import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.shop.dto.request.CouponPolicyRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopMenuRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
-import org.example.luckyburger.domain.shop.dto.response.CouponPolicyResponse;
-import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
-import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
-import org.example.luckyburger.domain.shop.dto.response.ShopTotalSalesResponse;
+import org.example.luckyburger.domain.shop.dto.response.*;
 import org.example.luckyburger.domain.shop.service.ShopOwnerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -60,6 +51,7 @@ public class ShopOwnerController {
     ) {
         return ApiResponse.success(shopOwnerService.getCouponPolicyResponse(shopId, couponId));
     }
+
 
     /**
      * 점포 상태 변경
@@ -105,5 +97,16 @@ public class ShopOwnerController {
     ) {
         var res = shopOwnerService.getTotalSalesByShopIdAndMonth(shopId, month);
         return ApiResponse.success(res);
+    }
+
+    /**
+     * 점포 대시보드
+     *
+     * @param shopId 점포 아이디
+     * @return 대시보드 응답 DTO
+     */
+    @GetMapping("/v1/owner/shops/{shopId}/dashboard")
+    public ResponseEntity<ApiResponse<ShopDashboardResponse>> getDashboardByShopId(@PathVariable Long shopId) {
+        return ApiResponse.success(shopOwnerService.getShopDashboardByShopId(shopId));
     }
 }

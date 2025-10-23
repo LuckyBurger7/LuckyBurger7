@@ -12,6 +12,9 @@ import org.example.luckyburger.domain.shop.entity.Shop;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Transactional(readOnly = true)
@@ -28,8 +31,16 @@ public class OrderEntityFinder {
         return orders;
     }
 
-    public Long getTotalPrice(Shop shop) {
+    public Long getTotalSales(Shop shop) {
         return orderRepository.findSumOfTotalPriceByShop(shop);
+    }
+
+    public Long getTotalSalesByShopAndToday(Shop shop, LocalDateTime midnightToday) {
+        return orderRepository.findSumOfTotalPriceByShopAndOrderDateAfter(shop, midnightToday);
+    }
+
+    public Integer getCountOrderByShopAndToday(Shop shop, LocalDateTime midnightToday) {
+        return orderRepository.countByShopAndOrderDateAfter(shop, midnightToday);
     }
 
     public long sumMonthlySalesTotal(Long shopId, LocalDateTime start, LocalDateTime end) {

@@ -49,11 +49,11 @@ public class ShopAdminService {
 
     // 점포 총 매출 조회
     @Transactional(readOnly = true)
-    public Long getTotalPrice(Long shopId) {
+    public Long getTotalSales(Long shopId) {
 
         Shop shop = shopEntityFinder.getShopById(shopId);
 
-        return orderEntityFinder.getTotalPrice(shop);
+        return orderEntityFinder.getTotalSales(shop);
     }
 
     // 점포 총 갯수
