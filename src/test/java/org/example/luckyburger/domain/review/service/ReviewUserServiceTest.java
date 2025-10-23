@@ -1,23 +1,12 @@
 package org.example.luckyburger.domain.review.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.time.LocalDateTime;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
-import org.example.luckyburger.domain.review.exception.ReviewUnauthorizedException;
+import org.example.luckyburger.domain.review.exception.OrderUnauthorizedException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.example.luckyburger.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +16,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewUserService 테스트")
@@ -57,7 +55,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
+        doReturn(authUser).when(reviewUserService).findUser();
 
         // 리뷰에 대한 소유권과 점포 일치 하는지 검증을 위한 로직
         Account account = mock(Account.class);
@@ -112,7 +110,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
+        doReturn(authUser).when(reviewUserService).findUser();
 
         // 주문을 한 사람이 다른 상황일때 로직
         Account otherAccount = mock(Account.class);
@@ -135,8 +133,8 @@ public class ReviewUserServiceTest {
         assertThatThrownBy(() ->
                 reviewUserService.createOrderReviewResponse(orderId, request)
         )
-                .isInstanceOf(ReviewUnauthorizedException.class)
-                .hasMessage("본인이 작성한 리뷰가 아닙니다.");
+                .isInstanceOf(OrderUnauthorizedException.class)
+                .hasMessage("본인이 주문한 제품이 아닙니다.");
 
         verify(orderEntityFinder).getOrderById(orderId);
         verify(reviewRepository, never()).save(any(Review.class));
@@ -151,7 +149,7 @@ public class ReviewUserServiceTest {
         // 인증 사용자(User)
         Account authAccount = mock(Account.class);
         User authUser = mock(User.class);
-        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
+        doReturn(authUser).when(reviewUserService).findUser();
 
         ReviewRequest request = new ReviewRequest(
                 "맛있어요",
@@ -184,7 +182,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
+        doReturn(authUser).when(reviewUserService).findUser();
 
         Account account = mock(Account.class);
         given(account.getId()).willReturn(accountId);
@@ -228,7 +226,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).getUserByAuthAccount();
+        doReturn(authUser).when(reviewUserService).findUser();
 
         Account account = mock(Account.class);
         given(account.getId()).willReturn(accountId);

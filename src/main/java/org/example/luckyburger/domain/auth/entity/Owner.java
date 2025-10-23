@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.luckyburger.common.entity.BaseIdEntity;
 import org.example.luckyburger.domain.shop.entity.Shop;
 
 @Getter
@@ -13,9 +12,13 @@ import org.example.luckyburger.domain.shop.entity.Shop;
 @Table(name = "owners")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 
-public class Owner extends BaseIdEntity {
+public class Owner {
+    @Id
+    @Column(name = "account_id")
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 

@@ -2,13 +2,9 @@ package org.example.luckyburger.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
-import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.entity.Owner;
-import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
 import org.example.luckyburger.domain.auth.service.OwnerEntityFinder;
-import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.coupon.entity.UserCoupon;
-import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
 import org.example.luckyburger.domain.coupon.service.UserCouponEntityFinder;
 import org.example.luckyburger.domain.order.dto.request.OrderUpdateRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderMenuResponse;
@@ -40,14 +36,12 @@ public class OrderOwnerService {
     private final OrderEntityFinder orderEntityFinder;
     private final OrderMenuEntityFinder orderMenuEntityFinder;
     private final OwnerEntityFinder ownerEntityFinder;
-    private final AccountEntityFinder accountEntityFinder;
     private final UserCouponEntityFinder userCouponEntityFinder;
-    private final CouponEntityFinder couponEntityFinder;
     private final UserService userService;
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderResponse(Long orderId) {
-        Owner owner = getOwnerByAuthAccount();
+        Owner owner = findOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getShop().getId().equals(owner.getShop().getId())) {
@@ -62,7 +56,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
-        Owner owner = getOwnerByAuthAccount();
+        Owner owner = findOwner();
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByShop(owner.getShop(), pageable);
@@ -93,7 +87,7 @@ public class OrderOwnerService {
 
     @Transactional
     public void updateOrderStatus(Long orderId, OrderUpdateRequest request) {
-        Owner owner = getOwnerByAuthAccount();
+        Owner owner = findOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
         User user = order.getUser();
         OrderStatus status = request.status();
@@ -110,8 +104,7 @@ public class OrderOwnerService {
 
             // 쿠폰 적용 취소
             if (order.getCoupon() != null) {
-                Coupon coupon = couponEntityFinder.getCouponById(order.getCoupon().getId());
-                UserCoupon userCoupon = userCouponEntityFinder.getUserCouponByCoupon(coupon);
+                UserCoupon userCoupon = userCouponEntityFinder.getUserCouponByCouponId(order.getCoupon().getId());
                 userCoupon.restoreCoupon();
             }
 
@@ -134,9 +127,8 @@ public class OrderOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public Owner getOwnerByAuthAccount() {
-        Account ownerAccount = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
-        return ownerEntityFinder.getOwnerByAccount(ownerAccount);
+    public Owner findOwner() {
+        return ownerEntityFinder.getOwnerByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }
 

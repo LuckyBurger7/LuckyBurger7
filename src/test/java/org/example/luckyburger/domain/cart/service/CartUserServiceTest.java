@@ -3,7 +3,6 @@ package org.example.luckyburger.domain.cart.service;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
-import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
 import org.example.luckyburger.domain.cart.dto.request.CartAddMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartDeleteMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartUpdateMenuRequest;
@@ -11,6 +10,7 @@ import org.example.luckyburger.domain.cart.dto.response.CartResponse;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.exception.CartMenuBadRequestException;
+import org.example.luckyburger.domain.cart.repository.CartMenuRepository;
 import org.example.luckyburger.domain.cart.repository.CartRepository;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
@@ -38,8 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +51,8 @@ public class CartUserServiceTest {
     @Mock
     private CartRepository cartRepository;
     @Mock
+    private CartMenuRepository cartMenuRepository;
+    @Mock
     private CartEntityFinder cartEntityFinder;
     @Mock
     private CartMenuEntityFinder cartMenuEntityFinder;
@@ -59,8 +60,6 @@ public class CartUserServiceTest {
     private ShopMenuEntityFinder shopMenuEntityFinder;
     @Mock
     private UserEntityFinder userEntityFinder;
-    @Mock
-    private AccountEntityFinder accountEntityFinder;
     @Mock
     private CartMenuService cartMenuService;
 
@@ -85,10 +84,8 @@ public class CartUserServiceTest {
         // user & cart
         user = User.of(account, "010-1123-4456", "주소", "상세주소");
         cart = Cart.of(user, 0);
+        ReflectionTestUtils.setField(user, "id", 1L);
         ReflectionTestUtils.setField(cart, "id", 1L);
-
-        when(accountEntityFinder.getAccountById(1L)).thenReturn(account);
-        when(userEntityFinder.getUserByAccount(account)).thenReturn(user);
 
         // shop
         Shop shop1 = Shop.of("럭키버거 OO점", BusinessStatus.OPEN, "주소", "상세주소");
@@ -114,11 +111,15 @@ public class CartUserServiceTest {
     @Test
     void 유저의_장바구니가_없으면_새로_생성하고_메뉴를_추가한다() {
         // given
-        CartAddMenuRequest request = new CartAddMenuRequest(1L);
+        when(userEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
 
-        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.empty());
+        CartAddMenuRequest request = new CartAddMenuRequest(1L);
+        CartMenu cartMenu = CartMenu.of(cart, shopMenu1, 1);
+
+        when(cartRepository.findById(user.getId())).thenReturn(Optional.empty());
         when(cartRepository.save(any(Cart.class))).thenReturn(cart);
         when(shopMenuEntityFinder.getShopMenuById(1L)).thenReturn(shopMenu1);
+        when(cartMenuRepository.save(any(CartMenu.class))).thenReturn(cartMenu);
 
         when(cartMenuService.calculateTotalPrice(anyList())).thenAnswer(invocation -> {
             List<CartMenu> menus = invocation.getArgument(0);
@@ -138,12 +139,14 @@ public class CartUserServiceTest {
     @Test
     void 장바구니에_동일한_메뉴가_존재해_수량이_증가한다() {
         // given
+        when(userEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
+
         CartAddMenuRequest request = new CartAddMenuRequest(1L);
         CartMenu cartMenu = CartMenu.of(cart, shopMenu1, 1);
         List<CartMenu> cartMenus = new ArrayList<>();
         cartMenus.add(cartMenu);
 
-        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
+        when(cartRepository.findById(user.getId())).thenReturn(Optional.of(cart));
         when(shopMenuEntityFinder.getShopMenuById(1L)).thenReturn(shopMenu1);
         when(cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId())).thenReturn(cartMenus);
 
@@ -165,10 +168,12 @@ public class CartUserServiceTest {
     @Test
     void 장바구니에_있는_메뉴와_다른_가게의_메뉴를_담아_오류가_발생한다() {
         // given
+        when(userEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
+
         CartAddMenuRequest request = new CartAddMenuRequest(3L);
         List<CartMenu> cartMenus = List.of(CartMenu.of(cart, shopMenu1, 1));
 
-        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
+        when(cartRepository.findById(user.getId())).thenReturn(Optional.of(cart));
         when(shopMenuEntityFinder.getShopMenuById(3L)).thenReturn(shopMenu3);
         when(cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId())).thenReturn(cartMenus);
 

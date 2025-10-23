@@ -1,7 +1,5 @@
 package org.example.luckyburger.domain.order.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.entity.Order;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,11 +21,6 @@ public class OrderEntityFinder {
     public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
-    }
-
-    public List<Order> getAllOrderByShopId(Long shopId) {
-        List<Order> orders = orderRepository.findAllByShopId(shopId);
-        return orders;
     }
 
     public Long getTotalSales(Shop shop) {

@@ -66,8 +66,8 @@ public class UserService {
     @Transactional
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
         Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().getEmail());
-        User user = userEntityFinder.getUserByAccount(account);
-
+        User user = userEntityFinder.getUserByAccountId(account.getId());
+        
         authService.updateAccount(AccountUpdateRequest.builder()
                 .name(userRequest.name())
                 .build());
@@ -84,9 +84,8 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
-        Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
 
-        User user = userEntityFinder.getUserByAccount(account);
+        User user = findUser();
 
         return UserResponse.from(user);
     }
@@ -102,6 +101,10 @@ public class UserService {
             throw new DuplicatePhoneException();
     }
 
+    @Transactional(readOnly = true)
+    public User findUser() {
+        return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+    }
 
     @Transactional
     public void deductPoints(User user, Integer usePoint) {
