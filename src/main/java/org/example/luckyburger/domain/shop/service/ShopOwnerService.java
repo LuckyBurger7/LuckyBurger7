@@ -1,28 +1,32 @@
 package org.example.luckyburger.domain.shop.service;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.domain.order.dto.response.OrderResponse;
-import org.example.luckyburger.domain.order.entity.Order;
-import org.example.luckyburger.domain.order.service.OrderEntityFinder;
-import org.example.luckyburger.domain.review.entity.Review;
-import org.example.luckyburger.domain.review.service.ReviewEntityFinder;
-import org.example.luckyburger.domain.shop.entity.Shop;
-import org.example.luckyburger.domain.shop.enums.BusinessStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.Month;
+import java.time.Year;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.ZoneId;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
+import org.example.luckyburger.domain.menu.service.MenuEntityFinder;
+import org.example.luckyburger.domain.order.service.OrderEntityFinder;
+import org.example.luckyburger.domain.shop.dto.request.CouponPolicyRequest;
+import org.example.luckyburger.domain.shop.dto.request.ShopMenuRequest;
+import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
+import org.example.luckyburger.domain.shop.dto.response.CouponPolicyResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopTotalSalesResponse;
+import org.example.luckyburger.domain.shop.entity.CouponPolicy;
+import org.example.luckyburger.domain.shop.entity.Shop;
+import org.example.luckyburger.domain.shop.entity.ShopMenu;
+import org.example.luckyburger.domain.shop.exception.CouponPolicyNotFoundException;
+import org.example.luckyburger.domain.shop.exception.ShopMenuNotFoundException;
+import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
+import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -31,114 +35,69 @@ public class ShopOwnerService {
 
     private final ShopEntityFinder shopEntityFinder;
     private final OrderEntityFinder orderEntityFinder;
-    private final ReviewEntityFinder reviewEntityFinder;
+    private final CouponEntityFinder couponEntityFinder;
+    private final ShopCouponRepository shopCouponRepository;
+    private final MenuEntityFinder menuEntityFinder;
+    private final ShopMenuRepository shopMenuRepository;
+
+
+    // 상점의 쿠폰 사용여부 수정
+    @Transactional
+    public CouponPolicyResponse updateCouponStatus(Long shopId, Long couponId, CouponPolicyRequest cpr) {
+        // 점포 및 쿠폰 존재 여부 체크
+        shopEntityFinder.getShopById(shopId);
+        couponEntityFinder.getCouponById(couponId);
+
+        CouponPolicy couponPolicy = shopCouponRepository.findByShopIdAndCouponId(shopId, couponId).
+                orElseThrow(CouponPolicyNotFoundException::new);
+
+        couponPolicy.updateCouponPolicy(cpr.couponStatus());
+        return CouponPolicyResponse.from(couponPolicy);
+    }
+
+    // 상점의 쿠폰 조회
+    @Transactional(readOnly = true)
+    public CouponPolicyResponse getCouponPolicyResponse(Long shopId, Long couponId) {
+        CouponPolicy couponPolicy = shopCouponRepository.findByShopIdAndCouponId(shopId, couponId).
+                orElseThrow(CouponPolicyNotFoundException::new);
+        return CouponPolicyResponse.from(couponPolicy);
+    }
 
     // 상점의 상태를 변경
     @Transactional
-    public Shop updateStatus(Long shopId,
-                             BusinessStatus shopStatus) {
-
+    public ShopResponse updateShopStatus(Long shopId, ShopUpdateRequest request) {
         Shop shopEntity = shopEntityFinder.getShopById(shopId);
-
-        shopEntity.updateShopStatus(shopStatus);
-
-        return shopEntity;
+        shopEntity.updateShopStatus(request.businessStatus());
+        return ShopResponse.from(shopEntity);
     }
 
-    @Transactional(readOnly = true)
-    public int getTotalSaleByMonthWithShopId(Long shopId, LocalDate localDate) {
+    // 상점의 메뉴의 상태 변경
+    @Transactional
+    public ShopMenuResponse updateMenuStatus(Long shopId, Long menuId, ShopMenuRequest request) {
+        shopEntityFinder.getShopById(shopId);
+        menuEntityFinder.getMenu(menuId);
 
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
-
-        LocalDateTime start = LocalDate.of(year, month, 1).atStartOfDay();
-        LocalDateTime end = LocalDate.of(year, month,
-                        YearMonth.of(year, month).lengthOfMonth())
-                .atTime(LocalTime.MAX);
-
-        int totalSaleByMonth = 0;
-
-        List<Order> orderListByShopId = orderEntityFinder.getAllOrderByShopId(shopId);
-
-        for (Order order : orderListByShopId) {
-            if (order.getOrderDate().isBefore(end) && order.getOrderDate().isAfter(start)) {
-                totalSaleByMonth += order.getTotalPrice();
-            }
-        }
-
-        return totalSaleByMonth;
+        ShopMenu shopMenu = shopMenuRepository.findWithShopByShopIdAndMenuId(shopId, menuId).
+                orElseThrow(ShopMenuNotFoundException::new);
+        shopMenu.updateShopMenuStatus(request.menuStatus());
+        return ShopMenuResponse.from(shopMenu);
     }
 
-    @Transactional(readOnly = true)
-    public double getRatingByShop(Long shopId) {
+    // 월 정산 구간: 매 월 21일 00:00 ~ 다음 달 21일 00:00
+    public ShopTotalSalesResponse getTotalSalesByShopIdAndMonth(Long shopId, Integer month) {
+        ZoneId zone = ZoneId.of("Asia/Seoul");
 
-        double totalRating = 0;
-        double count = 0;
+        Month m = (month == null) ? LocalDate.now(zone).getMonth() : Month.of(month);
+        int year = Year.now(zone).getValue();
+        YearMonth ym = YearMonth.of(year, m);
 
-        Shop shop = shopEntityFinder.getShopById(shopId);
+        LocalDate startDate = ym.atDay(21);
+        LocalDate endDate = ym.plusMonths(1).atDay(21);
 
-        List<Review> reviewList = reviewEntityFinder.getReviewListByShop(shop);
+        LocalDateTime start = startDate.atStartOfDay(zone).toLocalDateTime();
+        LocalDateTime end = endDate.atStartOfDay(zone).toLocalDateTime();
 
-        for (Review review : reviewList) {
-            totalRating += review.getRating();
-            count++;
-        }
-
-        double shopRating = totalRating / count;
-
-        return shopRating;
+        long total = orderEntityFinder.sumMonthlySalesTotal(shopId, start, end);
+        return new ShopTotalSalesResponse(total);
     }
-
-
-    @Transactional(readOnly = true)
-    public Page<OrderResponse> getOrderTodayByShop(LocalDateTime start, LocalDateTime end, Long shopId, int page, int size) {
-
-        List<Order> orderList = new ArrayList<>();
-
-        List<Order> orderListByShopId = orderEntityFinder.getAllOrderByShopId(shopId);
-
-        for (Order order : orderListByShopId) {
-            if (order.getOrderDate().isBefore(end) && order.getOrderDate().isAfter(start)) {
-                orderList.add(order);
-            }
-        }
-
-        Pageable pageable = PageRequest.of(page, size);
-
-        Page<Order> orderPage = new PageImpl<>(orderList, pageable, size);
-
-        return orderPage.map(order -> OrderResponse.of(
-                order.getId(),
-                order.getShop().getId(),
-                order.getReceiver(),
-                order.getPhone(),
-                order.getAddress(),
-                order.getStreet(),
-                order.getRequest(),
-                order.getCoupon() != null ? order.getCoupon().getId() : null,
-                order.getPoint(),
-                OrderResponse.Amount.of(order.getTotalPrice(), order.getPay()),
-                Collections.emptyList(),
-                order.getOrderDate(),
-                order.getStatus()
-        ));
-    }
-
-    @Transactional(readOnly = true)
-    public int getTotalSaleToday(LocalDateTime start, LocalDateTime end, Long shopId) {
-
-        int totalPrice = 0;
-
-        List<Order> orderListByShop = orderEntityFinder.getAllOrderByShopId(shopId);
-
-        for (Order order : orderListByShop) {
-            if (order.getOrderDate().isBefore(end) && order.getOrderDate().isAfter(start)) {
-                totalPrice += order.getTotalPrice();
-            }
-        }
-
-        return totalPrice;
-
-    }
-
 }
