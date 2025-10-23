@@ -64,7 +64,7 @@ public class CouponAdminService {
      */
     @Transactional(readOnly = true)
     public Page<CouponResponse> getAllAvailableCoupon(Pageable pageable) {
-        Page<Coupon> couponPage = couponRepository.findCouponsByExpirationDateBefore(LocalDateTime.now(), pageable);
+        Page<Coupon> couponPage = couponRepository.findCouponsByExpirationDateAfter(LocalDateTime.now(), pageable);
 
         return couponPage.map(CouponResponse::from);
     }
