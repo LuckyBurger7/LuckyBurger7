@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface ShopRepository extends JpaRepository<Shop, Long> {
 
     @Query("SELECT s FROM Shop s " +
-            "WHERE (:shopname IS NULL OR s.name LIKE CONCAT('%', :shopname, '%'))")
+            "WHERE (:shopName IS NULL OR s.name LIKE CONCAT('%', :shopName, '%'))")
     Page<Shop> findAllByNameContaining(String shopName, Pageable pageable);
 }
