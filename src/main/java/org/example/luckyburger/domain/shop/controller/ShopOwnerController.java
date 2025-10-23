@@ -43,7 +43,7 @@ public class ShopOwnerController {
             @PathVariable Long couponId,
             @Valid @RequestBody CouponPolicyRequest cpr
     ) {
-        return ApiResponse.success(shopOwnerService.updateCouponStatusResponse(shopId, couponId, cpr));
+        return ApiResponse.success(shopOwnerService.updateCouponStatus(shopId, couponId, cpr));
     }
 
     /**
@@ -54,11 +54,11 @@ public class ShopOwnerController {
      * @return
      */
     @GetMapping("/v1/owner/shops/{shopId}/coupons/{couponId}")
-    public ResponseEntity<ApiResponse<CouponPolicyResponse>> getCouponByShop(
+    public ResponseEntity<ApiResponse<CouponPolicyResponse>> getCouponPolicyByShop(
             @PathVariable Long couponId,
             @PathVariable Long shopId
     ) {
-        return ApiResponse.success(shopOwnerService.getCouponResponse(shopId, couponId));
+        return ApiResponse.success(shopOwnerService.getCouponPolicyResponse(shopId, couponId));
     }
 
     /**
@@ -72,7 +72,7 @@ public class ShopOwnerController {
     public ResponseEntity<ApiResponse<ShopResponse>> updateShopStatus(@PathVariable Long shopId,
                                                                       @RequestBody ShopUpdateRequest request) {
 
-        return ApiResponse.success(shopOwnerService.updateShopStatusResponse(shopId, request));
+        return ApiResponse.success(shopOwnerService.updateShopStatus(shopId, request));
     }
 
     /**
@@ -88,7 +88,7 @@ public class ShopOwnerController {
             @PathVariable Long shopId,
             @PathVariable Long menuId,
             @Valid @RequestBody ShopMenuRequest request) {
-        return ApiResponse.success(shopOwnerService.updateMenuStatusResponse(shopId, menuId, request));
+        return ApiResponse.success(shopOwnerService.updateMenuStatus(shopId, menuId, request));
     }
 
     /**
@@ -99,11 +99,11 @@ public class ShopOwnerController {
      * @return
      */
     @GetMapping("/v1/owner/shops/{shopId}/sales/monthly")
-    public ResponseEntity<ApiResponse<ShopTotalSalesResponse>> getMonthlySales(
+    public ResponseEntity<ApiResponse<ShopTotalSalesResponse>> getTotalSalesByShopId(
             @PathVariable Long shopId,
             @RequestParam(value = "month", required = false) Integer month
     ) {
-        var res = shopOwnerService.getMonthlySalesResponse(shopId, month);
+        var res = shopOwnerService.getTotalSalesByShopIdAndMonth(shopId, month);
         return ApiResponse.success(res);
     }
 }
