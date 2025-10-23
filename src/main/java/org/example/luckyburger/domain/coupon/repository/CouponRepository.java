@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
-    Page<Coupon> findCouponsByExpirationDateBefore(LocalDateTime expirationDateBefore, Pageable pageable);
+    Page<Coupon> findCouponsByExpirationDateAfter(LocalDateTime expirationDateBefore, Pageable pageable);
 
     Page<Coupon> findAll(Pageable pageable);
 }
