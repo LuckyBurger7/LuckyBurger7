@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.cart.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.repository.CartMenuRepository;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,6 @@ import java.util.List;
 public class CartMenuService {
 
     private final CartMenuRepository cartMenuRepository;
-    private final CartMenuEntityFinder cartMenuEntityFinder;
 
     // CartMenu 삭제
     @Transactional
@@ -24,8 +24,9 @@ public class CartMenuService {
 
     // 주문 결제 완료 시 사용할 장바구니 비우기
     @Transactional
-    public void clear(Long cartId) {
-        cartMenuRepository.deleteAllByCartId(cartId);
+    public void clear(Cart cart) {
+        cart.updateTotalPrice(0);
+        cartMenuRepository.deleteAllByCartId(cart.getId());
     }
 
     // 총합 금액 계산 (cart Id 기준)

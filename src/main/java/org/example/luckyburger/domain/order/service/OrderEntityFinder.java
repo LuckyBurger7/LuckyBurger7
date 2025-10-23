@@ -1,8 +1,11 @@
 package org.example.luckyburger.domain.order.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.entity.Order;
+import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.order.exception.OrderNotFoundException;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
@@ -38,5 +41,10 @@ public class OrderEntityFinder {
 
     public Integer getCountOrderByShopAndToday(Shop shop, LocalDateTime midnightToday) {
         return orderRepository.countByShopAndOrderDateAfter(shop, midnightToday);
+    }
+
+    public long sumMonthlySalesTotal(Long shopId, LocalDateTime start, LocalDateTime end) {
+        Long total = orderRepository.sumMonthlyPaidByShopId(shopId, OrderStatus.COMPLETED, start, end);
+        return total == null ? 0L : total;
     }
 }

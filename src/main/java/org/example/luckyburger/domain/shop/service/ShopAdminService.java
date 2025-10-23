@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
-import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
@@ -27,18 +26,6 @@ public class ShopAdminService {
 
         return ShopResponse.from(shopRepository.save(shopEntity));
 
-    }
-
-    // 상점의 상태를 변경
-    @Transactional
-    public Shop updateShopStatus(Long shopId,
-                                 ShopUpdateRequest request) {
-
-        Shop shopEntity = shopEntityFinder.getShopById(shopId);
-
-        shopEntity.updateShopStatus(request.businessStatus());
-
-        return shopEntity;
     }
 
     // 상점의 정보를 수정
