@@ -31,7 +31,7 @@ jwt:
       - /api/v1/coupons/**
       - /api/v1/shops/**
       - /api/v1/events/**
-      - /api/v1/actuator/health
+      - /actuator/health
       - /actuator/prometheus
 
   token:
