@@ -17,8 +17,13 @@ public class OwnerEntityFinder {
 
     public Owner getOwnerByAccountId(Long accountId) {
 
-        return ownerRepository.findById(accountId).orElseThrow(
+        Owner owner = ownerRepository.findById(accountId).orElseThrow(
                 OwnerNotFoundException::new
         );
+
+        if (owner.getAccount().getDeletedAt() != null)
+            throw new OwnerNotFoundException();
+
+        return owner;
     }
 }

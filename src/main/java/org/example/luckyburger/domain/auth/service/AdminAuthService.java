@@ -11,7 +11,6 @@ import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.entity.Owner;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.auth.exception.DuplicateShopException;
-import org.example.luckyburger.domain.auth.exception.OwnerNotFoundException;
 import org.example.luckyburger.domain.auth.repository.OwnerRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
@@ -25,9 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminAuthService {
 
     private final OwnerRepository ownerRepository;
+    private final OwnerEntityFinder ownerEntityFinder;
     private final AuthService authService;
     private final ShopEntityFinder shopEntityFinder;
     private final AccountEntityFinder accountEntityFinder;
+
 
     @Transactional
     public OwnerResponse createOwner(OwnerSignupRequest request) {
@@ -67,7 +68,7 @@ public class AdminAuthService {
 
         validateDuplicateShop(shop);
 
-        Owner owner = ownerRepository.findById(accountId).orElseThrow(OwnerNotFoundException::new);
+        Owner owner = ownerEntityFinder.getOwnerByAccountId(accountId);
 
         owner.updateOwner(shop);
 
@@ -76,7 +77,7 @@ public class AdminAuthService {
 
     @Transactional
     public void deleteOwner(Long accountId) {
-        Owner owner = ownerRepository.findById(accountId).orElseThrow(OwnerNotFoundException::new);
+        Owner owner = ownerEntityFinder.getOwnerByAccountId(accountId);
         owner.getAccount().delete();
         owner.deleteShop();
     }
