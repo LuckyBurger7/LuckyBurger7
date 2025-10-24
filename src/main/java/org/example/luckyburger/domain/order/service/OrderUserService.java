@@ -2,16 +2,12 @@ package org.example.luckyburger.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
-import org.example.luckyburger.domain.auth.entity.Account;
-import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuService;
-import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.coupon.entity.UserCoupon;
-import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
 import org.example.luckyburger.domain.coupon.service.UserCouponEntityFinder;
 import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderCouponResponse;
@@ -52,19 +48,16 @@ public class OrderUserService {
     private final OrderEntityFinder orderEntityFinder;
     private final OrderMenuEntityFinder orderMenuEntityFinder;
     private final UserEntityFinder userEntityFinder;
-    private final AccountEntityFinder accountEntityFinder;
     private final UserService userService;
     private final CartMenuService cartMenuService;
     private final ShopEntityFinder shopEntityFinder;
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
     private final UserCouponEntityFinder userCouponEntityFinder;
-    private final CouponEntityFinder couponEntityFinder;
 
     @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
-        Account userAccount = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
-        User user = userEntityFinder.getUserByAccount(userAccount);
+        User user = getUser();
         Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // 장바구니 메뉴 조회
@@ -74,7 +67,7 @@ public class OrderUserService {
         }
 
         // 주문서 저장 (이전 주문서 삭제)
-        orderFormRepository.deleteAllByUser(user);
+        orderFormRepository.deleteByUser(user);
         List<OrderForm> orderFormsToSave = cartMenus.stream()
                 .map(cartMenu -> OrderForm.of(user, cartMenu.getShopMenu(), cartMenu.getQuantity()))
                 .toList();
@@ -104,7 +97,7 @@ public class OrderUserService {
 
         return OrderPrepareResponse.of(
                 shop.getName(),
-                userAccount.getName(),
+                user.getAccount().getName(),
                 user.getPhone(),
                 user.getAddress(),
                 user.getStreet(),
@@ -117,7 +110,7 @@ public class OrderUserService {
 
     @Transactional
     public OrderResponse createOrderResponse(OrderCreateRequest request) {
-        User user = getUserByAuthAccount();
+        User user = getUser();
 
         // 주문서 조회
         List<OrderForm> orderForms = orderFormRepository.findAllByUser(user);
@@ -143,8 +136,7 @@ public class OrderUserService {
         // 해당 쿠폰 조회 및 사용
         UserCoupon userCoupon = null;
         if (request.couponId() != null) {
-            Coupon coupon = couponEntityFinder.getCouponById(request.couponId());
-            userCoupon = userCouponEntityFinder.getVerifiedUserCouponByCoupon(coupon);
+            userCoupon = userCouponEntityFinder.getVerifiedUserCouponByCouponId(request.couponId());
             discount += userCoupon.getCoupon().calculateDiscount(subtotal);
             // 쿠폰 사용
             userCoupon.useCoupon();
@@ -199,7 +191,7 @@ public class OrderUserService {
         orderMenuRepository.saveAll(orderMenusToSave);
 
         // 주문서 삭제
-        orderFormRepository.deleteAllByUser(user);
+        orderFormRepository.deleteByUser(user);
 
         // 장바구니 비우기 및 삭제
         Cart cart = cartEntityFinder.getCartByUserId(user.getId());
@@ -211,14 +203,14 @@ public class OrderUserService {
 
         return OrderResponse.of(
                 savedOrder.getId(),
-                shop.getId(),
+                savedOrder.getShop().getId(),
                 savedOrder.getReceiver(),
                 savedOrder.getPhone(),
                 savedOrder.getAddress(),
                 savedOrder.getStreet(),
                 savedOrder.getRequest(),
                 savedOrder.getCoupon() != null ? savedOrder.getCoupon().getId() : null,
-                usePoint,
+                savedOrder.getPoint(),
                 OrderResponse.Amount.of(subtotal, pay),
                 orderMenuResponses,
                 savedOrder.getOrderDate(),
@@ -228,7 +220,7 @@ public class OrderUserService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderResponse(Long orderId) {
-        User user = getUserByAuthAccount();
+        User user = getUser();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -243,7 +235,7 @@ public class OrderUserService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
-        User user = getUserByAuthAccount();
+        User user = getUser();
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByUserId(user.getId(), pageable);
@@ -274,7 +266,7 @@ public class OrderUserService {
 
     @Transactional
     public void cancelOrder(Long orderId) {
-        User user = getUserByAuthAccount();
+        User user = getUser();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -287,8 +279,7 @@ public class OrderUserService {
 
         // 쿠폰 적용 취소
         if (order.getCoupon() != null) {
-            Coupon coupon = couponEntityFinder.getCouponById(order.getCoupon().getId());
-            UserCoupon userCoupon = userCouponEntityFinder.getUserCouponByCoupon(coupon);
+            UserCoupon userCoupon = userCouponEntityFinder.getUserCouponByCouponId(order.getCoupon().getId());
             userCoupon.restoreCoupon();
         }
 
@@ -300,9 +291,8 @@ public class OrderUserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserByAuthAccount() {
-        Account userAccount = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
-        return userEntityFinder.getUserByAccount(userAccount);
+    public User getUser() {
+        return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }
 

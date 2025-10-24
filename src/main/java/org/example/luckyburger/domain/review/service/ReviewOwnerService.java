@@ -34,7 +34,7 @@ public class ReviewOwnerService {
                 Math.min(pageable.getPageSize(), 3),
                 pageable.getSort()
         );
-        Page<Review> reviews = reviewRepository.findShopReviews(shopId, limited);
+        Page<Review> reviews = reviewRepository.findByShop(shopId, limited);
         return reviews.map(ReviewResponse::from);
     }
 
@@ -68,7 +68,7 @@ public class ReviewOwnerService {
                 Math.min(pageable.getPageSize(), 3),
                 pageable.getSort()
         );
-        Page<Review> reviews = reviewRepository.findShopReviewsNotDeleted(shopId, limited);
+        Page<Review> reviews = reviewRepository.findByShopNotDeleted(shopId, limited);
         return reviews.map(ReviewResponse::from);
     }
 }

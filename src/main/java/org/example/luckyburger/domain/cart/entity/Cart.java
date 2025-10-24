@@ -4,17 +4,20 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.luckyburger.common.entity.BaseIdEntity;
 import org.example.luckyburger.domain.user.entity.User;
 
 @Getter
 @Entity
 @Table(name = "carts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Cart extends BaseIdEntity {
+public class Cart {
+    @Id
+    @Column(name = "account_id")
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", nullable = false)
     private User user;
 
     @Column(name = "total_price")

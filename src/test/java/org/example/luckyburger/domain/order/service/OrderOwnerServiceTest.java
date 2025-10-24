@@ -93,8 +93,7 @@ public class OrderOwnerServiceTest {
         ReflectionTestUtils.setField(cart, "id", 301L);
         owner = Owner.of(account, shop);
 
-        when(accountEntityFinder.getAccountById(1L)).thenReturn(account);
-        when(ownerEntityFinder.getOwnerByAccount(account)).thenReturn(owner);
+        when(ownerEntityFinder.getOwnerByAccountId(anyLong())).thenReturn(owner);
     }
 
     @Test

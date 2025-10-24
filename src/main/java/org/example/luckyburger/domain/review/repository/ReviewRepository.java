@@ -14,17 +14,15 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(
             value = "select r from Review r join fetch r.user u join fetch r.order o where r.shop.id = :shopId",
             countQuery = "select count(r) from Review r where r.shop.id = :shopId")
-    Page<Review> findShopReviews(@Param("shopId") Long shopId, Pageable pageable);
+    Page<Review> findByShop(@Param("shopId") Long shopId, Pageable pageable);
 
     @Query(
             value = "select r from Review r join fetch r.user u join fetch r.order o where r.shop.id = :shopId and r.deletedAt is null",
             countQuery = "select count(r) from Review r where r.shop.id = :shopId and r.deletedAt is null"
     )
-    Page<Review> findShopReviewsNotDeleted(@Param("shopId") Long shopId, Pageable pageable);
+    Page<Review> findByShopNotDeleted(@Param("shopId") Long shopId, Pageable pageable);
 
     List<Review> findAllByShop(Shop shop);
-
-    List<Review> shop(Shop shop);
 
     Long countByShop(Shop shop);
 

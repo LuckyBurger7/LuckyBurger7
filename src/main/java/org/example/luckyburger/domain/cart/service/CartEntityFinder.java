@@ -17,7 +17,7 @@ public class CartEntityFinder {
 
     // userId로 찾기
     public Cart getCartByUserId(Long userId) {
-        return cartRepository.findByUserId(userId)
+        return cartRepository.findById(userId)
                 .orElseThrow(CartNotFoundException::new);
     }
 }

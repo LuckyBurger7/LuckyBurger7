@@ -4,8 +4,6 @@ import org.example.luckyburger.common.annotation.WithMockCustomAccount;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.auth.repository.AccountRepository;
-import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
-import org.example.luckyburger.domain.auth.service.AuthService;
 import org.example.luckyburger.domain.user.dto.request.UserSignupRequest;
 import org.example.luckyburger.domain.user.dto.request.UserUpdateRequest;
 import org.example.luckyburger.domain.user.dto.response.UserResponse;
@@ -18,17 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
 class UserServiceTest {
 
-    @Autowired
-    private AccountEntityFinder accountEntityFinder;
-    @Autowired
-    private UserEntityFinder userEntityFinder;
-    @Autowired
-    private AuthService authService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -65,6 +58,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("프로필 업데이트")
     @WithMockCustomAccount(id = 1L, email = "test@example.com", role = AccountRole.ROLE_USER)
     void updateProfile() {

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface OrderFormRepository extends JpaRepository<OrderForm, Long> {
-    void deleteAllByUser(User user);
+    void deleteByUser(User user);
 
     @EntityGraph(attributePaths = {"shopMenu", "shopMenu.menu"})
     List<OrderForm> findAllByUser(User user);

@@ -1,7 +1,6 @@
 package org.example.luckyburger.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.entity.Owner;
 import org.example.luckyburger.domain.auth.exception.OwnerNotFoundException;
 import org.example.luckyburger.domain.auth.repository.OwnerRepository;
@@ -15,11 +14,10 @@ public class OwnerEntityFinder {
 
     private final OwnerRepository ownerRepository;
 
-    public Owner getOwnerByAccount(Account account) {
-        Owner owner = ownerRepository.findByAccount(account).orElseThrow(
+    public Owner getOwnerByAccountId(Long accountId) {
+
+        return ownerRepository.findById(accountId).orElseThrow(
                 OwnerNotFoundException::new
         );
-
-        return owner;
     }
 }

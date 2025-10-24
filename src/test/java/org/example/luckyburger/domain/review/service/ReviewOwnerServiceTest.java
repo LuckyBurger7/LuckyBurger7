@@ -1,16 +1,5 @@
 package org.example.luckyburger.domain.review.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import java.time.LocalDateTime;
-import java.util.List;
 import org.example.luckyburger.domain.review.dto.request.CommentRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
@@ -21,11 +10,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewOwnerService 테스트")
@@ -63,7 +58,7 @@ public class ReviewOwnerServiceTest {
         given(r2.getCreatedAt()).willReturn(LocalDateTime.now());
         given(r2.getModifiedAt()).willReturn(LocalDateTime.now());
 
-        given(reviewRepository.findShopReviews(eq(shopId), any(Pageable.class)))
+        given(reviewRepository.findByShop(eq(shopId), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(r1, r2), PageRequest.of(0, 3), 2));
 
         // when
@@ -81,7 +76,7 @@ public class ReviewOwnerServiceTest {
         assertThat(page.getContent().get(1).rating()).isEqualTo(4.0);
         assertThat(page.getContent().get(1).comment()).isEqualTo("사장님 댓글 감사합니다");
 
-        verify(reviewRepository).findShopReviews(eq(shopId), any(Pageable.class));
+        verify(reviewRepository).findByShop(eq(shopId), any(Pageable.class));
     }
 
     @Test
