@@ -3,13 +3,10 @@ package org.example.luckyburger.domain.coupon.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
-import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.coupon.entity.UserCoupon;
 import org.example.luckyburger.domain.coupon.exception.CouponExpiredException;
 import org.example.luckyburger.domain.coupon.exception.UserCouponNotFoundException;
 import org.example.luckyburger.domain.coupon.repository.UserCouponRepository;
-import org.example.luckyburger.domain.user.entity.User;
-import org.example.luckyburger.domain.user.service.UserEntityFinder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +18,16 @@ import java.util.List;
 public class UserCouponEntityFinder {
 
     private final UserCouponRepository userCouponRepository;
-    private final UserEntityFinder userEntityFinder;
 
     /**
      * 로그인한 유저의 보유 쿠폰을 반환
      *
-     * @param coupon 쿠폰 엔티티
+     * @param couponId 쿠폰 id
      * @return 유저 쿠폰 엔티티 반환
      */
-    public UserCoupon getVerifiedUserCouponByCoupon(Coupon coupon) {
+    public UserCoupon getVerifiedUserCouponByCouponId(Long couponId) {
 
-        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
-        UserCoupon userCoupon = userCouponRepository.findByUserAndCoupon(user, coupon).orElseThrow(
+        UserCoupon userCoupon = userCouponRepository.findByUserIdAndCouponId(AuthAccountUtil.getAuthAccount().getAccountId(), couponId).orElseThrow(
                 UserCouponNotFoundException::new
         );
 
@@ -46,10 +41,9 @@ public class UserCouponEntityFinder {
         return userCoupon;
     }
 
-    public UserCoupon getUserCouponByCoupon(Coupon coupon) {
-        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+    public UserCoupon getUserCouponByCouponId(Long couponId) {
 
-        return userCouponRepository.findByUserAndCoupon(user, coupon).orElseThrow(
+        return userCouponRepository.findByUserIdAndCouponId(AuthAccountUtil.getAuthAccount().getAccountId(), couponId).orElseThrow(
                 UserCouponNotFoundException::new
         );
     }

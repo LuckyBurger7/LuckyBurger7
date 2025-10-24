@@ -23,16 +23,6 @@ public class EventController {
         return ApiResponse.success(eventService.getEventResponse(eventId));
     }
 
-    @GetMapping("/v1/events/all")
-    public ResponseEntity<ApiPageResponse<EventResponse>> getAllEvent(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        return ApiPageResponse.success(eventService.getAllEventResponse(pageable));
-    }
-
     @GetMapping("/v1/events")
     public ResponseEntity<ApiPageResponse<EventResponse>> getAllEventByNotDeleted(
             @RequestParam(defaultValue = "0") int page,

@@ -11,6 +11,7 @@ import org.example.luckyburger.domain.shop.entity.Shop;
 @Entity
 @Table(name = "owners")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class Owner {
     @Id
     @Column(name = "account_id")

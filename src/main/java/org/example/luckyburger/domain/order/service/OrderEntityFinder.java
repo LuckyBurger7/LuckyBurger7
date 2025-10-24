@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,11 +23,6 @@ public class OrderEntityFinder {
     public Order getOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
-    }
-
-    public List<Order> getAllOrderByShopId(Long shopId) {
-        List<Order> orders = orderRepository.findAllByShopId(shopId);
-        return orders;
     }
 
     public Long getTotalSales(Shop shop) {

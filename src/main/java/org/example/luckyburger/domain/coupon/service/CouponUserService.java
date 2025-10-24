@@ -54,9 +54,7 @@ public class CouponUserService {
     @Transactional(readOnly = true)
     public Page<UserCouponResponse> getAllVerifiedUserCouponResponse(Pageable pageable) {
 
-        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
-
-        Page<UserCoupon> userCouponPage = userCouponRepository.findAllByUser(user, pageable);
+        Page<UserCoupon> userCouponPage = userCouponRepository.findAllByUserId(AuthAccountUtil.getAuthAccount().getAccountId(), pageable);
 
         return userCouponPage.map(UserCouponResponse::from);
     }

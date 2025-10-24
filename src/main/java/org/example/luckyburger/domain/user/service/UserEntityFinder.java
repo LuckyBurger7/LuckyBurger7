@@ -2,7 +2,6 @@ package org.example.luckyburger.domain.user.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.exception.UserNotFoundException;
 import org.example.luckyburger.domain.user.repository.UserRepository;
@@ -19,22 +18,11 @@ public class UserEntityFinder {
     /**
      * 계정으로 유저 조회 후 반환
      *
-     * @param account 계정 엔티티
+     * @param accountId 계정 Id
      * @return 유저 엔티티 반환
      */
-    public User getUserByAccount(Account account) {
-        User user = userRepository.findByAccount(account).orElseThrow(
-                UserNotFoundException::new
-        );
-
-        if (account.getDeletedAt() != null)
-            throw new UserNotFoundException();
-
-        return user;
-    }
-
     public User getUserByAccountId(Long accountId) {
-        User user = userRepository.findByAccountId(accountId).orElseThrow(
+        User user = userRepository.findById(accountId).orElseThrow(
                 UserNotFoundException::new
         );
 

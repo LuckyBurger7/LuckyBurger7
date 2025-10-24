@@ -15,7 +15,7 @@ import org.example.luckyburger.domain.user.entity.User;
 public class OrderForm extends BaseIdEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "account_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

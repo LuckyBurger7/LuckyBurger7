@@ -2,8 +2,6 @@ package org.example.luckyburger.domain.shop.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
-import org.example.luckyburger.domain.menu.service.MenuEntityFinder;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.service.ReviewEntityFinder;
 import org.example.luckyburger.domain.shop.dto.request.CouponPolicyRequest;
@@ -29,9 +27,7 @@ public class ShopOwnerService {
 
     private final ShopEntityFinder shopEntityFinder;
     private final OrderEntityFinder orderEntityFinder;
-    private final CouponEntityFinder couponEntityFinder;
     private final ShopCouponRepository shopCouponRepository;
-    private final MenuEntityFinder menuEntityFinder;
     private final ShopMenuRepository shopMenuRepository;
     private final ReviewEntityFinder reviewEntityFinder;
 
@@ -40,8 +36,8 @@ public class ShopOwnerService {
     @Transactional
     public CouponPolicyResponse updateCouponStatus(Long shopId, Long couponId, CouponPolicyRequest cpr) {
         // 점포 및 쿠폰 존재 여부 체크
-        shopEntityFinder.getShopById(shopId);
-        couponEntityFinder.getCouponById(couponId);
+        //shopEntityFinder.getShopById(shopId);
+        //couponEntityFinder.getCouponById(couponId);
 
         CouponPolicy couponPolicy = shopCouponRepository.findByShopIdAndCouponId(shopId, couponId).
                 orElseThrow(CouponPolicyNotFoundException::new);
@@ -69,8 +65,8 @@ public class ShopOwnerService {
     // 상점의 메뉴의 상태 변경
     @Transactional
     public ShopMenuResponse updateMenuStatus(Long shopId, Long menuId, ShopMenuRequest request) {
-        shopEntityFinder.getShopById(shopId);
-        menuEntityFinder.getMenu(menuId);
+        //shopEntityFinder.getShopById(shopId);
+        //menuEntityFinder.getMenu(menuId);
 
         ShopMenu shopMenu = shopMenuRepository.findWithShopByShopIdAndMenuId(shopId, menuId).
                 orElseThrow(ShopMenuNotFoundException::new);

@@ -4,7 +4,6 @@ import org.example.luckyburger.common.exception.GlobalException;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
-import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
@@ -12,7 +11,6 @@ import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuService;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.coupon.entity.UserCoupon;
-import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
 import org.example.luckyburger.domain.coupon.service.UserCouponEntityFinder;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
@@ -71,8 +69,6 @@ public class OrderUserServiceTest {
     @Mock
     private UserEntityFinder userEntityFinder;
     @Mock
-    private AccountEntityFinder accountEntityFinder;
-    @Mock
     private OrderEntityFinder orderEntityFinder;
     @Mock
     private OrderMenuEntityFinder orderMenuEntityFinder;
@@ -88,8 +84,6 @@ public class OrderUserServiceTest {
     private CartEntityFinder cartEntityFinder;
     @Mock
     private CartMenuEntityFinder cartMenuEntityFinder;
-    @Mock
-    private CouponEntityFinder couponEntityFinder;
 
     @InjectMocks
     private OrderUserService orderUserService;
@@ -101,23 +95,24 @@ public class OrderUserServiceTest {
 
     @BeforeEach
     void setUp() {
-        AuthAccount principal = new AuthAccount(1L, "test@example.com", AccountRole.ROLE_USER);
+        AuthAccount principal = new AuthAccount(101L, "test@example.com", AccountRole.ROLE_USER);
         Authentication auth = new TestingAuthenticationToken(
                 principal, null,
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         account = Account.of("user@test.com", "홍길동", "password1!", AccountRole.ROLE_USER);
+
         user = User.of(account, "010-0000-0000", "서울 강남구 oo", "oo아파트 101동 1001호");
         shop = Shop.of("럭키버거 강남점", BusinessStatus.OPEN, "서울 강남구", "상세 주소");
         cart = Cart.of(user, 0);
 
+        ReflectionTestUtils.setField(account, "id", 101L);
         ReflectionTestUtils.setField(user, "id", 101L);
         ReflectionTestUtils.setField(shop, "id", 201L);
         ReflectionTestUtils.setField(cart, "id", 301L);
 
-        when(accountEntityFinder.getAccountById(1L)).thenReturn(account);
-        when(userEntityFinder.getUserByAccount(account)).thenReturn(user);
+        when(userEntityFinder.getUserByAccountId(101L)).thenReturn(user);
     }
 
     @Test
@@ -154,8 +149,7 @@ public class OrderUserServiceTest {
         assertThat(resp.items().get(0).unitPrice()).isEqualTo(10000);
         assertThat(resp.items().get(0).quantity()).isEqualTo(2);
 
-        verify(accountEntityFinder).getAccountById(1L);
-        verify(userEntityFinder).getUserByAccount(account);
+        verify(userEntityFinder).getUserByAccountId(account.getId());
         verify(cartEntityFinder).getCartByUserId(101L);
         verify(cartMenuEntityFinder).getAllCartMenuByCartId(301L);
         verify(shopEntityFinder).getShopById(201L);
@@ -218,8 +212,7 @@ public class OrderUserServiceTest {
         when(shopEntityFinder.getShopById(201L)).thenReturn(shop);
         when(cartEntityFinder.getCartByUserId(101L)).thenReturn(cart);
         when(orderFormRepository.findAllByUser(user)).thenReturn(List.of(orderForm));
-        when(couponEntityFinder.getCouponById(401L)).thenReturn(coupon);
-        when(userCouponEntityFinder.getVerifiedUserCouponByCoupon(coupon)).thenReturn(userCoupon);
+        when(userCouponEntityFinder.getVerifiedUserCouponByCouponId(coupon.getId())).thenReturn(userCoupon);
         when(orderRepository.save(any(Order.class))).thenAnswer(inv -> {
             Order o = inv.getArgument(0);
             ReflectionTestUtils.setField(o, "id", 1001L);
@@ -249,8 +242,7 @@ public class OrderUserServiceTest {
         verify(orderRepository).save(any(Order.class));
         verify(orderMenuRepository).saveAll(anyList());
         verify(cartMenuService).clear(any());
-        verify(couponEntityFinder).getCouponById(401L);
-        verify(userCouponEntityFinder).getVerifiedUserCouponByCoupon(coupon);
+        verify(userCouponEntityFinder).getVerifiedUserCouponByCouponId(coupon.getId());
         verify(userCoupon).useCoupon();
         verify(userService).deductPoints(eq(user), eq(5000));
     }

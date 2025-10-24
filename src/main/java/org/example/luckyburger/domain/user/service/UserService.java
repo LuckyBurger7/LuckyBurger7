@@ -68,7 +68,7 @@ public class UserService {
     @Transactional
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
         Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().getEmail());
-        User user = userEntityFinder.getUserByAccount(account);
+        User user = userEntityFinder.getUserByAccountId(account.getId());
 
         authService.updateAccount(AccountUpdateRequest.builder()
                 .name(userRequest.name())
@@ -86,9 +86,8 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
-        Account account = accountEntityFinder.getAccountById(AuthAccountUtil.getAuthAccount().getAccountId());
 
-        User user = userEntityFinder.getUserByAccount(account);
+        User user = getUser();
 
         return UserResponse.from(user);
     }
@@ -107,6 +106,11 @@ public class UserService {
     @Transactional
     public void withdrawUser(CredentialRequest request) {
         authService.withdraw(request);
+    }
+
+    @Transactional(readOnly = true)
+    public User getUser() {
+        return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 
     @Transactional

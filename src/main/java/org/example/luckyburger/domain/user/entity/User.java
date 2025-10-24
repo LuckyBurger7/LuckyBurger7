@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.luckyburger.common.entity.BaseIdEntity;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.user.exception.NotAllowNegativePoint;
 import org.example.luckyburger.domain.user.exception.NotEnoughPointException;
@@ -14,9 +13,14 @@ import org.example.luckyburger.domain.user.exception.NotEnoughPointException;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseIdEntity {
+public class User {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Id
+    @Column(name = "account_id")
+    private Long id;
+
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 

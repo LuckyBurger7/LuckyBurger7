@@ -3,8 +3,8 @@ package org.example.luckyburger.domain.review.exception;
 import org.example.luckyburger.common.exception.GlobalException;
 import org.example.luckyburger.domain.review.code.ReviewErrorCode;
 
-public class CommentAlreadyExistsException extends GlobalException {
-    public CommentAlreadyExistsException() {
-        super(ReviewErrorCode.COMMENT_ALREADY_EXISTS);
+public class DuplicateReviewException extends GlobalException {
+    public DuplicateReviewException() {
+        super(ReviewErrorCode.REVIEW_ALREADY_EXISTS);
     }
 }
