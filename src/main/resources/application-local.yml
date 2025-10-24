@@ -14,6 +14,12 @@ spring:
         show_sql: true
         format_sql: false
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
 jwt:
   secret:
     aesKey: ${AES_KEY}
@@ -25,6 +31,9 @@ jwt:
       - /api/v1/coupons/**
       - /api/v1/shops/**
       - /api/v1/events/**
+      - /actuator/health
+      - /actuator/prometheus
+
   token:
     prefix: 'Bearer '
     expiration: ${JWT_EXPIRATION}
