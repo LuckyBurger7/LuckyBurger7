@@ -2,10 +2,14 @@ package org.example.luckyburger.domain.review.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.security.utils.AuthAccountUtil;
+import org.example.luckyburger.domain.auth.entity.Owner;
+import org.example.luckyburger.domain.auth.service.OwnerEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.CommentRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.exception.CommentAlreadyExistsException;
+import org.example.luckyburger.domain.review.exception.OwnerUnauthorizedAccessException;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +23,7 @@ public class ReviewOwnerService {
 
     private final ReviewRepository reviewRepository;
     private final ReviewEntityFinder reviewEntityFinder;
+    private final OwnerEntityFinder ownerEntityFinder;
 
     /**
      * 점포의 작성된 리뷰 조회 (페이지 당 최대 3개), 사용자 : 점주
@@ -42,12 +47,18 @@ public class ReviewOwnerService {
     /**
      * 작성된 리뷰의 댓글 작성, 사용자 : 점주
      *
+     * @param shopId
      * @param reviewId
      * @param request
      */
     @Transactional
-    public void createComment(Long reviewId, CommentRequest request) {
+    public void createComment(Long shopId, Long reviewId, CommentRequest request) {
         Review review = reviewEntityFinder.getReviewById(reviewId);
+        Owner owner = ownerEntityFinder.getOwnerByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+
+        if (!owner.getShop().getId().equals(shopId)) {
+            throw new OwnerUnauthorizedAccessException();
+        }
 
         if (review.getComment() != null && !review.getComment().isEmpty()) {
             throw new CommentAlreadyExistsException();
