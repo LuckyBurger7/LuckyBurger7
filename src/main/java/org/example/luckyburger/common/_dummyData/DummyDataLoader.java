@@ -1,5 +1,7 @@
 package org.example.luckyburger.common._dummyData;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
@@ -50,9 +52,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -168,13 +167,19 @@ public class DummyDataLoader implements CommandLineRunner {
                 2000
         ));
 
-        ShopMenu shopMenu11 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp1.id()).orElseThrow();
-        ShopMenu shopMenu12 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp2.id()).orElseThrow();
-        ShopMenu shopMenu13 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp3.id()).orElseThrow();
+        ShopMenu shopMenu11 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp1.id())
+                .orElseThrow();
+        ShopMenu shopMenu12 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp2.id())
+                .orElseThrow();
+        ShopMenu shopMenu13 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp3.id())
+                .orElseThrow();
 
-        ShopMenu shopMenu21 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp1.id()).orElseThrow();
-        ShopMenu shopMenu22 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp2.id()).orElseThrow();
-        ShopMenu shopMenu23 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp3.id()).orElseThrow();
+        ShopMenu shopMenu21 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp1.id())
+                .orElseThrow();
+        ShopMenu shopMenu22 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp2.id())
+                .orElseThrow();
+        ShopMenu shopMenu23 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp3.id())
+                .orElseThrow();
 
         Account user1 = accountRepository.findByEmail("user1@naver.com").orElseThrow();
         Account user2 = accountRepository.findByEmail("user2@naver.com").orElseThrow();
@@ -186,19 +191,24 @@ public class DummyDataLoader implements CommandLineRunner {
             // 매장 영업 상태 변경 (OPEN)
             shopOwnerService.updateShopStatus(shopResp1.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
             // 매장 메뉴 상태 변경 (ON_SALE)
-            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp1.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp2.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp3.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp1.id(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp2.id(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp3.id(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
         });
         asAccount(owner2, () -> {
             // 매장 영업 상태 변경 (OPEN)
             shopOwnerService.updateShopStatus(shopResp2.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
             // 매장 메뉴 상태 변경 (ON_SALE)
-            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp1.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp2.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp3.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp1.id(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp2.id(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp3.id(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
         });
-
 
         final OrderResponse[] orderResp = new OrderResponse[3];
 
@@ -206,23 +216,26 @@ public class DummyDataLoader implements CommandLineRunner {
             //Shop1, ShopMenu1 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu11.getId()));
             OrderPrepareResponse resp1 = orderUserService.prepareOrderResponse();
-            orderResp[0] = orderUserService.createOrderResponse(new OrderCreateRequest(shopResp1.shopId(), resp1.receiver(), resp1.phone(),
-                    resp1.address(), resp1.street(), "없음", null, 0
-            ));
+            orderResp[0] = orderUserService.createOrderResponse(
+                    new OrderCreateRequest(shopResp1.shopId(), resp1.receiver(), resp1.phone(),
+                            resp1.address(), resp1.street(), "없음", null, 0
+                    ));
 
             //Shop1, ShopMenu2 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu12.getId()));
             OrderPrepareResponse resp2 = orderUserService.prepareOrderResponse();
-            orderResp[1] = orderUserService.createOrderResponse(new OrderCreateRequest(shopResp1.shopId(), resp2.receiver(), resp2.phone(),
-                    resp2.address(), resp2.street(), "없음", null, 0
-            ));
+            orderResp[1] = orderUserService.createOrderResponse(
+                    new OrderCreateRequest(shopResp1.shopId(), resp2.receiver(), resp2.phone(),
+                            resp2.address(), resp2.street(), "없음", null, 0
+                    ));
 
             //Shop2, ShopMenu1 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu21.getId()));
             OrderPrepareResponse resp3 = orderUserService.prepareOrderResponse();
-            orderUserService.createOrderResponse(new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
-                    resp3.address(), resp3.street(), "없음", null, 0
-            ));
+            orderUserService.createOrderResponse(
+                    new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
+                            resp3.address(), resp3.street(), "없음", null, 0
+                    ));
 
             //Shop1, ShopMenu1 장바구니
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu11.getId()));
@@ -232,32 +245,37 @@ public class DummyDataLoader implements CommandLineRunner {
             //Shop1, ShopMenu3 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu13.getId()));
             OrderPrepareResponse resp1 = orderUserService.prepareOrderResponse();
-            orderResp[2] = orderUserService.createOrderResponse(new OrderCreateRequest(shopResp1.shopId(), resp1.receiver(), resp1.phone(),
-                    resp1.address(), resp1.street(), "없음", null, 0
-            ));
+            orderResp[2] = orderUserService.createOrderResponse(
+                    new OrderCreateRequest(shopResp1.shopId(), resp1.receiver(), resp1.phone(),
+                            resp1.address(), resp1.street(), "없음", null, 0
+                    ));
 
             //Shop2, ShopMenu3 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu23.getId()));
             OrderPrepareResponse resp2 = orderUserService.prepareOrderResponse();
-            orderUserService.createOrderResponse(new OrderCreateRequest(shopResp2.shopId(), resp2.receiver(), resp2.phone(),
-                    resp2.address(), resp2.street(), "없음", null, 0
-            ));
+            orderUserService.createOrderResponse(
+                    new OrderCreateRequest(shopResp2.shopId(), resp2.receiver(), resp2.phone(),
+                            resp2.address(), resp2.street(), "없음", null, 0
+                    ));
 
             //Shop2, ShopMenu2 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu22.getId()));
             OrderPrepareResponse resp3 = orderUserService.prepareOrderResponse();
-            orderUserService.createOrderResponse(new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
-                    resp3.address(), resp3.street(), "없음", null, 0
-            ));
+            orderUserService.createOrderResponse(
+                    new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
+                            resp3.address(), resp3.street(), "없음", null, 0
+                    ));
         });
 
         asAccount(owner1, () -> {
             orderOwnerService.updateOrderStatus(orderResp[0].orderId(), new OrderUpdateRequest(OrderStatus.COOKING));
-            orderOwnerService.updateOrderStatus(orderResp[0].orderId(), new OrderUpdateRequest(OrderStatus.ON_DELIVERY));
+            orderOwnerService.updateOrderStatus(orderResp[0].orderId(),
+                    new OrderUpdateRequest(OrderStatus.ON_DELIVERY));
             orderOwnerService.updateOrderStatus(orderResp[0].orderId(), new OrderUpdateRequest(OrderStatus.COMPLETED));
 
             orderOwnerService.updateOrderStatus(orderResp[1].orderId(), new OrderUpdateRequest(OrderStatus.COOKING));
-            orderOwnerService.updateOrderStatus(orderResp[1].orderId(), new OrderUpdateRequest(OrderStatus.ON_DELIVERY));
+            orderOwnerService.updateOrderStatus(orderResp[1].orderId(),
+                    new OrderUpdateRequest(OrderStatus.ON_DELIVERY));
             orderOwnerService.updateOrderStatus(orderResp[1].orderId(), new OrderUpdateRequest(OrderStatus.COMPLETED));
         });
 
@@ -282,11 +300,11 @@ public class DummyDataLoader implements CommandLineRunner {
         });
 
         asAccount(owner1, () -> {
-            reviewOwnerService.createComment(reviewResp[0].id(), new CommentRequest(
+            reviewOwnerService.createComment(shopResp1.shopId(), reviewResp[0].id(), new CommentRequest(
                     "주문해주셔서 감사합니다."
             ));
 
-            reviewOwnerService.createComment(reviewResp[1].id(), new CommentRequest(
+            reviewOwnerService.createComment(shopResp1.shopId(), reviewResp[1].id(), new CommentRequest(
                     "주문해주셔서 감사합니다."
             ));
         });
