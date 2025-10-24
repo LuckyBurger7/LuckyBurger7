@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.review.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.review.dto.request.CommentRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewOwnerService {
 
     private final ReviewRepository reviewRepository;

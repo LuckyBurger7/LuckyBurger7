@@ -1,9 +1,11 @@
 package org.example.luckyburger.domain.user.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.dto.request.AccountUpdateRequest;
+import org.example.luckyburger.domain.auth.dto.request.CredentialRequest;
 import org.example.luckyburger.domain.auth.dto.response.AccountResponse;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserService {
 
     private final AccountEntityFinder accountEntityFinder;
@@ -99,6 +101,11 @@ public class UserService {
     public void validateDuplicatePhone(String phone) {
         if (userRepository.existsUserByPhone(phone))
             throw new DuplicatePhoneException();
+    }
+
+    @Transactional
+    public void withdrawUser(CredentialRequest request) {
+        authService.withdraw(request);
     }
 
     @Transactional(readOnly = true)

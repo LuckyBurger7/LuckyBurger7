@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.auth.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.auth.entity.Owner;
 import org.example.luckyburger.domain.auth.exception.OwnerNotFoundException;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Transactional(readOnly = true)
 public class OwnerEntityFinder {
 
@@ -16,8 +17,13 @@ public class OwnerEntityFinder {
 
     public Owner getOwnerByAccountId(Long accountId) {
 
-        return ownerRepository.findById(accountId).orElseThrow(
+        Owner owner = ownerRepository.findById(accountId).orElseThrow(
                 OwnerNotFoundException::new
         );
+
+        if (owner.getAccount().getDeletedAt() != null)
+            throw new OwnerNotFoundException();
+
+        return owner;
     }
 }

@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.user.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.exception.UserNotFoundException;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Transactional(readOnly = true)
 public class UserEntityFinder {
 

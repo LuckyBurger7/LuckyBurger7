@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.event.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.event.dto.request.EventCreateRequest;
 import org.example.luckyburger.domain.event.dto.response.EventResponse;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Transactional
 public class EventAdminService {
 

@@ -22,8 +22,8 @@ public class Owner {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id")
     private Shop shop;
 
     private Owner(Account account, Shop shop) {
@@ -34,5 +34,13 @@ public class Owner {
     @Builder
     public static Owner of(Account account, Shop shop) {
         return new Owner(account, shop);
+    }
+
+    public void updateOwner(Shop shop) {
+        this.shop = shop;
+    }
+
+    public void deleteShop() {
+        this.shop = null;
     }
 }

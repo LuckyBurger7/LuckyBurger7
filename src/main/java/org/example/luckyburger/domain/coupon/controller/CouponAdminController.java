@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.coupon.controller;
 
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Secured(AccountRole.Authority.ADMIN)
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CouponAdminController {
 
     private final CouponAdminService couponAdminService;

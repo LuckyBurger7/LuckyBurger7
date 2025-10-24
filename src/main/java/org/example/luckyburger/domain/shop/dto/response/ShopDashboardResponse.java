@@ -4,12 +4,12 @@ import lombok.Builder;
 
 @Builder
 public record ShopDashboardResponse(
-        Integer todayOrderCount,
+        Long todayOrderCount,
         Long todayTotalSales,
         Double averageRating
 ) {
     public static ShopDashboardResponse of(
-            Integer todayOrderCount,
+            Long todayOrderCount,
             Long todayTotalSales,
             Double averageRating) {
         return ShopDashboardResponse.builder()
