@@ -3,6 +3,7 @@ package org.example.luckyburger.domain.menu.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.menu.entity.Menu;
+import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.exception.MenuNotFoundException;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class MenuEntityFinder {
                 .orElseThrow(MenuNotFoundException::new);
     }
 
-    public List<Menu> getAllMenu() {
-        return menuRepository.findAll();
+    public List<Long> getAllMenuIdByCategory(MenuCategory category) {
+        return menuRepository.findAllByCategory(category);
     }
 }

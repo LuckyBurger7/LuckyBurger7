@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
+import org.example.luckyburger.domain.auth.dto.request.CredentialRequest;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.user.dto.request.UserSignupRequest;
 import org.example.luckyburger.domain.user.dto.request.UserUpdateRequest;
@@ -35,5 +36,12 @@ public class UserController {
     @GetMapping("/v1/user/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getProfile() {
         return ApiResponse.created(userService.getProfile());
+    }
+
+    @Secured(AccountRole.Authority.USER)
+    @DeleteMapping("/v1/withdraw")
+    public ResponseEntity<ApiResponse<Void>> withdraw(@Valid @RequestBody CredentialRequest request) {
+        userService.withdrawUser(request);
+        return ApiResponse.noContent();
     }
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.dto.request.AccountUpdateRequest;
+import org.example.luckyburger.domain.auth.dto.request.CredentialRequest;
 import org.example.luckyburger.domain.auth.dto.response.AccountResponse;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
@@ -103,6 +104,10 @@ public class UserService {
             throw new DuplicatePhoneException();
     }
 
+    @Transactional
+    public void withdrawUser(CredentialRequest request) {
+        authService.withdraw(request);
+    }
 
     @Transactional
     public void deductPoints(User user, Integer usePoint) {
