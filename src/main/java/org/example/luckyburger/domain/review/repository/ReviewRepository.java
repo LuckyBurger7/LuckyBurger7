@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.review.repository;
 
+import java.util.List;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.springframework.data.domain.Page;
@@ -7,8 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(
@@ -32,4 +31,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                 WHERE r.shop = :shop
             """)
     Double findAvgOfRatingByShop(Shop shop);
+
+    boolean existsByOrder_IdAndDeletedAtIsNull(Long orderId);
+
+
 }
