@@ -6,6 +6,8 @@ import org.example.luckyburger.domain.coupon.dto.request.CouponRequest;
 import org.example.luckyburger.domain.coupon.dto.response.CouponResponse;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.coupon.repository.CouponRepository;
+import org.example.luckyburger.domain.shop.enums.CouponStatus;
+import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class CouponAdminService {
 
     private final CouponRepository couponRepository;
     private final CouponEntityFinder couponEntityFinder;
+    private final ShopCouponRepository shopCouponRepository;
 
     @Transactional
     public CouponResponse createCoupon(CouponRequest couponRequest) {
@@ -31,7 +34,12 @@ public class CouponAdminService {
                 couponRequest.type()
         );
 
-        return CouponResponse.from(couponRepository.save(coupon));
+        Coupon savedCoupon = couponRepository.save(coupon);
+
+        // 쿠폰 초기 상태 UNAVAILABLE
+        shopCouponRepository.saveForAllShop(savedCoupon.getId(), CouponStatus.UNAVAILABLE.name());
+
+        return CouponResponse.from(savedCoupon);
     }
 
     @Transactional

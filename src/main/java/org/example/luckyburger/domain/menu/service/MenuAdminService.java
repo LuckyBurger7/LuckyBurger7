@@ -7,6 +7,8 @@ import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
+import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
+import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ public class MenuAdminService {
 
     private final MenuRepository menuRepository;
     private final MenuEntityFinder menuEntityFinder;
+    private final ShopMenuRepository shopMenuRepository;
 
     @Transactional
     public MenuResponse createMenu(MenuCreateRequest request) {
@@ -23,6 +26,9 @@ public class MenuAdminService {
         Menu menu = Menu.of(request.name(), request.menuCategory(), request.price());
 
         Menu savedMenu = menuRepository.save(menu);
+
+        // 메뉴 초기 상태 DEACTIVATE
+        shopMenuRepository.saveForAllShop(savedMenu.getId(), ShopMenuStatus.DEACTIVATE.name());
 
         return MenuResponse.from(savedMenu);
     }

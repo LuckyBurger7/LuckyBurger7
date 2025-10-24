@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -45,4 +46,21 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
                         FROM ShopMenu sm
             """)
     Long findSumOfSalesVolumes();
+
+    @Modifying
+    @Query(value = """
+                INSERT IGNORE INTO shop_menus (shop_id, menu_id, status, sales_volume)
+                SELECT s.id, :menuId, :status, 0 
+                FROM shops s 
+            """, nativeQuery = true)
+    void saveForAllShop(@Param("menuId") Long menuId, @Param("status") String status);
+
+    @Modifying
+    @Query(value = """
+                INSERT IGNORE INTO shop_menus (shop_id, menu_id, status, sales_volume)
+                SELECT :shopId, m.id, :status, 0 
+                FROM menus m 
+            """, nativeQuery = true)
+    void saveForAllMenu(@Param("shopId") Long shopId, @Param("status") String status);
+
 }
