@@ -45,7 +45,7 @@ public class ReviewOwnerController {
     }
 
     // 리뷰에 대한 댓글 작성
-    @PostMapping("/v1/owner/{shopId}/reviews/{reviewId}/comments")
+    @PostMapping("/v1/owner/shops/{shopId}/reviews/{reviewId}/comments")
     public ResponseEntity<ApiResponse<Void>> createComment(
             @PathVariable Long shopId,
             @PathVariable Long reviewId,
