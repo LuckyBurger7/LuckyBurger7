@@ -67,7 +67,7 @@ public class UserService {
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
         Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().getEmail());
         User user = userEntityFinder.getUserByAccountId(account.getId());
-        
+
         authService.updateAccount(AccountUpdateRequest.builder()
                 .name(userRequest.name())
                 .build());
@@ -85,7 +85,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
 
-        User user = findUser();
+        User user = getUser();
 
         return UserResponse.from(user);
     }
@@ -102,7 +102,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findUser() {
+    public User getUser() {
         return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 

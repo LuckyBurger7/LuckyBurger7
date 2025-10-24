@@ -41,7 +41,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderResponse(Long orderId) {
-        Owner owner = findOwner();
+        Owner owner = getOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getShop().getId().equals(owner.getShop().getId())) {
@@ -56,7 +56,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
-        Owner owner = findOwner();
+        Owner owner = getOwner();
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByShop(owner.getShop(), pageable);
@@ -87,7 +87,7 @@ public class OrderOwnerService {
 
     @Transactional
     public void updateOrderStatus(Long orderId, OrderUpdateRequest request) {
-        Owner owner = findOwner();
+        Owner owner = getOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
         User user = order.getUser();
         OrderStatus status = request.status();
@@ -127,7 +127,7 @@ public class OrderOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public Owner findOwner() {
+    public Owner getOwner() {
         return ownerEntityFinder.getOwnerByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }

@@ -55,7 +55,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).findUser();
+        doReturn(authUser).when(reviewUserService).getUser();
 
         // 리뷰에 대한 소유권과 점포 일치 하는지 검증을 위한 로직
         Account account = mock(Account.class);
@@ -110,7 +110,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).findUser();
+        doReturn(authUser).when(reviewUserService).getUser();
 
         // 주문을 한 사람이 다른 상황일때 로직
         Account otherAccount = mock(Account.class);
@@ -149,7 +149,7 @@ public class ReviewUserServiceTest {
         // 인증 사용자(User)
         Account authAccount = mock(Account.class);
         User authUser = mock(User.class);
-        doReturn(authUser).when(reviewUserService).findUser();
+        doReturn(authUser).when(reviewUserService).getUser();
 
         ReviewRequest request = new ReviewRequest(
                 "맛있어요",
@@ -182,7 +182,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).findUser();
+        doReturn(authUser).when(reviewUserService).getUser();
 
         Account account = mock(Account.class);
         given(account.getId()).willReturn(accountId);
@@ -226,7 +226,7 @@ public class ReviewUserServiceTest {
         given(authAccount.getId()).willReturn(accountId);
         User authUser = mock(User.class);
         given(authUser.getAccount()).willReturn(authAccount);
-        doReturn(authUser).when(reviewUserService).findUser();
+        doReturn(authUser).when(reviewUserService).getUser();
 
         Account account = mock(Account.class);
         given(account.getId()).willReturn(accountId);

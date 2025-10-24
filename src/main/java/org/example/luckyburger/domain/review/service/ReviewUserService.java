@@ -29,7 +29,7 @@ public class ReviewUserService {
     // 메뉴에 대한 리뷰 작성
     @Transactional
     public ReviewResponse createOrderReviewResponse(Long orderId, ReviewRequest request) {
-        User authUser = findUser();
+        User authUser = getUser();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getAccount().getId().equals(authUser.getAccount().getId())) {
@@ -50,7 +50,7 @@ public class ReviewUserService {
     // 작성한 리뷰 단일 조회
     @Transactional(readOnly = true)
     public ReviewResponse getOrderReviewResponse(Long reviewId) {
-        User authUser = findUser();
+        User authUser = getUser();
         // 1) 리뷰 존재여부 확인
         Review review = reviewEntityFinder.getReviewById(reviewId);
         validateReviewAuthorOrThrow(review, authUser);
@@ -62,7 +62,7 @@ public class ReviewUserService {
     @Transactional
     public ReviewResponse updateReviewResponse(ReviewRequest request, Long reviewId) {
         Review review = reviewEntityFinder.getReviewById(reviewId);
-        User authUser = findUser();
+        User authUser = getUser();
         validateReviewAuthorOrThrow(review, authUser);
 
         review.update(request.content(), request.rating());
@@ -72,7 +72,7 @@ public class ReviewUserService {
     @Transactional
     public void deleteReview(Long reviewId) {
         Review review = reviewEntityFinder.getReviewById(reviewId);
-        User authUser = findUser();
+        User authUser = getUser();
         validateReviewAuthorOrThrow(review, authUser);
 
         review.delete();
@@ -86,7 +86,7 @@ public class ReviewUserService {
     }
 
     @Transactional(readOnly = true)
-    public User findUser() {
+    public User getUser() {
         return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }
