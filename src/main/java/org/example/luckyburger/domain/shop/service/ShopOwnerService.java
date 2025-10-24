@@ -89,7 +89,7 @@ public class ShopOwnerService {
         LocalDateTime end = endDate.atStartOfDay(zone).toLocalDateTime();
 
         long total = orderEntityFinder.sumMonthlySalesTotal(shopId, start, end);
-        return new ShopTotalSalesResponse(total);
+        return new ShopTotalSalesResponse(shopId, total);
     }
 
     @Transactional(readOnly = true)
@@ -102,6 +102,7 @@ public class ShopOwnerService {
         Double averageRating = getRatingByShop(shop);
 
         return ShopDashboardResponse.of(
+                shop.getId(),
                 todayOrderCount,
                 todayTotalSales,
                 averageRating
