@@ -1,26 +1,39 @@
 package org.example.luckyburger.domain.review.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import org.example.luckyburger.common.security.dto.AuthAccount;
+import org.example.luckyburger.domain.auth.entity.Owner;
+import org.example.luckyburger.domain.auth.enums.AccountRole;
+import org.example.luckyburger.domain.auth.service.OwnerEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.CommentRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.entity.Review;
 import org.example.luckyburger.domain.review.repository.ReviewRepository;
+import org.example.luckyburger.domain.shop.entity.Shop;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewOwnerService 테스트")
@@ -31,6 +44,9 @@ public class ReviewOwnerServiceTest {
 
     @Mock
     private ReviewRepository reviewRepository;
+
+    @Mock
+    private OwnerEntityFinder ownerEntityFinder;
 
     @Mock
     private ReviewEntityFinder reviewEntityFinder;
@@ -82,7 +98,16 @@ public class ReviewOwnerServiceTest {
     @Test
     @DisplayName("리뷰 댓글 작성 - 성공")
     void createComment_success_whenNoExistingComment() {
+
+        long ownerAccountId = 1L;
+        AuthAccount principal = new AuthAccount(ownerAccountId, "owner@example.com", AccountRole.ROLE_OWNER);
+        var auth = new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
+        var ctx = SecurityContextHolder.createEmptyContext();
+        ctx.setAuthentication(auth);
+        SecurityContextHolder.setContext(ctx);
+
         // given
+        Long shopId = 1L;
         Long reviewId = 1L;
         String newComment = "이용해 주셔서 감사합니다";
         CommentRequest request = new CommentRequest(newComment);
@@ -91,13 +116,21 @@ public class ReviewOwnerServiceTest {
         given(review.getComment()).willReturn(null);
         given(reviewEntityFinder.getReviewById(reviewId)).willReturn(review);
 
-        // when
-        assertThatCode(() -> reviewOwnerService.createComment(reviewId, request))
+        Owner owner = mock(Owner.class);
+        Shop shop = mock(Shop.class);
+        given(owner.getShop()).willReturn(shop);
+        given(shop.getId()).willReturn(shopId);
+
+        given(ownerEntityFinder.getOwnerByAccountId(ownerAccountId)).willReturn(owner);
+
+        // when & then
+        assertThatCode(() -> reviewOwnerService.createComment(shopId, reviewId, request))
                 .doesNotThrowAnyException();
 
-        // then
+        // verify
         verify(reviewEntityFinder).getReviewById(reviewId);
+        verify(ownerEntityFinder).getOwnerByAccountId(ownerAccountId);
         verify(review).writeComment(newComment);
-        verifyNoMoreInteractions(reviewEntityFinder, review);
+        verifyNoMoreInteractions(reviewEntityFinder, ownerEntityFinder, review, owner, shop);
     }
 }

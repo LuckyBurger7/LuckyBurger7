@@ -8,11 +8,21 @@ import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.shop.dto.request.CouponPolicyRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopMenuRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
-import org.example.luckyburger.domain.shop.dto.response.*;
+import org.example.luckyburger.domain.shop.dto.response.CouponPolicyResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopDashboardResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopTotalSalesResponse;
 import org.example.luckyburger.domain.shop.service.ShopOwnerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
