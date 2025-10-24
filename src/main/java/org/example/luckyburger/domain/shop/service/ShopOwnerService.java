@@ -26,7 +26,6 @@ import org.example.luckyburger.domain.shop.entity.CouponPolicy;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.exception.CouponPolicyNotFoundException;
-import org.example.luckyburger.domain.shop.exception.OwnerUnauthorizedShopException;
 import org.example.luckyburger.domain.shop.exception.ShopMenuNotFoundException;
 import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
@@ -49,13 +48,8 @@ public class ShopOwnerService {
     // 상점의 쿠폰 사용여부 수정
     @Transactional
     public CouponPolicyResponse updateCouponStatus(Long shopId, Long couponId, CouponPolicyRequest cpr) {
-
         // 점포와 점주 매칭 검증
-        Owner owner = ownerEntityFinder.getOwnerByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
-        if (!owner.getShop().getId().equals(shopId)) {
-            throw new OwnerUnauthorizedShopException();
-        }
-
+        getOwner(shopId);
         CouponPolicy couponPolicy = shopCouponRepository.findByShopIdAndCouponId(shopId, couponId).
                 orElseThrow(CouponPolicyNotFoundException::new);
 
