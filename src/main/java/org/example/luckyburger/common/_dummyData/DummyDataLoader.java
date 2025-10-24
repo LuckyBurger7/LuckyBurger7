@@ -7,7 +7,7 @@ import org.example.luckyburger.domain.auth.dto.request.OwnerSignupRequest;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.auth.repository.AccountRepository;
-import org.example.luckyburger.domain.auth.service.AdminAuthService;
+import org.example.luckyburger.domain.auth.service.AuthAdminService;
 import org.example.luckyburger.domain.auth.service.AuthService;
 import org.example.luckyburger.domain.cart.dto.request.CartAddMenuRequest;
 import org.example.luckyburger.domain.cart.service.CartUserService;
@@ -18,9 +18,7 @@ import org.example.luckyburger.domain.event.dto.request.EventCreateRequest;
 import org.example.luckyburger.domain.event.service.EventAdminService;
 import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
-import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
-import org.example.luckyburger.domain.menu.repository.MenuRepository;
 import org.example.luckyburger.domain.menu.service.MenuAdminService;
 import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
 import org.example.luckyburger.domain.order.dto.request.OrderUpdateRequest;
@@ -34,15 +32,14 @@ import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.service.ReviewOwnerService;
 import org.example.luckyburger.domain.review.service.ReviewUserService;
+import org.example.luckyburger.domain.shop.dto.request.ShopMenuRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
-import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
-import org.example.luckyburger.domain.shop.repository.ShopRepository;
 import org.example.luckyburger.domain.shop.service.ShopAdminService;
 import org.example.luckyburger.domain.shop.service.ShopOwnerService;
 import org.example.luckyburger.domain.user.dto.request.UserSignupRequest;
@@ -64,15 +61,13 @@ public class DummyDataLoader implements CommandLineRunner {
     private final UserService userService;
     private final AuthService authService;
     private final CouponAdminService couponAdminService;
-    private final ShopRepository shopRepository;
-    private final MenuRepository menuRepository;
     private final ShopMenuRepository shopMenuRepository;
     private final AccountRepository accountRepository;
     private final ShopAdminService shopAdminService;
     private final MenuAdminService menuAdminService;
     private final OrderUserService orderUserService;
     private final CartUserService cartUserService;
-    private final AdminAuthService adminAuthService;
+    private final AuthAdminService authAdminService;
     private final OrderOwnerService orderOwnerService;
     private final ReviewUserService reviewUserService;
     private final ReviewOwnerService reviewOwnerService;
@@ -101,14 +96,14 @@ public class DummyDataLoader implements CommandLineRunner {
                 "강남대로"
         ));
 
-        adminAuthService.createOwner(new OwnerSignupRequest(
+        authAdminService.createOwner(new OwnerSignupRequest(
                 "owner1@naver.com",
                 "password",
                 "점주1",
                 shopResp1.shopId()
         ));
 
-        adminAuthService.createOwner(new OwnerSignupRequest(
+        authAdminService.createOwner(new OwnerSignupRequest(
                 "owner2@naver.com",
                 "password",
                 "점주2",
@@ -173,20 +168,13 @@ public class DummyDataLoader implements CommandLineRunner {
                 2000
         ));
 
-        Shop shop1 = shopRepository.getReferenceById(shopResp1.shopId());
-        Shop shop2 = shopRepository.getReferenceById(shopResp2.shopId());
-        Menu burger = menuRepository.getReferenceById(menuResp1.id());
-        Menu fries = menuRepository.getReferenceById(menuResp2.id());
-        Menu coke = menuRepository.getReferenceById(menuResp3.id());
+        ShopMenu shopMenu11 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp1.id()).orElseThrow();
+        ShopMenu shopMenu12 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp2.id()).orElseThrow();
+        ShopMenu shopMenu13 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp3.id()).orElseThrow();
 
-        // TODO: ShopMenu 추가 로직 필요 (createShop, createMenu)
-        ShopMenu shopMenu11 = shopMenuRepository.save(ShopMenu.of(shop1, burger, ShopMenuStatus.ON_SALE, 0));
-        ShopMenu shopMenu12 = shopMenuRepository.save(ShopMenu.of(shop1, fries, ShopMenuStatus.ON_SALE, 0));
-        ShopMenu shopMenu13 = shopMenuRepository.save(ShopMenu.of(shop1, coke, ShopMenuStatus.ON_SALE, 0));
-
-        ShopMenu shopMenu21 = shopMenuRepository.save(ShopMenu.of(shop2, burger, ShopMenuStatus.ON_SALE, 0));
-        ShopMenu shopMenu22 = shopMenuRepository.save(ShopMenu.of(shop2, fries, ShopMenuStatus.ON_SALE, 0));
-        ShopMenu shopMenu23 = shopMenuRepository.save(ShopMenu.of(shop2, coke, ShopMenuStatus.ON_SALE, 0));
+        ShopMenu shopMenu21 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp1.id()).orElseThrow();
+        ShopMenu shopMenu22 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp2.id()).orElseThrow();
+        ShopMenu shopMenu23 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp3.id()).orElseThrow();
 
         Account user1 = accountRepository.findByEmail("user1@naver.com").orElseThrow();
         Account user2 = accountRepository.findByEmail("user2@naver.com").orElseThrow();
@@ -196,11 +184,19 @@ public class DummyDataLoader implements CommandLineRunner {
 
         asAccount(owner1, () -> {
             // 매장 영업 상태 변경 (OPEN)
-            shopOwnerService.updateShopStatus(shop1.getId(), new ShopUpdateRequest(BusinessStatus.OPEN));
+            shopOwnerService.updateShopStatus(shopResp1.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
+            // 매장 메뉴 상태 변경 (ON_SALE)
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp1.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp2.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp3.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
         });
         asAccount(owner2, () -> {
             // 매장 영업 상태 변경 (OPEN)
-            shopOwnerService.updateShopStatus(shop2.getId(), new ShopUpdateRequest(BusinessStatus.OPEN));
+            shopOwnerService.updateShopStatus(shopResp2.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
+            // 매장 메뉴 상태 변경 (ON_SALE)
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp1.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp2.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp3.id(), new ShopMenuRequest(ShopMenuStatus.ON_SALE));
         });
 
 
@@ -210,21 +206,21 @@ public class DummyDataLoader implements CommandLineRunner {
             //Shop1, ShopMenu1 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu11.getId()));
             OrderPrepareResponse resp1 = orderUserService.prepareOrderResponse();
-            orderResp[0] = orderUserService.createOrderResponse(new OrderCreateRequest(shop1.getId(), resp1.receiver(), resp1.phone(),
+            orderResp[0] = orderUserService.createOrderResponse(new OrderCreateRequest(shopResp1.shopId(), resp1.receiver(), resp1.phone(),
                     resp1.address(), resp1.street(), "없음", null, 0
             ));
 
             //Shop1, ShopMenu2 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu12.getId()));
             OrderPrepareResponse resp2 = orderUserService.prepareOrderResponse();
-            orderResp[1] = orderUserService.createOrderResponse(new OrderCreateRequest(shop1.getId(), resp2.receiver(), resp2.phone(),
+            orderResp[1] = orderUserService.createOrderResponse(new OrderCreateRequest(shopResp1.shopId(), resp2.receiver(), resp2.phone(),
                     resp2.address(), resp2.street(), "없음", null, 0
             ));
 
             //Shop2, ShopMenu1 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu21.getId()));
             OrderPrepareResponse resp3 = orderUserService.prepareOrderResponse();
-            orderUserService.createOrderResponse(new OrderCreateRequest(shop2.getId(), resp3.receiver(), resp3.phone(),
+            orderUserService.createOrderResponse(new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
                     resp3.address(), resp3.street(), "없음", null, 0
             ));
 
@@ -236,21 +232,21 @@ public class DummyDataLoader implements CommandLineRunner {
             //Shop1, ShopMenu3 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu13.getId()));
             OrderPrepareResponse resp1 = orderUserService.prepareOrderResponse();
-            orderResp[2] = orderUserService.createOrderResponse(new OrderCreateRequest(shop1.getId(), resp1.receiver(), resp1.phone(),
+            orderResp[2] = orderUserService.createOrderResponse(new OrderCreateRequest(shopResp1.shopId(), resp1.receiver(), resp1.phone(),
                     resp1.address(), resp1.street(), "없음", null, 0
             ));
 
             //Shop2, ShopMenu3 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu23.getId()));
             OrderPrepareResponse resp2 = orderUserService.prepareOrderResponse();
-            orderUserService.createOrderResponse(new OrderCreateRequest(shop2.getId(), resp2.receiver(), resp2.phone(),
+            orderUserService.createOrderResponse(new OrderCreateRequest(shopResp2.shopId(), resp2.receiver(), resp2.phone(),
                     resp2.address(), resp2.street(), "없음", null, 0
             ));
 
             //Shop2, ShopMenu2 주문
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu22.getId()));
             OrderPrepareResponse resp3 = orderUserService.prepareOrderResponse();
-            orderUserService.createOrderResponse(new OrderCreateRequest(shop2.getId(), resp3.receiver(), resp3.phone(),
+            orderUserService.createOrderResponse(new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
                     resp3.address(), resp3.street(), "없음", null, 0
             ));
         });
