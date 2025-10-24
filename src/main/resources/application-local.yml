@@ -9,16 +9,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
 
 jwt:
   secret:

@@ -3,3 +3,25 @@ spring:
     name: Lucky-Burger
   profiles:
     active: local
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.core.env: DEBUG
+    org.springframework.boot.context.config: DEBUG
+    com.zaxxer.hikari: DEBUG
