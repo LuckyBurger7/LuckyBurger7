@@ -7,15 +7,18 @@ import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.exception.MenuNotFoundException;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
+import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +32,9 @@ public class MenuAdminServiceTest {
     private MenuRepository menuRepository;
 
     @Mock
+    private ShopMenuRepository shopMenuRepository;
+
+    @Mock
     private MenuEntityFinder menuEntityFinder;
 
     @InjectMocks
@@ -39,7 +45,13 @@ public class MenuAdminServiceTest {
         // given
         MenuCreateRequest request = new MenuCreateRequest(menuName, category, price);
 
-        given(menuRepository.save(any(Menu.class))).willAnswer(i -> i.getArgument(0));
+        given(menuRepository.save(any(Menu.class))).willAnswer(i -> {
+            Menu m = i.getArgument(0);
+            ReflectionTestUtils.setField(m, "id", 1L);
+            return m;
+        });
+        
+        doNothing().when(shopMenuRepository).saveForAllShop(anyLong(), anyString());
 
         // when
         MenuResponse response = menuAdminService.createMenu(request);

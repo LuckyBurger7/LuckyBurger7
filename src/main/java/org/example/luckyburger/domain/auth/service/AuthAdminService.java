@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class AdminAuthService {
+public class AuthAdminService {
 
     private final OwnerRepository ownerRepository;
     private final OwnerEntityFinder ownerEntityFinder;

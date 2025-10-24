@@ -7,6 +7,10 @@ import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
+import org.example.luckyburger.domain.shop.enums.CouponStatus;
+import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
+import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
+import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.example.luckyburger.domain.shop.repository.ShopRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,13 +22,20 @@ public class ShopAdminService {
     private final ShopRepository shopRepository;
     private final ShopEntityFinder shopEntityFinder;
     private final OrderEntityFinder orderEntityFinder;
+    private final ShopCouponRepository shopCouponRepository;
+    private final ShopMenuRepository shopMenuRepository;
 
     @Transactional
     public ShopResponse createShop(ShopRequest request) {
         // 초기 매장 상태 Close
         Shop shopEntity = Shop.of(request.name(), BusinessStatus.CLOSED, request.address(), request.street());
+        Shop savedShop = shopRepository.save(shopEntity);
 
-        return ShopResponse.from(shopRepository.save(shopEntity));
+        // 쿠폰 및 메뉴 초기 상태 UNAVAILABLE, DEACTIVATE
+        shopCouponRepository.saveForAllCoupon(savedShop.getId(), CouponStatus.UNAVAILABLE.name());
+        shopMenuRepository.saveForAllMenu(savedShop.getId(), ShopMenuStatus.DEACTIVATE.name());
+
+        return ShopResponse.from(savedShop);
 
     }
 
