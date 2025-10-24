@@ -13,7 +13,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api")
 @RestController
@@ -40,11 +45,12 @@ public class ReviewOwnerController {
     }
 
     // 리뷰에 대한 댓글 작성
-    @PostMapping("/v1/owner/reviews/{reviewId}/comments")
+    @PostMapping("/v1/owner/{shopId}/reviews/{reviewId}/comments")
     public ResponseEntity<ApiResponse<Void>> createComment(
+            @PathVariable Long shopId,
             @PathVariable Long reviewId,
             @Valid @RequestBody CommentRequest request) {
-        reviewOwnerService.createComment(reviewId, request);
+        reviewOwnerService.createComment(shopId, reviewId, request);
         return ApiResponse.noContent();
     }
 }
