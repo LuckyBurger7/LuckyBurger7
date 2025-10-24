@@ -97,7 +97,7 @@ public class ShopOwnerService {
 
         Shop shop = shopEntityFinder.getShopById(shopId);
 
-        Integer todayOrderCount = getTodayOrderCount(shop);
+        Long todayOrderCount = getTodayOrderCount(shop);
         Long todayTotalSales = getTotalSaleToday(shop);
         Double averageRating = getRatingByShop(shop);
 
@@ -109,10 +109,10 @@ public class ShopOwnerService {
         );
     }
 
-    private Integer getTodayOrderCount(Shop shop) {
+    private Long getTodayOrderCount(Shop shop) {
         LocalDateTime midnightToday = LocalDate.now().atStartOfDay();
 
-        return orderEntityFinder.getCountOrderByShopAndToday(shop, midnightToday);
+        return orderEntityFinder.getCountOrderByShopAndCompletedAndToday(shop, midnightToday);
     }
 
     private Long getTotalSaleToday(Shop shop) {

@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.coupon.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.coupon.entity.Coupon;
 import org.example.luckyburger.domain.coupon.exception.CouponNotFoundException;
@@ -7,8 +8,10 @@ import org.example.luckyburger.domain.coupon.repository.CouponRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Transactional(readOnly = true)
 public class CouponEntityFinder {
 
@@ -24,5 +27,9 @@ public class CouponEntityFinder {
         }
 
         return coupon;
+    }
+
+    public Long getCountAvailableCoupon() {
+        return couponRepository.countByExpirationDateAfter(LocalDateTime.now());
     }
 }

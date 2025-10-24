@@ -19,4 +19,8 @@ public class ShopEntityFinder {
         return shopRepository.findById(shopId)
                 .orElseThrow(ShopNotFoundException::new);
     }
+
+    public Long countShops() {
+        return shopRepository.count();
+    }
 }

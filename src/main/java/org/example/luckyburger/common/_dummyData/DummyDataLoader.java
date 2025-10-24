@@ -1,12 +1,14 @@
 package org.example.luckyburger.common._dummyData;
 
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.entity.Account;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.auth.repository.AccountRepository;
 import org.example.luckyburger.domain.auth.service.AuthService;
+import org.example.luckyburger.domain.coupon.dto.request.CouponRequest;
+import org.example.luckyburger.domain.coupon.enums.CouponType;
+import org.example.luckyburger.domain.coupon.service.CouponAdminService;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
@@ -29,12 +31,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class DummyDataLoader implements CommandLineRunner {
 
     private final UserService userService;
     private final AuthService authService;
+    private final CouponAdminService couponAdminService;
     private final ShopRepository shopRepository;
     private final MenuRepository menuRepository;
     private final ShopMenuRepository shopMenuRepository;
@@ -93,6 +98,21 @@ public class DummyDataLoader implements CommandLineRunner {
                         .street("강남대로")
                         .build()
         );
+
+        couponAdminService.createCoupon(new CouponRequest(
+                "5000원 할인 쿠폰",
+                5000.0,
+                5,
+                LocalDateTime.now().plusDays(1),
+                CouponType.FIXED
+        ));
+        couponAdminService.createCoupon(new CouponRequest(
+                "10프로 할인 쿠폰",
+                0.1,
+                5,
+                LocalDateTime.now().minusDays(1),
+                CouponType.RATIO
+        ));
 
         Menu burger = menuRepository.save(Menu.of("치즈버거", MenuCategory.HAMBURGER, 5500));
         Menu fries = menuRepository.save(Menu.of("감자튀김", MenuCategory.SIDE, 2500));
@@ -183,7 +203,7 @@ public class DummyDataLoader implements CommandLineRunner {
                 .build();
 
         Order order6 = Order.builder()
-                .shop(shop2)
+                .shop(shop1)
                 .user(user1)
                 .receiver("김기수")
                 .phone("010-3333-5555")

@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.order.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.cart.entity.Cart;
@@ -40,7 +41,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderUserService {
     private final OrderRepository orderRepository;
     private final OrderMenuRepository orderMenuRepository;
