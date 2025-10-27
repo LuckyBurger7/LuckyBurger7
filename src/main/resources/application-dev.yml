@@ -13,3 +13,21 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
+jwt:
+  secret:
+    aesKey: ${jwt.aes_key}
+    key: ${jwt.secret_key}
+    whiteList:
+      - /api/v1/signup
+      - /api/v1/login
+      - /api/v1/menus/**
+      - /api/v1/coupons/**
+      - /api/v1/shops/**
+      - /api/v1/events/**
+      - /actuator/health
+      - /actuator/prometheus
+
+  token:
+    prefix: 'Bearer '
+    expiration: ${jwt.expiration}
