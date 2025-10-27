@@ -9,6 +9,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.config.parameterstore.ParameterStoreAutoConfiguration
+
 
 jwt:
   secret:

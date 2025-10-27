@@ -2,12 +2,13 @@ spring:
   application:
     name: Lucky-Burger
   profiles:
-    active: dev
+    active: local
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: false
+        generate_statistics: true
 
 server:
   port: 8080
@@ -16,7 +17,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,prometheus,metrics
   endpoint:
     health:
       show-details: always
