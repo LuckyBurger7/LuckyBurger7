@@ -23,7 +23,7 @@ public record OrderResponse(
         List<OrderMenuResponse> items,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
         LocalDateTime orderDate,
-        OrderStatus status
+        OrderStatus orderStatus
 ) {
 
     public static OrderResponse from(Order order, List<OrderMenuResponse> items) {
@@ -42,7 +42,7 @@ public record OrderResponse(
                         order.getPay()))
                 .items(items)
                 .orderDate(order.getOrderDate())
-                .status(order.getStatus())
+                .orderStatus(order.getStatus())
                 .build();
     }
 
@@ -60,7 +60,7 @@ public record OrderResponse(
                 .amount(amount)
                 .items(items)
                 .orderDate(orderDate)
-                .status(status)
+                .orderStatus(status)
                 .build();
     }
 

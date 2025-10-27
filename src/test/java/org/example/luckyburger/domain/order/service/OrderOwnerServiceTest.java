@@ -136,7 +136,7 @@ public class OrderOwnerServiceTest {
         assertThat(response.receiver()).isEqualTo("홍길동");
         assertThat(response.items()).hasSize(2);
         assertThat(response.amount().subtotal()).isEqualTo(23000);
-        assertThat(response.status()).isEqualTo(OrderStatus.COOKING);
+        assertThat(response.orderStatus()).isEqualTo(OrderStatus.COOKING);
     }
 
     @Test

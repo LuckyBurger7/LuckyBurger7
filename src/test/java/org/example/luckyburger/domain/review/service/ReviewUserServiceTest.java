@@ -87,7 +87,7 @@ public class ReviewUserServiceTest {
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.id()).isEqualTo(1L);
+        assertThat(response.reviewId()).isEqualTo(1L);
         assertThat(response.rating()).isEqualTo(5.0);
         assertThat(response.content()).isEqualTo("맛있어요");
         assertThat(response.createdAt()).isNotNull();
@@ -205,7 +205,7 @@ public class ReviewUserServiceTest {
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.id()).isEqualTo(reviewId);
+        assertThat(response.reviewId()).isEqualTo(reviewId);
         assertThat(response.rating()).isEqualTo(5.0);
         assertThat(response.content()).isEqualTo("맛있어요");
         assertThat(response.createdAt()).isNotNull();

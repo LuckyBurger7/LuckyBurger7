@@ -5,11 +5,11 @@ import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 
 @Builder
-public record MenuResponse(Long id, String name, MenuCategory menuCategory, long price) {
+public record MenuResponse(Long menuId, String name, MenuCategory menuCategory, long price) {
 
     public static MenuResponse from(Menu menu) {
         return MenuResponse.builder()
-                .id(menu.getId())
+                .menuId(menu.getId())
                 .name(menu.getName())
                 .menuCategory(menu.getCategory())
                 .price(menu.getPrice())

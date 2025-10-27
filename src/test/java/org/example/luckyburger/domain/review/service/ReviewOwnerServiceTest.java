@@ -1,17 +1,5 @@
 package org.example.luckyburger.domain.review.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.entity.Owner;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
@@ -27,13 +15,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ReviewOwnerService 테스트")
@@ -83,11 +78,11 @@ public class ReviewOwnerServiceTest {
         // then
         assertThat(page.getTotalElements()).isEqualTo(2);
         assertThat(page.getContent()).hasSize(2);
-        assertThat(page.getContent().get(0).id()).isEqualTo(1L);
+        assertThat(page.getContent().get(0).reviewId()).isEqualTo(1L);
         assertThat(page.getContent().get(0).content()).isEqualTo("맛있어요!");
         assertThat(page.getContent().get(0).rating()).isEqualTo(5.0);
         assertThat(page.getContent().get(0).comment()).isNull();
-        assertThat(page.getContent().get(1).id()).isEqualTo(2L);
+        assertThat(page.getContent().get(1).reviewId()).isEqualTo(2L);
         assertThat(page.getContent().get(1).content()).isEqualTo("또 오고 싶어요");
         assertThat(page.getContent().get(1).rating()).isEqualTo(4.0);
         assertThat(page.getContent().get(1).comment()).isEqualTo("사장님 댓글 감사합니다");

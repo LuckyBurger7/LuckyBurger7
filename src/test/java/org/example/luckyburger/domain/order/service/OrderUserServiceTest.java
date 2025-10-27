@@ -118,7 +118,7 @@ public class OrderUserServiceTest {
     @Test
     void 주문_준비에_성공한다() {
         //given
-        ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
+        ReflectionTestUtils.setField(shop, "couponStatus", BusinessStatus.OPEN);
         ReflectionTestUtils.setField(user, "point", 10000);
 
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
@@ -168,7 +168,7 @@ public class OrderUserServiceTest {
         when(cartMenuEntityFinder.getAllCartMenuByCartId(301L)).thenReturn(List.of(cartMenu));
         when(shopEntityFinder.getShopById(201L)).thenReturn(shop);
 
-        ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
+        ReflectionTestUtils.setField(shop, "couponStatus", BusinessStatus.CLOSED);
 
         // expect
         assertThatThrownBy(() -> orderUserService.prepareOrderResponse())
@@ -180,7 +180,7 @@ public class OrderUserServiceTest {
     @Test
     void 주문_준비_실패_장바구니_비어있음() {
         //given
-        ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
+        ReflectionTestUtils.setField(shop, "couponStatus", BusinessStatus.OPEN);
         ReflectionTestUtils.setField(user, "point", 10000);
 
         when(cartEntityFinder.getCartByUserId(101L)).thenReturn(cart);
@@ -196,7 +196,7 @@ public class OrderUserServiceTest {
     @Test
     void 주문_생성에_성공한다() {
         //given
-        ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
+        ReflectionTestUtils.setField(shop, "couponStatus", BusinessStatus.OPEN);
         ReflectionTestUtils.setField(user, "point", 10000);
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
@@ -258,7 +258,7 @@ public class OrderUserServiceTest {
         when(shopEntityFinder.getShopById(any())).thenReturn(shop);
         when(orderFormRepository.findAllByUser(any(User.class))).thenReturn(List.of(orderForm));
 
-        ReflectionTestUtils.setField(shop, "status", BusinessStatus.CLOSED);
+        ReflectionTestUtils.setField(shop, "couponStatus", BusinessStatus.CLOSED);
 
         var request = new OrderCreateRequest(
                 201L,
@@ -281,7 +281,7 @@ public class OrderUserServiceTest {
     @Test
     void 주문_실패_포인트_초과_사용() {
         // given
-        ReflectionTestUtils.setField(shop, "status", BusinessStatus.OPEN);
+        ReflectionTestUtils.setField(shop, "couponStatus", BusinessStatus.OPEN);
         Menu menu = Menu.of("치즈버거", MenuCategory.HAMBURGER, 10000);
         ShopMenu shopMenu = ShopMenu.of(shop, menu, ShopMenuStatus.ON_SALE, 0);
         ReflectionTestUtils.setField(cart, "totalPrice", 20000);

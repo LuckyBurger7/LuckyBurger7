@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record CouponResponse(
-        Long id,
+        Long couponId,
 
         String name,
 
@@ -19,37 +19,37 @@ public record CouponResponse(
 
         LocalDateTime expirationDate,
 
-        CouponType type,
+        CouponType couponType,
 
         LocalDateTime createAt
 ) {
     public static CouponResponse of(
-            Long id,
+            Long couponId,
             String name,
             Double discount,
             int count,
             LocalDateTime expirationDate,
-            CouponType type,
+            CouponType couponType,
             LocalDateTime createAt) {
         return CouponResponse.builder()
-                .id(id)
+                .couponId(couponId)
                 .name(name)
                 .discount(discount)
                 .count(count)
                 .expirationDate(expirationDate)
-                .type(type)
+                .couponType(couponType)
                 .createAt(createAt)
                 .build();
     }
 
     public static CouponResponse from(Coupon coupon) {
         return CouponResponse.builder()
-                .id(coupon.getId())
+                .couponId(coupon.getId())
                 .name(coupon.getName())
                 .discount(coupon.getDiscount())
                 .count(coupon.getCount())
                 .expirationDate(coupon.getExpirationDate())
-                .type(coupon.getType())
+                .couponType(coupon.getType())
                 .createAt(coupon.getCreatedAt())
                 .build();
     }

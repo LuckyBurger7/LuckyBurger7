@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record UserCouponResponse(
-        Long id,
+        Long userCouponId,
 
         CouponResponse couponResponse,
 
@@ -16,7 +16,7 @@ public record UserCouponResponse(
 ) {
     public static UserCouponResponse from(UserCoupon userCoupon) {
         return UserCouponResponse.builder()
-                .id(userCoupon.getId())
+                .userCouponId(userCoupon.getId())
                 .couponResponse(CouponResponse.from(userCoupon.getCoupon()))
                 .issueDate(LocalDateTime.now())
                 .build();

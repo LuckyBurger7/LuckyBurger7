@@ -22,7 +22,7 @@ public class UserCouponEntityFinder {
     /**
      * 로그인한 유저의 보유 쿠폰을 반환
      *
-     * @param couponId 쿠폰 id
+     * @param couponId 쿠폰 accountId
      * @return 유저 쿠폰 엔티티 반환
      */
     public UserCoupon getVerifiedUserCouponByCouponId(Long couponId) {

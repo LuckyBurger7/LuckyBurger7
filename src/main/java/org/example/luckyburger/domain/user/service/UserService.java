@@ -47,7 +47,7 @@ public class UserService {
                         .name(request.name())
                         .build(), AccountRole.ROLE_USER);
 
-        Account account = accountEntityFinder.getAccountById(accountResponse.id());
+        Account account = accountEntityFinder.getAccountById(accountResponse.accountId());
 
         User user = User.of(
                 account,

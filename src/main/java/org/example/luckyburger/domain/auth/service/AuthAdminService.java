@@ -45,7 +45,7 @@ public class AuthAdminService {
                         .name(request.name())
                         .build(), AccountRole.ROLE_OWNER);
 
-        Account account = accountEntityFinder.getAccountById(accountResponse.id());
+        Account account = accountEntityFinder.getAccountById(accountResponse.accountId());
 
         Owner owner = Owner.of(
                 account,

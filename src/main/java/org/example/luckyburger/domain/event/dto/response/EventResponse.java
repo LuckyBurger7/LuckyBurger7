@@ -1,12 +1,13 @@
 package org.example.luckyburger.domain.event.dto.response;
 
-import java.time.LocalDateTime;
 import lombok.Builder;
 import org.example.luckyburger.domain.event.entity.Event;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record EventResponse(
-        Long id,
+        Long eventId,
         String title,
         String description,
         LocalDateTime createAt,
@@ -15,7 +16,7 @@ public record EventResponse(
 
     public static EventResponse from(Event event) {
         return EventResponse.builder()
-                .id(event.getId())
+                .eventId(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
                 .createAt(event.getCreatedAt())
