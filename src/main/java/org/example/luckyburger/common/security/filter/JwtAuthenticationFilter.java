@@ -9,11 +9,13 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.luckyburger.common.security.dto.AuthAccount;
-import org.example.luckyburger.common.security.exception.InvalidHeaderException;
 import org.example.luckyburger.common.security.properties.JwtSecurityProperties;
 import org.example.luckyburger.common.security.utils.JwtUtil;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
@@ -23,10 +25,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -54,7 +52,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = httpRequest.getHeader("Authorization");
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new InvalidHeaderException();
+            sendErrorResponse(httpResponse, HttpStatus.UNAUTHORIZED, "인증 토큰이 필요합니다.");
+            return;
         }
 
         String jwt = jwtUtil.substringToken(authorizationHeader);
@@ -83,7 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
         } catch (SecurityException | MalformedJwtException | UnsupportedJwtException e) {
             log.error("JWT 검증 실패 [{}]: URI={}", e.getClass().getSimpleName(), request.getRequestURI(), e);
-            sendErrorResponse(response, HttpStatus.BAD_REQUEST, "인증이 필요합니다.");
+            sendErrorResponse(response, HttpStatus.BAD_REQUEST, "인증을 실패 하였습니다.");
         } catch (Exception e) {
             log.error("예상치 못한 오류: URI={}", request.getRequestURI(), e);
             sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, "요청 처리 중 오류가 발생했습니다.");
@@ -97,7 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String role = claims.get("role", String.class);
 
         AuthAccount authAccount = new AuthAccount(userId, email, AccountRole.valueOf(role));
-        
+
         Authentication authenticationToken = new JwtAuthenticationToken(authAccount);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
