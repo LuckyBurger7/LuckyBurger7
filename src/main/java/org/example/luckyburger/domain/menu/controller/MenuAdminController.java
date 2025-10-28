@@ -5,8 +5,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
-import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
-import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
+import org.example.luckyburger.domain.menu.dto.request.MenuRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.service.MenuAdminService;
 import org.springframework.http.ResponseEntity;
@@ -23,17 +22,17 @@ public class MenuAdminController {
 
     @PostMapping("/v1/admin/menus")
     public ResponseEntity<ApiResponse<MenuResponse>> createMenu(
-            @Valid @RequestBody MenuCreateRequest menuCreateRequest
+            @Valid @RequestBody MenuRequest menuRequest
     ) {
-        return ApiResponse.created(menuAdminService.createMenu(menuCreateRequest));
+        return ApiResponse.created(menuAdminService.createMenu(menuRequest));
     }
 
     @PutMapping("/v1/admin/menus/{menuId}")
     public ResponseEntity<ApiResponse<MenuResponse>> updateMenu(
             @PathVariable Long menuId,
-            @Valid @RequestBody MenuUpdateRequest menuUpdateRequest
+            @Valid @RequestBody MenuRequest menuRequest
     ) {
-        return ApiResponse.success(menuAdminService.updateMenu(menuId, menuUpdateRequest));
+        return ApiResponse.success(menuAdminService.updateMenu(menuId, menuRequest));
     }
 
     @DeleteMapping("/v1/admin/menus/{menuId}")

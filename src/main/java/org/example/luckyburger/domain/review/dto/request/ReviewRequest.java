@@ -6,10 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 
 public record ReviewRequest(
 
-        @NotBlank
+        @NotBlank(message = "리뷰 내용은 필수값입니다.")
         String content,
 
-        @Min(0) @Max(5)
+        @Min(value = 0, message = "평점은 0 이상이어야 합니다.")
+        @Max(value = 5, message = "평점은 5 이하여야 합니다.")
         double rating
 ) {
 }

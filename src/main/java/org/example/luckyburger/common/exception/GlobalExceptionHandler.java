@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex,
                                                                                   HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String defaultErrorMessage = ex.getBindingResult().getFieldError().getDefaultMessage();
+        String defaultErrorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         return handleExceptionInternal(status, defaultErrorMessage, request);
     }
 

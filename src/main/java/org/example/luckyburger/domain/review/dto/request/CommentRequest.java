@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record CommentRequest(
 
-        @NotBlank
+        @NotBlank(message = "댓글 내용은 필수값입니다.")
         String comment
 ) {
 }

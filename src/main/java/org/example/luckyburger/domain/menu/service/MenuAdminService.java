@@ -2,8 +2,7 @@ package org.example.luckyburger.domain.menu.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
-import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
+import org.example.luckyburger.domain.menu.dto.request.MenuRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
@@ -21,7 +20,7 @@ public class MenuAdminService {
     private final ShopMenuRepository shopMenuRepository;
 
     @Transactional
-    public MenuResponse createMenu(MenuCreateRequest request) {
+    public MenuResponse createMenu(MenuRequest request) {
 
         Menu menu = Menu.of(request.name(), request.menuCategory(), request.price());
 
@@ -34,7 +33,7 @@ public class MenuAdminService {
     }
 
     @Transactional
-    public MenuResponse updateMenu(Long menuId, MenuUpdateRequest request) {
+    public MenuResponse updateMenu(Long menuId, MenuRequest request) {
 
         Menu menu = menuEntityFinder.getMenu(menuId);
 

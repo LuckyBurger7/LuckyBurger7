@@ -16,7 +16,7 @@ import org.example.luckyburger.domain.coupon.enums.CouponType;
 import org.example.luckyburger.domain.coupon.service.CouponAdminService;
 import org.example.luckyburger.domain.event.dto.request.EventCreateRequest;
 import org.example.luckyburger.domain.event.service.EventAdminService;
-import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
+import org.example.luckyburger.domain.menu.dto.request.MenuRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.service.MenuAdminService;
@@ -150,19 +150,19 @@ public class DummyDataLoader implements CommandLineRunner {
                 CouponType.RATIO
         ));
 
-        MenuResponse menuResp1 = menuAdminService.createMenu(new MenuCreateRequest(
+        MenuResponse menuResp1 = menuAdminService.createMenu(new MenuRequest(
                 "치즈버거",
                 MenuCategory.HAMBURGER,
                 5500
         ));
 
-        MenuResponse menuResp2 = menuAdminService.createMenu(new MenuCreateRequest(
+        MenuResponse menuResp2 = menuAdminService.createMenu(new MenuRequest(
                 "감자튀김",
                 MenuCategory.SIDE,
                 2500
         ));
 
-        MenuResponse menuResp3 = menuAdminService.createMenu(new MenuCreateRequest(
+        MenuResponse menuResp3 = menuAdminService.createMenu(new MenuRequest(
                 "콜라",
                 MenuCategory.DRINK,
                 2000

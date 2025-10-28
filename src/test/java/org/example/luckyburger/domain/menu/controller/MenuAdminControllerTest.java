@@ -3,8 +3,7 @@ package org.example.luckyburger.domain.menu.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.luckyburger.common.security.properties.JwtSecurityProperties;
 import org.example.luckyburger.common.security.utils.JwtUtil;
-import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
-import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
+import org.example.luckyburger.domain.menu.dto.request.MenuRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
@@ -58,7 +57,7 @@ public class MenuAdminControllerTest {
     void 메뉴_생성에_성공한다() throws Exception {
 
         // given
-        MenuCreateRequest menuCreateRequest = new MenuCreateRequest(menuName, category, price);
+        MenuRequest menuRequest = new MenuRequest(menuName, category, price);
 
         Long menuId = 1L;
         Menu menu = Menu.of(menuName, category, price);
@@ -66,13 +65,13 @@ public class MenuAdminControllerTest {
         ReflectionTestUtils.setField(menu, "id", menuId);
 
         MenuResponse response = MenuResponse.from(menu);
-        when(menuAdminService.createMenu(menuCreateRequest)).thenReturn(response);
+        when(menuAdminService.createMenu(menuRequest)).thenReturn(response);
 
         // when & then
         mockMvc.perform(post("/api/v1/admin/menus")
                         .with(csrf())
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(menuCreateRequest)))
+                        .content(objectMapper.writeValueAsString(menuRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.id").value(menuId))
                 .andExpect(jsonPath("$.data.name").value(menuName))
@@ -87,20 +86,20 @@ public class MenuAdminControllerTest {
     void 메뉴_수정에_성공한다() throws Exception {
 
         // given
-        MenuUpdateRequest menuUpdateRequest = new MenuUpdateRequest(menuName, category, price);
+        MenuRequest menuRequest = new MenuRequest(menuName, category, price);
 
         Long menuId = 1L;
         Menu updatedMenu = Menu.of(menuName, category, price);
         ReflectionTestUtils.setField(updatedMenu, "id", menuId);
 
         MenuResponse response = MenuResponse.from(updatedMenu);
-        when(menuAdminService.updateMenu(menuId, menuUpdateRequest)).thenReturn(response);
+        when(menuAdminService.updateMenu(menuId, menuRequest)).thenReturn(response);
 
         // when & then
         mockMvc.perform(put("/api/v1/admin/menus/{menuId}", menuId)
                         .with(csrf())
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(menuUpdateRequest)))
+                        .content(objectMapper.writeValueAsString(menuRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(menuId))
                 .andExpect(jsonPath("$.data.name").value(menuName))
@@ -113,15 +112,15 @@ public class MenuAdminControllerTest {
     @WithMockUser
     void 메뉴가_존재하지_않아_수정에_실패한다() throws Exception {
         // given
-        MenuUpdateRequest menuUpdateRequest = new MenuUpdateRequest(menuName, category, price);
+        MenuRequest menuRequest = new MenuRequest(menuName, category, price);
 
         Long menuId = 1L;
-        when(menuAdminService.updateMenu(menuId, menuUpdateRequest)).thenThrow(new MenuNotFoundException());
+        when(menuAdminService.updateMenu(menuId, menuRequest)).thenThrow(new MenuNotFoundException());
 
         mockMvc.perform(put("/api/v1/admin/menus/{menuId}", menuId)
                         .with(csrf())
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(menuUpdateRequest)))
+                        .content(objectMapper.writeValueAsString(menuRequest)))
                 .andExpect(status().isNotFound());
     }
 
