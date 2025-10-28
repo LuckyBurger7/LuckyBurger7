@@ -1,7 +1,5 @@
 package org.example.luckyburger.common._dummyData;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
@@ -52,6 +50,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -167,18 +168,18 @@ public class DummyDataLoader implements CommandLineRunner {
                 2000
         ));
 
-        ShopMenu shopMenu11 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp1.id())
+        ShopMenu shopMenu11 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp1.menuId())
                 .orElseThrow();
-        ShopMenu shopMenu12 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp2.id())
+        ShopMenu shopMenu12 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp2.menuId())
                 .orElseThrow();
-        ShopMenu shopMenu13 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp3.id())
+        ShopMenu shopMenu13 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp3.menuId())
                 .orElseThrow();
 
-        ShopMenu shopMenu21 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp1.id())
+        ShopMenu shopMenu21 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp1.menuId())
                 .orElseThrow();
-        ShopMenu shopMenu22 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp2.id())
+        ShopMenu shopMenu22 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp2.menuId())
                 .orElseThrow();
-        ShopMenu shopMenu23 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp3.id())
+        ShopMenu shopMenu23 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp3.menuId())
                 .orElseThrow();
 
         Account user1 = accountRepository.findByEmail("user1@naver.com").orElseThrow();
@@ -191,22 +192,22 @@ public class DummyDataLoader implements CommandLineRunner {
             // 매장 영업 상태 변경 (OPEN)
             shopOwnerService.updateShopStatus(shopResp1.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
             // 매장 메뉴 상태 변경 (ON_SALE)
-            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp1.id(),
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp1.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp2.id(),
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp2.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp3.id(),
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp3.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
         });
         asAccount(owner2, () -> {
             // 매장 영업 상태 변경 (OPEN)
             shopOwnerService.updateShopStatus(shopResp2.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
             // 매장 메뉴 상태 변경 (ON_SALE)
-            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp1.id(),
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp1.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp2.id(),
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp2.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp3.id(),
+            shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp3.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
         });
 
@@ -300,11 +301,11 @@ public class DummyDataLoader implements CommandLineRunner {
         });
 
         asAccount(owner1, () -> {
-            reviewOwnerService.createComment(shopResp1.shopId(), reviewResp[0].id(), new CommentRequest(
+            reviewOwnerService.createComment(shopResp1.shopId(), reviewResp[0].reviewId(), new CommentRequest(
                     "주문해주셔서 감사합니다."
             ));
 
-            reviewOwnerService.createComment(shopResp1.shopId(), reviewResp[1].id(), new CommentRequest(
+            reviewOwnerService.createComment(shopResp1.shopId(), reviewResp[1].reviewId(), new CommentRequest(
                     "주문해주셔서 감사합니다."
             ));
         });

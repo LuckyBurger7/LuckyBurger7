@@ -10,14 +10,14 @@ public record OrderCouponResponse(
         Long couponId,
         String name,
         double discount,
-        CouponType type
+        CouponType couponType
 ) {
     public static OrderCouponResponse of(Coupon coupon) {
         return OrderCouponResponse.builder()
                 .couponId(coupon.getId())
                 .name(coupon.getName())
                 .discount(coupon.getDiscount())
-                .type(coupon.getType())
+                .couponType(coupon.getType())
                 .build();
     }
 

@@ -5,14 +5,14 @@ import org.example.luckyburger.domain.auth.entity.Owner;
 
 @Builder
 public record OwnerResponse(
-        Long id,
+        Long accountId,
         String email,
         String name,
         Long shopId
 ) {
     public static OwnerResponse from(Owner owner) {
         return OwnerResponse.builder()
-                .id(owner.getAccount().getId())
+                .accountId(owner.getAccount().getId())
                 .email(owner.getAccount().getEmail())
                 .name(owner.getAccount().getName())
                 .shopId(owner.getShop().getId())

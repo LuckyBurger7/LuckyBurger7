@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record UserResponse(
-        Long id,
+        Long userId,
 
         String email,
 
@@ -23,7 +23,7 @@ public record UserResponse(
         LocalDateTime createAt
 ) {
     public static UserResponse of(
-            Long id,
+            Long userId,
             String email,
             String name,
             String phone,
@@ -32,7 +32,7 @@ public record UserResponse(
             LocalDateTime createAt
     ) {
         return UserResponse.builder()
-                .id(id)
+                .userId(userId)
                 .email(email)
                 .name(name)
                 .phone(phone)
@@ -44,7 +44,7 @@ public record UserResponse(
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
-                .id(user.getId())
+                .userId(user.getId())
                 .email(user.getAccount().getEmail())
                 .name(user.getAccount().getName())
                 .phone(user.getPhone())

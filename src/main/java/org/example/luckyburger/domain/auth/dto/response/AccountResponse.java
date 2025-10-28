@@ -6,13 +6,13 @@ import org.example.luckyburger.domain.auth.entity.Account;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record AccountResponse(
-        Long id,
+        Long accountId,
         String email,
         String name
 ) {
-    public static AccountResponse of(Long id, String email, String name) {
+    public static AccountResponse of(Long accountId, String email, String name) {
         return AccountResponse.builder()
-                .id(id)
+                .accountId(accountId)
                 .email(email)
                 .name(name)
                 .build();
@@ -20,7 +20,7 @@ public record AccountResponse(
 
     public static AccountResponse from(Account account) {
         return AccountResponse.builder()
-                .id(account.getId())
+                .accountId(account.getId())
                 .email(account.getEmail())
                 .name(account.getName())
                 .build();
