@@ -1,7 +1,6 @@
 package org.example.luckyburger.domain.menu.service;
 
-import org.example.luckyburger.domain.menu.dto.request.MenuCreateRequest;
-import org.example.luckyburger.domain.menu.dto.request.MenuUpdateRequest;
+import org.example.luckyburger.domain.menu.dto.request.MenuRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
@@ -43,14 +42,14 @@ public class MenuAdminServiceTest {
     @Test
     void 메뉴_생성에_성공한다() {
         // given
-        MenuCreateRequest request = new MenuCreateRequest(menuName, category, price);
+        MenuRequest request = new MenuRequest(menuName, category, price);
 
         given(menuRepository.save(any(Menu.class))).willAnswer(i -> {
             Menu m = i.getArgument(0);
             ReflectionTestUtils.setField(m, "id", 1L);
             return m;
         });
-        
+
         doNothing().when(shopMenuRepository).saveForAllShop(anyLong(), anyString());
 
         // when
@@ -68,7 +67,7 @@ public class MenuAdminServiceTest {
         // given
         Long menuId = 1L;
         Menu existingMenu = Menu.of("기존버거", MenuCategory.HAMBURGER, 7000);
-        MenuUpdateRequest request = new MenuUpdateRequest(menuName, category, price);
+        MenuRequest request = new MenuRequest(menuName, category, price);
 
         given(menuEntityFinder.getMenu(menuId)).willReturn(existingMenu);
 
@@ -86,7 +85,7 @@ public class MenuAdminServiceTest {
     void 메뉴가_존재하지_않아_수정에_실패한다() {
         // given
         Long menuId = 1L;
-        MenuUpdateRequest updateRequest = new MenuUpdateRequest(menuName, category, price);
+        MenuRequest updateRequest = new MenuRequest(menuName, category, price);
 
         given(menuEntityFinder.getMenu(menuId)).willThrow(new MenuNotFoundException());
 
