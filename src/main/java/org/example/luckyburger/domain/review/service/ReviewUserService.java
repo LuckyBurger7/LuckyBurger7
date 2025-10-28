@@ -3,7 +3,6 @@ package org.example.luckyburger.domain.review.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
-import org.example.luckyburger.domain.auth.service.AccountEntityFinder;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
@@ -25,7 +24,6 @@ public class ReviewUserService {
     private final ReviewRepository reviewRepository;
     private final OrderEntityFinder orderEntityFinder;
     private final ReviewEntityFinder reviewEntityFinder;
-    private final AccountEntityFinder accountEntityFinder;
     private final UserEntityFinder userEntityFinder;
 
     // 메뉴에 대한 리뷰 작성
