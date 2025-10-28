@@ -20,7 +20,7 @@ public interface ShopCouponRepository extends JpaRepository<CouponPolicy, Long> 
                 SELECT s.id, :couponId, :status
                 FROM shops s
             """, nativeQuery = true)
-    void saveForAllShop(@Param("couponId") Long couponId, @Param("couponStatus") String status);
+    void saveForAllShop(@Param("couponId") Long couponId, @Param("status") String status);
 
     @Modifying
     @Query(value = """
@@ -28,5 +28,5 @@ public interface ShopCouponRepository extends JpaRepository<CouponPolicy, Long> 
                 SELECT :shopId, c.id, :status
                 FROM coupons c
             """, nativeQuery = true)
-    void saveForAllCoupon(@Param("shopId") Long shopId, @Param("couponStatus") String status);
+    void saveForAllCoupon(@Param("shopId") Long shopId, @Param("status") String status);
 }
