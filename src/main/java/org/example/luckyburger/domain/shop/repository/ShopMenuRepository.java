@@ -53,7 +53,7 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
                 SELECT s.id, :menuId, :status, 0 
                 FROM shops s 
             """, nativeQuery = true)
-    void saveForAllShop(@Param("menuId") Long menuId, @Param("couponStatus") String status);
+    void saveForAllShop(@Param("menuId") Long menuId, @Param("status") String status);
 
     @Modifying
     @Query(value = """
@@ -61,6 +61,6 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
                 SELECT :shopId, m.id, :status, 0 
                 FROM menus m 
             """, nativeQuery = true)
-    void saveForAllMenu(@Param("shopId") Long shopId, @Param("couponStatus") String status);
+    void saveForAllMenu(@Param("shopId") Long shopId, @Param("status") String status);
 
 }
