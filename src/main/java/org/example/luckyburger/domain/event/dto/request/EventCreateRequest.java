@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 
 public record EventCreateRequest(
 
-        @NotBlank
+        @NotBlank(message = "제목은 필수값입니다.")
         String title,
 
-        @NotBlank
+        @NotBlank(message = "내용은 필수값입니다.")
         String description
 ) {
 }

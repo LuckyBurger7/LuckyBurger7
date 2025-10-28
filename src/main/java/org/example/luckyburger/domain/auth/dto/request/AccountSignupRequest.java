@@ -5,13 +5,13 @@ import lombok.Builder;
 
 @Builder
 public record AccountSignupRequest(
-        @NotBlank
+        @NotBlank(message = "이메일은 필수값입니다.")
         String email,
 
-        @NotBlank
+        @NotBlank(message = "비밀번호는 필수값입니다.")
         String password,
 
-        @NotBlank
+        @NotBlank(message = "이름은 필수값입니다.")
         String name
 ) {
 }

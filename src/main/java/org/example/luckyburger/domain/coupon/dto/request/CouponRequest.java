@@ -8,20 +8,20 @@ import org.example.luckyburger.domain.coupon.enums.CouponType;
 import java.time.LocalDateTime;
 
 public record CouponRequest(
-        @NotBlank
+        @NotBlank(message = "쿠폰 이름은 필수 입력값입니다.")
         String name,
 
-        @NotNull
+        @NotNull(message = "할인 금액은 필수 입력값입니다.")
         Double discount,
 
-        @NotNull
+        @NotNull(message = "쿠폰 수량은 필수 입력값입니다.")
         int count,
 
-        @NotNull
+        @NotNull(message = "만료일은 필수 입력값입니다.")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime expirationDate,
 
-        @NotNull
+        @NotNull(message = "쿠폰 타입은 필수 입력값입니다.")
         CouponType type
 ) {
 }

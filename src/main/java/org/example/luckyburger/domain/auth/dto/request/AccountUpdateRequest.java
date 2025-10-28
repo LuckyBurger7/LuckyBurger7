@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record AccountUpdateRequest(
-        @NotBlank
+        @NotBlank(message = "이름은 필수값입니다.")
         String name
 ) {
 }

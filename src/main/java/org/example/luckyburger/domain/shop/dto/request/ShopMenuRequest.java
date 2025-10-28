@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 
 public record ShopMenuRequest(
-        @NotNull
+        @NotNull(message = "메뉴 상태는 필수값입니다.")
         ShopMenuStatus menuStatus
 ) {
 }
