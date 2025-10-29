@@ -1,15 +1,42 @@
-version: '3.8'
 services:
+  ngrinder-controller:
+    image: ngrinder/controller:3.5.9
+    container_name: ngrinder-controller
+    ports:
+      - "8081:80"
+      - "16001:16001"
+    environment:
+      - TZ=Asia/Seoul
+    depends_on:
+      - redis
+    networks:
+      default:
+        aliases:
+          - controller
+    restart: unless-stopped
+
+  ngrinder-agent:
+    image: ngrinder/agent:3.5.9
+    container_name: ngrinder-agent
+    environment:
+      - CONTROLLER_ADDR=ngrinder-controller:16001
+      - TZ=Asia/Seoul
+    depends_on:
+      - ngrinder-controller
+    restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--web.enable-lifecycle'
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
     ports:
       - '9090:9090'
+    depends_on:
+      - redis-exporter
     restart: unless-stopped
 
   grafana:
@@ -20,5 +47,58 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on: [ prometheus ]
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
     restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    ports:
+      - '3100:3100'
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml
+
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:latest
+    restart: always
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/promtail-config.yml
+      - C:/loki/logs:/var/logs
+    command: -config.file=/etc/promtail/promtail-config.yml
+    depends_on:
+      - loki
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
+    labels:
+      - 'name=redis'
+      - 'mode=standalone'
+    restart: always
+    command: redis-server /usr/local/conf/redis.conf
+
+  redis-exporter:
+    image: bitnami/redis-exporter:latest
+    container_name: redis-exporter
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - '9121:9121'
+    depends_on:
+      - redis
+    restart: always
+
+volumes:
+  grafana-data:

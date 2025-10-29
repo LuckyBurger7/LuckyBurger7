@@ -9,6 +9,9 @@ spring:
         show_sql: true
         format_sql: false
         generate_statistics: true
+  datasource:
+    hikari:
+      pool-name: hikari-pool
 
 server:
   port: 8080
@@ -17,10 +20,29 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus,metrics
+        include: [ "*" ]
   endpoint:
     health:
       show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      region: my-region
+      uri: true
+      status: true
+      command: true
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+        redis:
+          commands:
+            command: true
+        jdbc:
+          connections:
+            acquire: true
+
 
 logging:
   level:

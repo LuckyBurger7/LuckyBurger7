@@ -18,9 +18,12 @@ import org.example.luckyburger.domain.auth.exception.AuthenticationFailedExcepti
 import org.example.luckyburger.domain.auth.exception.DuplicateEmailException;
 import org.example.luckyburger.domain.auth.exception.NoAuthorityException;
 import org.example.luckyburger.domain.auth.repository.AccountRepository;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,6 +33,7 @@ public class AuthService {
     private final AccountEntityFinder accountEntityFinder;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 계정 생성
@@ -50,6 +54,9 @@ public class AuthService {
                 encodePassword,
                 accountRole
         );
+
+        redisTemplate.opsForValue().set(request.email(), encodePassword, 20, TimeUnit.SECONDS);
+        System.out.println("*****************" + redisTemplate.opsForValue().get(request.email()));
 
         return AccountResponse.from(accountRepository.save(account));
     }

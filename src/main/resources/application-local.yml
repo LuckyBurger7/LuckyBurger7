@@ -12,6 +12,13 @@ spring:
   autoconfigure:
     exclude:
       - io.awspring.cloud.autoconfigure.config.parameterstore.ParameterStoreAutoConfiguration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
 
 
 jwt:
