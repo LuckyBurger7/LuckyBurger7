@@ -23,8 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.TimeUnit;
-
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthService {
@@ -54,9 +52,6 @@ public class AuthService {
                 encodePassword,
                 accountRole
         );
-
-        redisTemplate.opsForValue().set(request.email(), encodePassword, 20, TimeUnit.SECONDS);
-        System.out.println("*****************" + redisTemplate.opsForValue().get(request.email()));
 
         return AccountResponse.from(accountRepository.save(account));
     }
