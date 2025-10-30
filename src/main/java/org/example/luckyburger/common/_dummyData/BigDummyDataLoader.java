@@ -1,6 +1,14 @@
 //package org.example.luckyburger.common._dummyData;
 //
+//import java.time.LocalDateTime;
+//import java.util.ArrayList;
+//import java.util.HashSet;
+//import java.util.List;
+//import java.util.Locale;
+//import java.util.Random;
+//import java.util.Set;
 //import lombok.RequiredArgsConstructor;
+//import lombok.extern.slf4j.Slf4j;
 //import net.datafaker.Faker;
 //import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 //import org.example.luckyburger.domain.auth.entity.Account;
@@ -19,9 +27,7 @@
 //import org.springframework.stereotype.Component;
 //import org.springframework.transaction.annotation.Transactional;
 //
-//import java.time.LocalDateTime;
-//import java.util.*;
-//
+//@Slf4j
 //@Component
 //@RequiredArgsConstructor
 //public class BigDummyDataLoader implements CommandLineRunner {
@@ -35,6 +41,13 @@
 //    @Override
 //    @Transactional
 //    public void run(String... args) {
+//
+//        //=== 멱등 마커: 관리자 계정이 이미 있으면 전체 시딩 스킵 ===
+//        if (accountRepository.findByEmail("admin@naver.com").isPresent()) {
+//            log.info("[DummyDataLoader] admin@naver.com already exists. Skip seeding.");
+//            return;
+//        }
+//
 //        Faker faker = new Faker(new Locale("ko"));
 //        Random random = new Random();
 //
@@ -47,11 +60,11 @@
 //
 //        // 점주 account 생성
 //        List<Account> owners = new ArrayList<>();
-//        for (int a = 1; a <= 10; a++) {
+//        for (int a = 1; a <= 150; a++) {
 //            owners.add(Account.of(
 //                    "owner" + a + "@naver.com",
-//                    "password",
 //                    "점주" + a,
+//                    "password",
 //                    AccountRole.ROLE_OWNER
 //            ));
 //        }
@@ -59,7 +72,7 @@
 //
 //        // 유저용 account 생성
 //        List<Account> accounts = new ArrayList<>();
-//        for (int b = 1; b <= 10; b++) {
+//        for (int b = 1; b <= 2000; b++) {
 //            accounts.add(Account.of(
 //                    "user" + b + "@naver.com",
 //                    faker.name().fullName().replaceAll("\\s+", ""),
@@ -71,14 +84,14 @@
 //
 //        // 휴대폰 번호 생성 10000개 (중복 X)
 //        Set<String> phoneSet = new HashSet<>();
-//        while (phoneSet.size() < 10) {
+//        while (phoneSet.size() < 2000) {
 //            phoneSet.add(faker.phoneNumber().phoneNumber());
 //        }
 //        List<String> phoneList = new ArrayList<>(phoneSet);
 //
 //        // 유저 생성
 //        List<User> users = new ArrayList<>();
-//        for (int c = 0; c < 10; c++) {
+//        for (int c = 0; c < 2000; c++) {
 //            users.add(User.of(accounts.get(c),
 //                    phoneList.get(c),
 //                    faker.address().city(),
@@ -89,7 +102,7 @@
 //
 //        // 점포 150개 생성
 //        List<Shop> shops = new ArrayList<>();
-//        for (int d = 0; d < 10; d++) {
+//        for (int d = 0; d < 150; d++) {
 //            String city = faker.address().cityName();
 //            shops.add(Shop.of(
 //                    "럭키버거 " + city + "점",
@@ -102,9 +115,9 @@
 //
 //        // 주문 10만개 생성
 //        List<Order> orders = new ArrayList<>();
-//        for (int e = 0; e < 10; e++) {
+//        for (int e = 0; e < 100000; e++) {
 //            int randomShop = random.nextInt(150);
-//            int randomUser = random.nextInt(10000);
+//            int randomUser = random.nextInt(2000);
 //            int randomPrice = (20 + random.nextInt(80)) * 500;
 //
 //            orders.add(Order.of(

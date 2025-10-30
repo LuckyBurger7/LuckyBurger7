@@ -12,6 +12,13 @@ spring:
   datasource:
     hikari:
       pool-name: hikari-pool
+  flyway:
+    enabled: true
+    # 이력 테이블 이름
+    table: flyway_schema_history
+    # 기존 비어있지 않은 스키마를 기준선으로 등록
+    baseline-on-migrate: false   # 최초 한번 구동 후에는 false로 변경
+    # baseline-version: 0   # 최초 한번 구동 후에는 미사용
 
 server:
   port: 8080

@@ -305,7 +305,7 @@ public class DummyDataLoader implements CommandLineRunner {
             return eventRepository.findByTitle(title).orElseThrow();
         });
     }
-    
+
     private void asAccount(Account account, Runnable task) {
         var principal = new AuthAccount(account.getId(), account.getEmail(), account.getRole());
         var auth = new UsernamePasswordAuthenticationToken(
