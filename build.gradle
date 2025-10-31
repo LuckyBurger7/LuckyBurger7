@@ -81,7 +81,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'net.datafaker:datafaker:2.2.2'
 
-    // flyway
+    // [flyway]
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
 }
