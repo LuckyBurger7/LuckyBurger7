@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.user.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.exception.UserNotFoundException;
 import org.example.luckyburger.domain.user.repository.UserRepository;
@@ -30,5 +31,9 @@ public class UserEntityFinder {
             throw new UserNotFoundException();
 
         return user;
+    }
+
+    public User getLoginUser() {
+        return getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }

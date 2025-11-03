@@ -13,7 +13,7 @@ services:
       default:
         aliases:
           - controller
-    restart: unless-stopped
+    restart: always
 
   ngrinder-agent:
     image: ngrinder/agent:3.5.9
@@ -23,7 +23,7 @@ services:
       - TZ=Asia/Seoul
     depends_on:
       - ngrinder-controller
-    restart: unless-stopped
+    restart: always
 
   prometheus:
     image: prom/prometheus:latest
@@ -37,7 +37,7 @@ services:
       - '9090:9090'
     depends_on:
       - redis-exporter
-    restart: unless-stopped
+    restart: always
 
   grafana:
     image: grafana/grafana:latest
@@ -51,7 +51,7 @@ services:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
-    restart: unless-stopped
+    restart: always
 
   loki:
     image: grafana/loki:latest

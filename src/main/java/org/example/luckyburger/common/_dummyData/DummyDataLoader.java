@@ -1,10 +1,8 @@
 package org.example.luckyburger.common._dummyData;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datafaker.Faker;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.dto.request.OwnerSignupRequest;
@@ -53,6 +51,7 @@ import org.example.luckyburger.domain.shop.repository.ShopRepository;
 import org.example.luckyburger.domain.shop.service.ShopAdminService;
 import org.example.luckyburger.domain.shop.service.ShopOwnerService;
 import org.example.luckyburger.domain.user.dto.request.UserSignupRequest;
+import org.example.luckyburger.domain.user.repository.UserRepository;
 import org.example.luckyburger.domain.user.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -61,12 +60,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.*;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DummyDataLoader implements CommandLineRunner {
 
     private final UserService userService;
+    private final UserRepository userRepository;
     private final AuthService authService;
     private final CouponAdminService couponAdminService;
     private final ShopMenuRepository shopMenuRepository;
@@ -106,8 +109,7 @@ public class DummyDataLoader implements CommandLineRunner {
         ensureOwner("owner1@naver.com", "password", "점주1", shopResp1.shopId());
         ensureOwner("owner2@naver.com", "password", "점주2", shopResp2.shopId());
 
-        ensureUser("user1@naver.com", "password", "김기수", "010-3333-5555", "주소", "상세 주소");
-        ensureUser("user2@naver.com", "password", "홍길동", "010-7777-8888", "주소", "상세 주소");
+        ensureUsers(100);
 
         // 2) 이벤트/쿠폰 ensure
         ensureEvent("신규 오픈 10% 할인 이벤트", "선착순 100명에게 10% 할인 쿠폰을 드립니다!");
@@ -275,6 +277,27 @@ public class DummyDataLoader implements CommandLineRunner {
         });
     }
 
+    private void ensureUsers(int count) {
+        Faker faker = new Faker(new Locale("ko"));
+
+        // 휴대폰 번호 생성 10000개 (중복 X)
+        Set<String> phoneSet = new HashSet<>();
+        while (phoneSet.size() < count) {
+            phoneSet.add(faker.phoneNumber().phoneNumber());
+        }
+        List<String> phoneList = new ArrayList<>(phoneSet);
+
+        for (int i = 0; i < count; i++) {
+            ensureUser("user" + i + "@naver.com",
+                    "password",
+                    faker.name().fullName().replaceAll("\\s+", ""),
+                    phoneList.get(i),
+                    faker.address().city(),
+                    faker.address().streetAddress()
+            );
+        }
+    }
+
     private ShopResponse ensureShop(String name, String address, String street) {
         Optional<Shop> found = shopRepository.findByNameAndStreet(name, street);
         if (found.isPresent()) {
@@ -305,7 +328,7 @@ public class DummyDataLoader implements CommandLineRunner {
             return eventRepository.findByTitle(title).orElseThrow();
         });
     }
-    
+
     private void asAccount(Account account, Runnable task) {
         var principal = new AuthAccount(account.getId(), account.getEmail(), account.getRole());
         var auth = new UsernamePasswordAuthenticationToken(

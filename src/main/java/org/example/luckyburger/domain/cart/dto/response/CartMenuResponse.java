@@ -14,6 +14,24 @@ public record CartMenuResponse(
         int quantity,
         long price
 ) {
+    public static CartMenuResponse of(Long cartId,
+                                      Long cartMenuId,
+                                      Long shopMenuId,
+                                      String menuName,
+                                      String shopName,
+                                      int quantity,
+                                      long price) {
+        return CartMenuResponse.builder()
+                .cartId(cartId)
+                .cartMenuId(cartMenuId)
+                .shopMenuId(shopMenuId)
+                .menuName(menuName)
+                .shopName(shopName)
+                .quantity(quantity)
+                .price(price)
+                .build();
+    }
+
     public static CartMenuResponse from(CartMenu cartMenu) {
         return CartMenuResponse.builder()
                 .cartId(cartMenu.getCart().getId())

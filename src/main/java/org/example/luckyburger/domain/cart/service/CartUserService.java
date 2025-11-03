@@ -28,15 +28,18 @@ public class CartUserService {
 
     private final CartRepository cartRepository;
     private final CartMenuRepository cartMenuRepository;
+
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
     private final ShopMenuEntityFinder shopMenuEntityFinder;
     private final UserEntityFinder userEntityFinder;
+
     private final CartMenuService cartMenuService;
 
     @Transactional
     public void addCartMenu(CartAddMenuRequest request) {
-        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+        // 로그인 유저
+        User user = userEntityFinder.getLoginUser();
 
         // 장바구니가 없다면 생성 및 save
         Cart cart = cartRepository.findById(user.getId())

@@ -60,18 +60,13 @@ public class AuthService {
      * 계정 수정
      *
      * @param request 계정 수정 응답 DTO
-     * @return 계정 응답 DTO
      */
     @Transactional
-    public AccountResponse updateAccount(AccountUpdateRequest request) {
+    public void updateAccount(AccountUpdateRequest request) {
 
-        AuthAccount authAccount = AuthAccountUtil.getAuthAccount();
-
-        Account account = accountEntityFinder.getAccountByEmail(authAccount.getEmail());
+        Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().getEmail());
 
         account.updateAccount(request.name());
-
-        return AccountResponse.from(account);
     }
 
     /**

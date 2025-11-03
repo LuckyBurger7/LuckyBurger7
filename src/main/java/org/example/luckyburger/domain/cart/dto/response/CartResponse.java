@@ -21,4 +21,12 @@ public record CartResponse(Long cartId, List<CartMenuResponse> cartMenus, long t
                 .totalPrice(cart.getTotalPrice())
                 .build();
     }
+
+    public static CartResponse of(Long cartId, List<CartMenuResponse> cartMenuResponse, long totalPrice) {
+        return CartResponse.builder()
+                .cartId(cartId)
+                .cartMenus(cartMenuResponse)
+                .totalPrice(totalPrice)
+                .build();
+    }
 }

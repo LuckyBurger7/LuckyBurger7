@@ -8,6 +8,7 @@ import org.example.luckyburger.domain.cart.dto.request.CartAddMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartDeleteMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartUpdateMenuRequest;
 import org.example.luckyburger.domain.cart.dto.response.CartResponse;
+import org.example.luckyburger.domain.cart.service.CartCacheUserService;
 import org.example.luckyburger.domain.cart.service.CartUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +19,22 @@ import org.springframework.web.bind.annotation.*;
 public class CartUserController {
 
     private final CartUserService cartUserService;
+    private final CartCacheUserService cartCacheUserService;
 
     @PostMapping("/v1/user/carts")
     public ResponseEntity<ApiResponse<Void>> addMenu(
             @Valid @RequestBody CartAddMenuRequest request
     ) {
         cartUserService.addCartMenu(request);
+
+        return ApiResponse.noContent();
+    }
+
+    @PostMapping("/v2/user/carts")
+    public ResponseEntity<ApiResponse<Void>> addMenuOfRedis(
+            @Valid @RequestBody CartAddMenuRequest request
+    ) {
+        cartCacheUserService.addCartMenu(request);
 
         return ApiResponse.noContent();
     }
