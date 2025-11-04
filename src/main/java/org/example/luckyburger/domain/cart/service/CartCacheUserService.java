@@ -24,14 +24,13 @@ public class CartCacheUserService {
     private final UserEntityFinder userEntityFinder;
     private final ShopMenuEntityFinder shopMenuEntityFinder;
 
-    @Transactional
     public void addCartMenu(CartAddMenuRequest request) {
         // 로그인 유저
         User user = userEntityFinder.getLoginUser();
 
         // shopMenu 및 cartMenus 조회
         ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(request.shopMenuId());
-        
+
         // 점포 검증
         if (cartCacheRepository.isUsedByOtherShop(user.getId(), shopMenu.getShop().getId())) {
             throw new CartMenuBadRequestException();
