@@ -32,7 +32,7 @@ import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
 import org.example.luckyburger.domain.user.entity.User;
-import org.example.luckyburger.domain.user.service.UserEntityFinder;
+import org.example.luckyburger.domain.user.service.UserCacheEntityFinder;
 import org.example.luckyburger.domain.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,7 +67,7 @@ public class OrderUserServiceTest {
     @Mock
     private OrderFormRepository orderFormRepository;
     @Mock
-    private UserEntityFinder userEntityFinder;
+    private UserCacheEntityFinder userCacheEntityFinder;
     @Mock
     private OrderEntityFinder orderEntityFinder;
     @Mock
@@ -112,7 +112,7 @@ public class OrderUserServiceTest {
         ReflectionTestUtils.setField(shop, "id", 201L);
         ReflectionTestUtils.setField(cart, "id", 301L);
 
-        when(userEntityFinder.getUserByAccountId(101L)).thenReturn(user);
+        when(userCacheEntityFinder.getUserByAccountId(101L)).thenReturn(user);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class OrderUserServiceTest {
         assertThat(resp.items().get(0).unitPrice()).isEqualTo(10000);
         assertThat(resp.items().get(0).quantity()).isEqualTo(2);
 
-        verify(userEntityFinder).getUserByAccountId(account.getId());
+        verify(userCacheEntityFinder).getUserByAccountId(account.getId());
         verify(cartEntityFinder).getCartByUserId(101L);
         verify(cartMenuEntityFinder).getAllCartMenuByCartId(301L);
         verify(shopEntityFinder).getShopById(201L);
@@ -236,7 +236,7 @@ public class OrderUserServiceTest {
         //then
         assertThat(response.amount().subtotal()).isEqualTo(20000);
         assertThat(response.amount().pay()).isEqualTo(12000);
-        assertThat(response.status()).isEqualTo(OrderStatus.WAITING);
+        assertThat(response.orderStatus()).isEqualTo(OrderStatus.WAITING);
         assertThat(response.couponId()).isEqualTo(401L);
 
         verify(orderRepository).save(any(Order.class));
@@ -349,7 +349,7 @@ public class OrderUserServiceTest {
         assertThat(response.receiver()).isEqualTo("홍길동");
         assertThat(response.items()).hasSize(2);
         assertThat(response.amount().subtotal()).isEqualTo(23000);
-        assertThat(response.status()).isEqualTo(OrderStatus.COOKING);
+        assertThat(response.orderStatus()).isEqualTo(OrderStatus.COOKING);
     }
 
     @Test

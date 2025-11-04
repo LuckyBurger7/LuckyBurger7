@@ -20,7 +20,7 @@ import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
 import org.example.luckyburger.domain.user.entity.User;
-import org.example.luckyburger.domain.user.service.UserEntityFinder;
+import org.example.luckyburger.domain.user.service.UserCacheEntityFinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +59,7 @@ public class CartUserServiceTest {
     @Mock
     private ShopMenuEntityFinder shopMenuEntityFinder;
     @Mock
-    private UserEntityFinder userEntityFinder;
+    private UserCacheEntityFinder userCacheEntityFinder;
     @Mock
     private CartMenuService cartMenuService;
 
@@ -111,7 +111,7 @@ public class CartUserServiceTest {
     @Test
     void 유저의_장바구니가_없으면_새로_생성하고_메뉴를_추가한다() {
         // given
-        when(userEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
+        when(userCacheEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
 
         CartAddMenuRequest request = new CartAddMenuRequest(1L);
         CartMenu cartMenu = CartMenu.of(cart, shopMenu1, 1);
@@ -139,7 +139,7 @@ public class CartUserServiceTest {
     @Test
     void 장바구니에_동일한_메뉴가_존재해_수량이_증가한다() {
         // given
-        when(userEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
+        when(userCacheEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
 
         CartAddMenuRequest request = new CartAddMenuRequest(1L);
         CartMenu cartMenu = CartMenu.of(cart, shopMenu1, 1);
@@ -168,7 +168,7 @@ public class CartUserServiceTest {
     @Test
     void 장바구니에_있는_메뉴와_다른_가게의_메뉴를_담아_오류가_발생한다() {
         // given
-        when(userEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
+        when(userCacheEntityFinder.getUserByAccountId(anyLong())).thenReturn(user);
 
         CartAddMenuRequest request = new CartAddMenuRequest(3L);
         List<CartMenu> cartMenus = List.of(CartMenu.of(cart, shopMenu1, 1));

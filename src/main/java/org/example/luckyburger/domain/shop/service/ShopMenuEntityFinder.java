@@ -6,6 +6,7 @@ import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.exception.ShopMenuNotFoundException;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.example.luckyburger.domain.statistic.dto.response.MenuTotalSalesResponse;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class ShopMenuEntityFinder {
 
     private final ShopMenuRepository shopMenuRepository;
 
+    @Cacheable(value = "shopMenus", key = "#shopMenuId")
     public ShopMenu getShopMenuById(Long shopMenuId) {
         return shopMenuRepository.findById(shopMenuId)
                 .orElseThrow(ShopMenuNotFoundException::new);

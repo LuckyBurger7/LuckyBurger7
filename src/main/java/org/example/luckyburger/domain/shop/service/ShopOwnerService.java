@@ -19,6 +19,7 @@ import org.example.luckyburger.domain.shop.exception.CouponPolicyNotFoundExcepti
 import org.example.luckyburger.domain.shop.exception.ShopMenuNotFoundException;
 import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +70,7 @@ public class ShopOwnerService {
 
     // 상점의 메뉴의 상태 변경
     @Transactional
+    @CacheEvict(value = "shopMenus")
     public ShopMenuResponse updateMenuStatus(Long shopId, Long menuId, ShopMenuRequest request) {
         validOwnerOfShop(shopId);
         ShopMenu shopMenu = shopMenuRepository.findWithShopByShopIdAndMenuId(shopId, menuId).

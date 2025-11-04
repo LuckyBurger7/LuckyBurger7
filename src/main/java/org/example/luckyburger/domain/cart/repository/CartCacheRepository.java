@@ -1,7 +1,9 @@
 package org.example.luckyburger.domain.cart.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.luckyburger.domain.cart.dto.redis.CartMenuRedisResponse;
+import org.example.luckyburger.domain.cart.dto.redis.ShopRedisResponse;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,10 +11,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class CartCacheRepository {
     private static final String CART_KEY_PREFIX = "cart:";
     private static final String USER_KEY_PREFIX = "user:";
@@ -30,7 +34,9 @@ public class CartCacheRepository {
         String key = buildKey(accountId);
         String hashKey = buildHashKey(shopMenuId);
 
-        hashOps().increment(key, hashKey, 1);
+        Long count = hashOps().increment(key, hashKey, 1);
+
+        //log.info("{} 메뉴 갯수 : {}", shopMenuId, count);
     }
 
     public void decrementCartMenuQuantity(Long accountId, Long shopMenuId) {
@@ -44,31 +50,29 @@ public class CartCacheRepository {
         }
     }
 
-    public Optional<Integer> findCartMenuQuantityById(Long accountId, Long shopMenuId) {
+    public Optional<Long> findCartMenuQuantityById(Long accountId, Long shopMenuId) {
         String key = buildKey(accountId);
         String hashKey = buildHashKey(shopMenuId);
 
         Object value = hashOps().get(key, hashKey);
 
-        if (value instanceof Integer)
-            return Optional.of((Integer) value);
-
-        return Optional.empty();
+        return Optional.ofNullable((Long) value);
     }
 
     public void useShop(Long accountId, Long shopId) {
         String key = buildKey(accountId);
-        hashOps().put(key, SHOP_PREFIX, shopId);
+        ShopRedisResponse shopRedisResponse = ShopRedisResponse.of(shopId);
+        hashOps().put(key, SHOP_PREFIX, shopRedisResponse);
     }
 
-    // 다른 매장에서 사용중.
     public boolean isUsedByOtherShop(Long accountId, Long shopId) {
         String key = buildKey(accountId);
 
         Object value = hashOps().get(key, SHOP_PREFIX);
 
-        if (value instanceof Long id)
-            return id.longValue() != shopId.longValue();
+        if (value instanceof ShopRedisResponse) {
+            return !((ShopRedisResponse) value).getShopMenuId().equals(shopId);
+        }
 
         return false;
     }
@@ -76,7 +80,9 @@ public class CartCacheRepository {
     public void incrementTotalPrice(Long accountId, Long price) {
         String key = buildKey(accountId);
 
-        hashOps().increment(key, TOTAL_PRICE_PREFIX, price);
+        Long totalPrice = hashOps().increment(key, TOTAL_PRICE_PREFIX, price);
+
+        //log.info("{} 카트 총금액 : {}", accountId, totalPrice);
     }
 
     public void decrementTotalPrice(Long accountId, Long price) {
@@ -95,11 +101,16 @@ public class CartCacheRepository {
                 .map(entry -> {
                     String menuKey = entry.getKey().substring("menu:".length());
                     Long menuId = Long.valueOf(menuKey);
-                    Integer quantity = (Integer) entry.getValue();
+                    Long quantity = (Long) entry.getValue();
 
                     return CartMenuRedisResponse.of(menuId, quantity);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public void setTTL(Long accountId, long timeout, TimeUnit unit) {
+        String key = buildKey(accountId);
+        redisTemplate.expire(key, timeout, unit);
     }
 
     private String buildKey(Long accountId) {

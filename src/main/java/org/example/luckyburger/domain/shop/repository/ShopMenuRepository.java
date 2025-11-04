@@ -63,4 +63,6 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
             """, nativeQuery = true)
     void saveForAllMenu(@Param("shopId") Long shopId, @Param("status") String status);
 
+    @EntityGraph(attributePaths = {"menu", "shop"})
+    Optional<ShopMenu> findById(Long shopMenuId);
 }

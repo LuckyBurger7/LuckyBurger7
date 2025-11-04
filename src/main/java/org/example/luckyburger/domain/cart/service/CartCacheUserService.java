@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class CartCacheUserService {
     private final CartCacheRepository cartCacheRepository;
 
     private final UserEntityFinder userEntityFinder;
-    private ShopMenuEntityFinder shopMenuEntityFinder;
+    private final ShopMenuEntityFinder shopMenuEntityFinder;
 
     @Transactional
     public void addCartMenu(CartAddMenuRequest request) {
@@ -30,7 +31,7 @@ public class CartCacheUserService {
 
         // shopMenu 및 cartMenus 조회
         ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(request.shopMenuId());
-
+        
         // 점포 검증
         if (cartCacheRepository.isUsedByOtherShop(user.getId(), shopMenu.getShop().getId())) {
             throw new CartMenuBadRequestException();
@@ -44,6 +45,9 @@ public class CartCacheUserService {
 
         // 리스트를 토대로 총합 금액 계산
         cartCacheRepository.incrementTotalPrice(user.getId(), shopMenu.getMenu().getPrice());
+
+        //TTL 설정
+        cartCacheRepository.setTTL(user.getId(), 3, TimeUnit.MINUTES);
     }
 
     @Transactional

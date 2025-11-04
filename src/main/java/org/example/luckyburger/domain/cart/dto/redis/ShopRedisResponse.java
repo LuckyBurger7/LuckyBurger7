@@ -12,15 +12,13 @@ import java.io.Serializable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@RedisHash("cartMenu")
-public class CartMenuRedisResponse implements Serializable {
+@RedisHash("shop")
+public class ShopRedisResponse implements Serializable {
 
     @Id
     private Long shopMenuId;
 
-    private Long quantity;
-
-    public static CartMenuRedisResponse of(Long shopMenuId, Long quantity) {
-        return new CartMenuRedisResponse(shopMenuId, quantity);
+    public static ShopRedisResponse of(Long shopMenuId) {
+        return new ShopRedisResponse(shopMenuId);
     }
 }
