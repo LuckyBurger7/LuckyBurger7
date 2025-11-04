@@ -49,6 +49,15 @@ public class OrderOwnerController {
         return ApiPageResponse.success(orderOwnerService.getAllOrderResponse(pageable));
     }
 
+    @GetMapping("/v2/owner/orders")
+    public ResponseEntity<ApiPageResponse<OrderResponse>> getAllOrderCompareNoIndex(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ApiPageResponse.success(orderOwnerService.getAllOrderResponseCompare(pageable));
+    }
+
     @PutMapping("/v1/owner/orders/{orderId}")
     public ResponseEntity<ApiResponse<Void>> updateOrderStatus(
             @PathVariable("orderId") Long orderId,
