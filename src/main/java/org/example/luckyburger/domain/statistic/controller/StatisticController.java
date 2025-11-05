@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.statistic.controller;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.cache.CacheStatsPrinter;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
@@ -10,6 +11,7 @@ import org.example.luckyburger.domain.statistic.dto.response.MenuTotalSalesRespo
 import org.example.luckyburger.domain.statistic.dto.response.MonthTotalSalesResponse;
 import org.example.luckyburger.domain.statistic.dto.response.ShopTotalSalesResponse;
 import org.example.luckyburger.domain.statistic.service.StatisticService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,17 +28,17 @@ public class StatisticController {
 
     private final StatisticService statisticService;
 
-    @GetMapping("/v1/admin/statistics/sales/monthly")
+    @GetMapping("/v2/admin/statistics/sales/monthly")
     public ResponseEntity<ApiResponse<List<MonthTotalSalesResponse>>> getAllMonthTotalSalesResponse() {
         return ApiResponse.success(statisticService.getAllMonthTotalSalesResponse());
     }
 
-    @GetMapping("/v1/admin/statistics/sales/shops/top10")
+    @GetMapping("/v2/admin/statistics/sales/shops/top10")
     public ResponseEntity<ApiResponse<List<ShopTotalSalesResponse>>> getTopTenShopTotalSalesResponse() {
         return ApiResponse.success(statisticService.getTopTenShopTotalSalesResponse());
     }
 
-    @GetMapping("/v1/admin/statistics/sales/shops/bottom10")
+    @GetMapping("/v2/admin/statistics/sales/shops/bottom10")
     public ResponseEntity<ApiResponse<List<ShopTotalSalesResponse>>> getBottomTenShopTotalSalesResponse() {
         return ApiResponse.success(statisticService.getBottomTenShopTotalSalesResponse());
     }

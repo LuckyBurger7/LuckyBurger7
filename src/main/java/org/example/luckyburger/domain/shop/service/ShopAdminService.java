@@ -28,6 +28,7 @@ public class ShopAdminService {
     private final ShopMenuRepository shopMenuRepository;
 
     @Transactional
+    @CacheEvict(value = "shopCache", allEntries = true, beforeInvocation = true)
     public ShopResponse createShop(ShopRequest request) {
         // 초기 매장 상태 Close
         Shop shopEntity = Shop.of(request.name(), BusinessStatus.CLOSED, request.address(), request.street());

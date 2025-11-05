@@ -6,6 +6,7 @@ import org.example.luckyburger.domain.event.dto.request.EventCreateRequest;
 import org.example.luckyburger.domain.event.dto.response.EventResponse;
 import org.example.luckyburger.domain.event.entity.Event;
 import org.example.luckyburger.domain.event.repository.EventRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class EventAdminService {
      * @param request (타이틀, 내용)
      * @return 생성된 이벤트 반환
      */
+    @CacheEvict(value = "shopCache", allEntries = true, beforeInvocation = true)
     public EventResponse createEventResponse(EventCreateRequest request) {
         Event event = Event.of(request.title(), request.description());
         Event savedEvent = eventRepository.save(event);

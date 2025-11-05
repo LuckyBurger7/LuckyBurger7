@@ -19,6 +19,10 @@ spring:
   datasource:
     hikari:
       pool-name: hikari-pool
+  cache:
+    type: caffeine
+    caffeine:
+      spec: initialCapacity=10,maximumSize=1000,expireAfterWrite=60s
 
 server:
   port: 8080

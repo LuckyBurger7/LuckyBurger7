@@ -2,9 +2,9 @@ spring:
   config:
     import: optional:file:.env.local[.properties]
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/luckyburger?serverTimezone=Asia/Seoul
+    username: root
+    password: "000620"
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 21
@@ -26,18 +26,19 @@ spring:
 
 jwt:
   secret:
-    aesKey: ${AES_KEY}
-    key: ${JWT_KEY}
+    aesKey: MDEyMzQ1Njc4OWFiY2RlZg==
+    key: bXlTdXBlclNlY3JldEtleTEyMzQ1Njc4OTBhYmNkZWYhQCM
     whiteList:
       - /api/v1/signup
       - /api/v1/login
       - /api/v1/menus/**
       - /api/v1/coupons/**
-      - /api/v1/shops/**
+      - /api/v1/owner/**
       - /api/v1/events/**
       - /actuator/health
       - /actuator/prometheus
+      - /api/v1/admin
 
   token:
     prefix: 'Bearer '
-    expiration: ${JWT_EXPIRATION}
+    expiration: 3600000
