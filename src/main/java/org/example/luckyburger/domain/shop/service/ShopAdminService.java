@@ -12,6 +12,7 @@ import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.example.luckyburger.domain.shop.repository.ShopRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class ShopAdminService {
     private final ShopMenuRepository shopMenuRepository;
 
     @Transactional
+    @CacheEvict(value = "shopCache", allEntries = true, beforeInvocation = true)
     public ShopResponse createShop(ShopRequest request) {
         // 초기 매장 상태 Close
         Shop shopEntity = Shop.of(request.name(), BusinessStatus.CLOSED, request.address(), request.street());

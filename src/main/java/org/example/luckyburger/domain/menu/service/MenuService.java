@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class MenuService {
     private final MenuEntityFinder menuEntityFinder;
 
     // 메뉴 전체 조회
+    @Cacheable(value = "menuCache",sync = true)
     @Transactional(readOnly = true)
     public Page<MenuResponse> getAllMenuResponse(Pageable pageable) {
         Page<Menu> menus = menuRepository.findAll(pageable);

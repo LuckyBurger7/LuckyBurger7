@@ -7,6 +7,7 @@ import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
 import org.example.luckyburger.domain.shop.service.ShopService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,19 @@ public class ShopController {
             @PathVariable Long shopMenuId
     ) {
         return ApiResponse.success(shopService.getMenuDetail(shopId, shopMenuId));
+    }
+
+    //상점 전체 보기 페이지
+    @GetMapping("/v2/shops")
+    public ResponseEntity<ApiPageResponse<ShopResponse>> getAllShop(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<ShopResponse> response = shopService.getAllShopResponse(pageable);
+
+        return ApiPageResponse.success(response);
     }
 
 }

@@ -8,6 +8,7 @@ import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ public class MenuAdminService {
     private final ShopMenuRepository shopMenuRepository;
 
     @Transactional
+    @CacheEvict(value = "shopCache", allEntries = true, beforeInvocation = true)
     public MenuResponse createMenu(MenuRequest request) {
 
         Menu menu = Menu.of(request.name(), request.menuCategory(), request.price());

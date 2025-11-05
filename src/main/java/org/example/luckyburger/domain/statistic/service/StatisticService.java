@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.statistic.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.cache.CacheStatsPrinter;
 import org.example.luckyburger.domain.coupon.service.CouponEntityFinder;
 import org.example.luckyburger.domain.menu.enums.MenuCategory;
 import org.example.luckyburger.domain.menu.service.MenuEntityFinder;
@@ -12,6 +13,8 @@ import org.example.luckyburger.domain.statistic.dto.response.AdminDashboardRespo
 import org.example.luckyburger.domain.statistic.dto.response.MenuTotalSalesResponse;
 import org.example.luckyburger.domain.statistic.dto.response.MonthTotalSalesResponse;
 import org.example.luckyburger.domain.statistic.dto.response.ShopTotalSalesResponse;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,24 +36,27 @@ public class StatisticService {
         return orderEntityFinder.getAllMonthTotalSalesResponse();
     }
 
+    @Cacheable(value = "statisticCache",sync = true)
     public List<ShopTotalSalesResponse> getTopTenShopTotalSalesResponse() {
 
         return orderEntityFinder.getAllShopTotalSalesResponseOrderByDesc();
     }
 
+    @Cacheable(value = "statisticCache",sync = true)
     public List<ShopTotalSalesResponse> getBottomTenShopTotalSalesResponse() {
 
         return orderEntityFinder.getAllShopTotalSalesResponseOrderByAsc();
     }
 
+    @Cacheable(value = "statisticCache",sync = true)
     public List<MenuTotalSalesResponse> getMenuTotalSalesResponse(MenuCategory category) {
 
         List<Long> categoryMenuIds = menuEntityFinder.getAllMenuIdByCategory(category);
 
         return shopMenuEntityFinder.getAllMenuTotalSalesByMenuIds(categoryMenuIds);
-
     }
 
+    @Cacheable(value = "statisticCache",sync = true)
     public AdminDashboardResponse getAdminDashboardResponse() {
         return AdminDashboardResponse.of(
                 shopEntityFinder.countShops(),

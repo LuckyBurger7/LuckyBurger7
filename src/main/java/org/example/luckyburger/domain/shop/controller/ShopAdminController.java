@@ -19,7 +19,7 @@ public class ShopAdminController {
 
     private final ShopAdminService shopAdminService;
 
-    @PostMapping("/v1/admin/shops")
+    @PostMapping("/v2/admin/shops")
     public ResponseEntity<ApiResponse<ShopResponse>> createShop(@RequestBody ShopRequest shopRequest) {
 
         return ApiResponse.created(shopAdminService.createShop(shopRequest));

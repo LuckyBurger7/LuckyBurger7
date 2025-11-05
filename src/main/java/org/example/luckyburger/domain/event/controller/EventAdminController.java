@@ -34,7 +34,7 @@ public class EventAdminController {
     private final EventAdminService eventAdminService;
     private final EventService eventService;
 
-    @PostMapping("/v1/admin/events")
+    @PostMapping("/v2/admin/events")
     public ResponseEntity<ApiResponse<EventResponse>> createEvent(
             @Valid @RequestBody EventCreateRequest request
     ) {

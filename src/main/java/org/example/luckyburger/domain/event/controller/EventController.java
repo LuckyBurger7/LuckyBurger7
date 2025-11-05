@@ -23,7 +23,7 @@ public class EventController {
         return ApiResponse.success(eventService.getEventResponse(eventId));
     }
 
-    @GetMapping("/v1/events")
+    @GetMapping("/v2/events")
     public ResponseEntity<ApiPageResponse<EventResponse>> getAllEventByNotDeleted(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
