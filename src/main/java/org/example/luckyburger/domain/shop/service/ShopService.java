@@ -10,6 +10,7 @@ import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.exception.ShopMenuBadRequestException;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.example.luckyburger.domain.shop.repository.ShopRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,5 +49,13 @@ public class ShopService {
         }
 
         return ShopMenuResponse.from(shopMenu);
+    }
+
+    @Cacheable(value = "shopCache",sync = true)
+    public Page<ShopResponse> getAllShopResponse(Pageable pageable) {
+        Page<Shop> shops = shopRepository.findAll(pageable);
+
+        return shops.map(ShopResponse::from);
+
     }
 }

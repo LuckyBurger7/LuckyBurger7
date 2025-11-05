@@ -22,6 +22,7 @@ public class MenuAdminService {
     private final ShopMenuRepository shopMenuRepository;
 
     @Transactional
+    @CacheEvict(value = "shopCache", allEntries = true, beforeInvocation = true)
     public MenuResponse createMenu(MenuRequest request) {
 
         Menu menu = Menu.of(request.name(), request.menuCategory(), request.price());

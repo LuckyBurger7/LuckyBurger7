@@ -20,7 +20,7 @@ public class MenuAdminController {
 
     private final MenuAdminService menuAdminService;
 
-    @PostMapping("/v1/admin/menus")
+    @PostMapping("/v2/admin/menus")
     public ResponseEntity<ApiResponse<MenuResponse>> createMenu(
             @Valid @RequestBody MenuRequest menuRequest
     ) {

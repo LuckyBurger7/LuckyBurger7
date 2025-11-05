@@ -24,7 +24,7 @@ public class MenuController {
     private final MenuService menuService;
 
     // 메뉴 전체 조회
-    @GetMapping("/v1/menus")
+    @GetMapping("/v2/menus")
     public ResponseEntity<ApiPageResponse<MenuResponse>> getAllMenu(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

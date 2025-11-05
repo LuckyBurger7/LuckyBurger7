@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.domain.event.dto.response.EventResponse;
 import org.example.luckyburger.domain.event.entity.Event;
 import org.example.luckyburger.domain.event.repository.EventRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class EventService {
      * @param pageable
      * @return 생성 된 이벤트 전체 반환 (페이지네이션 사용)
      */
+    @Cacheable(value = "eventCache",sync = true)
     @Transactional(readOnly = true)
     public Page<EventResponse> getAllEventResponse(Pageable pageable) {
         Page<Event> events = eventRepository.findAll(pageable);
