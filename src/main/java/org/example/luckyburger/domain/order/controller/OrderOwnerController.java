@@ -34,7 +34,7 @@ public class OrderOwnerController {
         return ApiResponse.success(orderOwnerService.getOrderResponse(orderId));
     }
 
-    @GetMapping("/v1/owner/orders")
+    @GetMapping("/v2/owner/orders")
     public ResponseEntity<ApiPageResponse<OrderResponse>> getAllOrder(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -49,7 +49,7 @@ public class OrderOwnerController {
         return ApiPageResponse.success(orderOwnerService.getAllOrderResponse(pageable));
     }
 
-    @GetMapping("/v2/owner/orders")
+    @GetMapping("/v1/owner/orders")
     public ResponseEntity<ApiPageResponse<OrderResponse>> getAllOrderCompareNoIndex(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
