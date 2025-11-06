@@ -13,6 +13,17 @@ spring:
       hibernate:
         show_sql: true
         format_sql: false
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.config.parameterstore.ParameterStoreAutoConfiguration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+  
+  cache:
+    type: redis
 
 jwt:
   secret:
@@ -22,6 +33,12 @@ jwt:
       - /api/v1/signup
       - /api/v1/login
       - /api/v1/menus/**
+      - /api/v1/coupons/**
+      - /api/v1/shops/**
+      - /api/v1/events/**
+      - /actuator/health
+      - /actuator/prometheus
+
   token:
     prefix: 'Bearer '
     expiration: ${JWT_EXPIRATION}
