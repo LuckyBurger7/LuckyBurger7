@@ -3,8 +3,6 @@ local currentQuantity = tonumber(currentQuantityStr) or 0
 local newQuantity = tonumber(ARGV[1]) or 0
 local unitPrice = tonumber(ARGV[2])
 
-redis.log(redis.LOG_WARNING, "ARGV[1] = '" .. currentQuantity .. "'")
-
 -- 음수 검증
 if newQuantity < 0 then
 	return 0
