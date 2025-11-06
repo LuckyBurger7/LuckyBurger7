@@ -22,6 +22,11 @@ spring:
 
 server:
   port: 8080
+  tomcat:
+    max-connections: 2000
+    accept-count: 1000
+    threads:
+      max: 128
 
 management:
   endpoints:

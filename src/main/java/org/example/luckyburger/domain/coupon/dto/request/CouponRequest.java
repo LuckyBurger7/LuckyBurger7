@@ -22,6 +22,10 @@ public record CouponRequest(
         LocalDateTime expirationDate,
 
         @NotNull(message = "쿠폰 타입은 필수 입력값입니다.")
-        CouponType type
+        CouponType type,
+
+        @NotNull(message = "오픈일은 필수 입력값입니다.")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        LocalDateTime openDate
 ) {
 }

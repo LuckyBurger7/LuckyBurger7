@@ -15,6 +15,9 @@
 //import org.example.luckyburger.domain.auth.enums.AccountRole;
 //import org.example.luckyburger.domain.auth.repository.AccountRepository;
 //import org.example.luckyburger.domain.auth.service.AuthService;
+//import org.example.luckyburger.domain.coupon.dto.request.CouponRequest;
+//import org.example.luckyburger.domain.coupon.enums.CouponType;
+//import org.example.luckyburger.domain.coupon.service.CouponAdminService;
 //import org.example.luckyburger.domain.order.entity.Order;
 //import org.example.luckyburger.domain.order.enums.OrderStatus;
 //import org.example.luckyburger.domain.order.repository.OrderRepository;
@@ -24,6 +27,7 @@
 //import org.example.luckyburger.domain.user.entity.User;
 //import org.example.luckyburger.domain.user.repository.UserRepository;
 //import org.springframework.boot.CommandLineRunner;
+//import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.stereotype.Component;
 //import org.springframework.transaction.annotation.Transactional;
 //
@@ -37,6 +41,8 @@
 //    private final UserRepository userRepository;
 //    private final ShopRepository shopRepository;
 //    private final OrderRepository orderRepository;
+//    private final CouponAdminService couponAdminService;
+//    private final PasswordEncoder passwordEncoder;
 //
 //    @Override
 //    @Transactional
@@ -64,7 +70,7 @@
 //            owners.add(Account.of(
 //                    "owner" + a + "@naver.com",
 //                    "점주" + a,
-//                    "password",
+//                    passwordEncoder.encode("password"),
 //                    AccountRole.ROLE_OWNER
 //            ));
 //        }
@@ -72,11 +78,12 @@
 //
 //        // 유저용 account 생성
 //        List<Account> accounts = new ArrayList<>();
-//        for (int b = 1; b <= 2000; b++) {
+
+//        for (int b = 1; b <= 1000; b++) {
 //            accounts.add(Account.of(
 //                    "user" + b + "@naver.com",
 //                    faker.name().fullName().replaceAll("\\s+", ""),
-//                    "password",
+//                    passwordEncoder.encode("password"),
 //                    AccountRole.ROLE_USER
 //            ));
 //        }
@@ -84,14 +91,14 @@
 //
 //        // 휴대폰 번호 생성 10000개 (중복 X)
 //        Set<String> phoneSet = new HashSet<>();
-//        while (phoneSet.size() < 2000) {
+//        while (phoneSet.size() < 1000) {
 //            phoneSet.add(faker.phoneNumber().phoneNumber());
 //        }
 //        List<String> phoneList = new ArrayList<>(phoneSet);
 //
 //        // 유저 생성
 //        List<User> users = new ArrayList<>();
-//        for (int c = 0; c < 2000; c++) {
+//        for (int c = 0; c < 1000; c++) {
 //            users.add(User.of(accounts.get(c),
 //                    phoneList.get(c),
 //                    faker.address().city(),
@@ -115,9 +122,9 @@
 //
 //        // 주문 10만개 생성
 //        List<Order> orders = new ArrayList<>();
-//        for (int e = 0; e < 100000; e++) {
+//        for (int e = 0; e < 100; e++) {
 //            int randomShop = random.nextInt(150);
-//            int randomUser = random.nextInt(2000);
+//            int randomUser = random.nextInt(1000);
 //            int randomPrice = (20 + random.nextInt(80)) * 500;
 //
 //            orders.add(Order.of(
@@ -137,5 +144,14 @@
 //            ));
 //        }
 //        orderRepository.saveAll(orders);
+//
+//        couponAdminService.createCouponWithRedis(new CouponRequest(
+//                "10프로 할인 쿠폰",
+//                0.1,
+//                30,
+//                LocalDateTime.now().plusDays(1),
+//                CouponType.RATIO,
+//                LocalDateTime.now()
+//        ));
 //    }
 //}
