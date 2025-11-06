@@ -236,7 +236,7 @@ public class OrderUserServiceTest {
         //then
         assertThat(response.amount().subtotal()).isEqualTo(20000);
         assertThat(response.amount().pay()).isEqualTo(12000);
-        assertThat(response.status()).isEqualTo(OrderStatus.WAITING);
+        assertThat(response.orderStatus()).isEqualTo(OrderStatus.WAITING);
         assertThat(response.couponId()).isEqualTo(401L);
 
         verify(orderRepository).save(any(Order.class));
@@ -349,7 +349,7 @@ public class OrderUserServiceTest {
         assertThat(response.receiver()).isEqualTo("홍길동");
         assertThat(response.items()).hasSize(2);
         assertThat(response.amount().subtotal()).isEqualTo(23000);
-        assertThat(response.status()).isEqualTo(OrderStatus.COOKING);
+        assertThat(response.orderStatus()).isEqualTo(OrderStatus.COOKING);
     }
 
     @Test

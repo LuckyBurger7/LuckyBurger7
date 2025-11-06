@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.example.luckyburger.common.code.ErrorCode;
 import org.example.luckyburger.common.dto.response.ApiErrorResponse;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,6 +27,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleGlobalException(GlobalException ex, HttpServletRequest request) {
         log.error("비즈니스 오류 발생 ", ex);
         return handleExceptionInternal(ex.getErrorCode(), request);
+    }
+
+    @ExceptionHandler({CannotAcquireLockException.class})
+    public ResponseEntity<?> deadlock(RuntimeException e) {
+        log.error("데드락 발생 ", e);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE) // 503
+                .body(null);
     }
 
     private ResponseEntity<ApiErrorResponse> handleExceptionInternal(ErrorCode errorCode, HttpServletRequest request) {

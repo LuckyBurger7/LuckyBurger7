@@ -1,8 +1,5 @@
 package org.example.luckyburger.common._dummyData;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.luckyburger.common.security.dto.AuthAccount;
@@ -61,6 +58,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -113,9 +114,9 @@ public class DummyDataLoader implements CommandLineRunner {
         ensureEvent("신규 오픈 10% 할인 이벤트", "선착순 100명에게 10% 할인 쿠폰을 드립니다!");
 
         ensureCoupon("5000원 할인 쿠폰", 5000.0, 5,
-                LocalDateTime.now().plusDays(1), CouponType.FIXED);
+                LocalDateTime.now().plusDays(1), CouponType.FIXED, LocalDateTime.now().plusSeconds(1));
         ensureCoupon("10프로 할인 쿠폰", 0.1, 100,
-                LocalDateTime.now().minusDays(1), CouponType.RATIO);
+                LocalDateTime.now().minusDays(1), CouponType.RATIO, LocalDateTime.now().minusDays(1));
 
         // 3) 메뉴 ensure
         MenuResponse menuResp1 = ensureMenu("치즈버거", MenuCategory.HAMBURGER, 5500);
@@ -292,9 +293,9 @@ public class DummyDataLoader implements CommandLineRunner {
     }
 
     private void ensureCoupon(String name, double discount, int count,
-                              LocalDateTime exp, CouponType type) {
+                              LocalDateTime exp, CouponType type, LocalDateTime open) {
         couponRepository.findByName(name).orElseGet(() -> {
-            couponAdminService.createCoupon(new CouponRequest(name, discount, count, exp, type));
+            couponAdminService.createCoupon(new CouponRequest(name, discount, count, exp, type, open));
             return couponRepository.findByName(name).orElseThrow();
         });
     }
@@ -305,7 +306,7 @@ public class DummyDataLoader implements CommandLineRunner {
             return eventRepository.findByTitle(title).orElseThrow();
         });
     }
-    
+
     private void asAccount(Account account, Runnable task) {
         var principal = new AuthAccount(account.getId(), account.getEmail(), account.getRole());
         var auth = new UsernamePasswordAuthenticationToken(
