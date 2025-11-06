@@ -1,6 +1,5 @@
 package org.example.luckyburger.domain.cart.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -39,14 +38,19 @@ public class CartCacheUserService {
         if (shopMenu.shopMenuStatus() == ShopMenuStatus.DEACTIVATE)
             throw new ShopMenuDeactivateException();
 
+        long timeout = 3L;
+
         // lua script 사용
         cartLuaRepository.addCartMenu(
                 userId,
                 shopMenu.shopId(),
                 request.shopMenuId(),
                 shopMenu.price(),
-                3L
+                timeout
         );
+
+        // 캐시 저장 타이머
+        cartLuaRepository.setSaveDBTimer(userId, timeout);
     }
 
     @Transactional(readOnly = true)
@@ -57,16 +61,14 @@ public class CartCacheUserService {
         // 캐시 조회 실패시 Optional.empty 반환
         Optional<CartResponse> cartResponse = cartCacheRepository.findAllCartResponse(userId);
 
+        long timeout = 3L;
+
         // 캐시 성공
         if (cartResponse.isPresent())
             return cartResponse.get();
 
         // 캐시 갱신
-        try {
-            cartLuaRepository.saveCartToCache(userId, 3L);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        cartLuaRepository.saveCartToCache(userId, timeout);
 
         // 캐시 실패 시 DB 반환
         return cartUserService.getCartResponse();
@@ -76,26 +78,28 @@ public class CartCacheUserService {
     public CartResponse updateCartMenu(CartUpdateMenuRequest request) {
         Long userId = AuthAccountUtil.getAuthAccount().getAccountId();
 
+        long timeout = 3L;
+
         boolean result = cartLuaRepository.updateCartMenuQuantity(
                 userId,
                 request.shopMenuId(),
                 request.quantity(),
-                3L
+                timeout
         );
 
         // 캐시 성공
-        if (result)
+        if (result) {
+            // 캐시 저장 타이머
+            cartLuaRepository.setSaveDBTimer(userId, timeout);
+
             return getCartResponse();
+        }
 
         // 캐시 실패
         CartResponse cartResponse = cartUserService.updateCartMenu(request);
 
         // 캐시 갱신
-        try {
-            cartLuaRepository.saveCartToCache(userId, 3L);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        cartLuaRepository.saveCartToCache(userId, 3L);
 
         return cartResponse;
     }
@@ -104,26 +108,27 @@ public class CartCacheUserService {
     public CartResponse deleteCartMenu(CartDeleteMenuRequest request) {
         Long userId = AuthAccountUtil.getAuthAccount().getAccountId();
 
+        long timeout = 3L;
+
         boolean result = cartLuaRepository.deleteCartMenuQuantity(
                 userId,
                 request.shopMenuId(),
                 3L
         );
         // 캐시 성공
-        if (result)
+        if (result) {
+            // 캐시 저장 타이머
+            cartLuaRepository.setSaveDBTimer(userId, timeout);
+
             return getCartResponse();
+        }
 
         // 캐시 실패
         CartResponse cartResponse = cartUserService.deleteCartMenu(request);
 
         // 캐시 갱신
-        try {
-            cartLuaRepository.saveCartToCache(userId, 3L);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        cartLuaRepository.saveCartToCache(userId, 3L);
 
         return cartResponse;
     }
-
 }

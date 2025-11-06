@@ -118,7 +118,7 @@ public class CartUserServiceTest {
 
         when(cartRepository.findById(user.getId())).thenReturn(Optional.empty());
         when(cartRepository.save(any(Cart.class))).thenReturn(cart);
-        when(shopMenuEntityFinder.getShopMenuById(1L)).thenReturn(shopMenu1);
+        when(shopMenuEntityFinder.getShopMenuByIdDetails(1L)).thenReturn(shopMenu1);
         when(cartMenuRepository.save(any(CartMenu.class))).thenReturn(cartMenu);
 
         when(cartMenuService.calculateTotalPrice(anyList())).thenAnswer(invocation -> {
@@ -147,7 +147,7 @@ public class CartUserServiceTest {
         cartMenus.add(cartMenu);
 
         when(cartRepository.findById(user.getId())).thenReturn(Optional.of(cart));
-        when(shopMenuEntityFinder.getShopMenuById(1L)).thenReturn(shopMenu1);
+        when(shopMenuEntityFinder.getShopMenuByIdDetails(1L)).thenReturn(shopMenu1);
         when(cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId())).thenReturn(cartMenus);
 
         when(cartMenuService.calculateTotalPrice(anyList())).thenAnswer(invocation -> {
@@ -174,7 +174,7 @@ public class CartUserServiceTest {
         List<CartMenu> cartMenus = List.of(CartMenu.of(cart, shopMenu1, 1));
 
         when(cartRepository.findById(user.getId())).thenReturn(Optional.of(cart));
-        when(shopMenuEntityFinder.getShopMenuById(3L)).thenReturn(shopMenu3);
+        when(shopMenuEntityFinder.getShopMenuByIdDetails(3L)).thenReturn(shopMenu3);
         when(cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId())).thenReturn(cartMenus);
 
         // then

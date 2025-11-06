@@ -39,41 +39,42 @@ public class CartUserController {
         return ApiResponse.noContent();
     }
 
-    @GetMapping("v1/user/carts")
+    @GetMapping("/v1/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> getCart() {
         return ApiResponse.success(cartUserService.getCartResponse());
     }
 
-    @GetMapping("v2/user/carts")
+    @GetMapping("/v2/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> getCartApplyCache() {
         return ApiResponse.success(cartCacheUserService.getCartResponse());
     }
 
-    @PutMapping("v1/user/carts")
+    @PutMapping("/v1/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> updateCart(
             @Valid @RequestBody CartUpdateMenuRequest request
     ) {
         return ApiResponse.success(cartUserService.updateCartMenu(request));
     }
 
-    @PutMapping("v2/user/carts")
+    @PutMapping("/v2/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> updateCartApplyCache(
             @Valid @RequestBody CartUpdateMenuRequest request
     ) {
         return ApiResponse.success(cartCacheUserService.updateCartMenu(request));
     }
 
-    @DeleteMapping("v1/user/carts")
+    @DeleteMapping("/v1/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> deleteCart(
             @Valid @RequestBody CartDeleteMenuRequest request
     ) {
         return ApiResponse.success(cartUserService.deleteCartMenu(request));
     }
 
-    @DeleteMapping("v2/user/carts")
+    @DeleteMapping("/v2/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> deleteCartApplyCache(
             @Valid @RequestBody CartDeleteMenuRequest request
     ) {
         return ApiResponse.success(cartCacheUserService.deleteCartMenu(request));
     }
+
 }

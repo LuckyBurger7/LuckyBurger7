@@ -21,8 +21,15 @@ public class ShopMenuEntityFinder {
 
     private final ShopMenuRepository shopMenuRepository;
 
+    // Fetch 적용
+    public ShopMenu getShopMenuByIdDetails(Long shopMenuId) {
+        return shopMenuRepository.findByIdWithDetails(shopMenuId)
+                .orElseThrow(ShopMenuNotFoundException::new);
+    }
+
+    // Fetch 미적용
     public ShopMenu getShopMenuById(Long shopMenuId) {
-        return shopMenuRepository.findById(shopMenuId)
+        return shopMenuRepository.findByIdWithDetails(shopMenuId)
                 .orElseThrow(ShopMenuNotFoundException::new);
     }
 

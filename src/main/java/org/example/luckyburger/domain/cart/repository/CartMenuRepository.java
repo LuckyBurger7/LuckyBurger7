@@ -27,4 +27,5 @@ public interface CartMenuRepository extends JpaRepository<CartMenu, Long> {
     Optional<CartMenu> findByCartIdAndShopMenuId(@PathParam("cartId") Long cartId, @PathParam("shopMenuId") Long shopMenuId);
 
     void deleteAllByCartId(Long cartId);
+
 }

@@ -1,13 +1,12 @@
 package org.example.luckyburger.domain.cart.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.luckyburger.domain.cart.dto.redis.CartMenuRedisResponse;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.exception.CartMenuBadRequestException;
+import org.example.luckyburger.domain.cart.lisner.CartExpirationListener;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.menu.entity.Menu;
@@ -21,6 +20,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +36,7 @@ public class CartLuaRepository {
     private static final String MENU_KEY_PREFIX = "menu:";
     private static final String SHOP_PREFIX = "shopId";
     private static final String TOTAL_PRICE_PREFIX = "totalPrice";
+    private static final String TIMER_PREFIX = "timer:";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -44,9 +45,6 @@ public class CartLuaRepository {
     private final ShopEntityFinder shopEntityFinder;
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
-
-    private final ObjectMapper objectMapper;
-
 
     @Value("classpath:lua/add_cart_menu.lua")
     private Resource addCartMenuResource;
@@ -59,7 +57,6 @@ public class CartLuaRepository {
 
     @Value("classpath:lua/save_cart_to_cache.lua")
     private Resource saveCartToCacheResource;
-
 
     public void addCartMenu(Long accountId, Long shopId, Long shopMenuId, Long price, Long timeout) {
 
@@ -83,6 +80,7 @@ public class CartLuaRepository {
             throw new CartMenuBadRequestException();
     }
 
+    @Transactional(readOnly = true)
     public boolean updateCartMenuQuantity(Long accountId, Long shopMenuId, Integer quantity, Long timeout) {
         ShopMenuCacheResponse shopMenu = getShopMenuCacheResponse(shopMenuId);
         Menu menu = getMenu(shopMenu.menuId());
@@ -106,6 +104,7 @@ public class CartLuaRepository {
         return result == 1;
     }
 
+    @Transactional(readOnly = true)
     public boolean deleteCartMenuQuantity(Long accountId, Long shopMenuId, Long timeout) {
         ShopMenuCacheResponse shopMenu = getShopMenuCacheResponse(shopMenuId);
         Menu menu = getMenu(shopMenu.menuId());
@@ -128,7 +127,8 @@ public class CartLuaRepository {
         return result == 1;
     }
 
-    public void saveCartToCache(Long accountId, Long timeout) throws JsonProcessingException {
+    @Transactional(readOnly = true)
+    public void saveCartToCache(Long accountId, Long timeout) {
         Cart cart = cartEntityFinder.getCartByUserId(accountId);
         List<CartMenu> cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(accountId);
 
@@ -164,9 +164,26 @@ public class CartLuaRepository {
 
         RedisScript<Long> script = RedisScript.of(saveCartToCacheResource, Long.class);
 
-        Long result = redisTemplate.execute(script, keys, argsList.toArray());
+        redisTemplate.execute(script, keys, argsList.toArray());
     }
 
+    /**
+     * <p>Write Back 저장 시점을 위한 TTL 설정</p>
+     * <p>함수 호출 시 정해둔 timeoutMinute분 의 90퍼센트가 지날 때 콜백을 통한 저장 호출</p>
+     * {@link CartExpirationListener}
+     *
+     * @param accountId     계정 아이디
+     * @param timeoutMinute 분 단위 타임 아웃
+     */
+    public void setSaveDBTimer(Long accountId, Long timeoutMinute) {
+        long millis = TimeUnit.MINUTES.toMillis(timeoutMinute);
+        // TTL 만료 시간 90%로 설정
+        long saveTime = (long) (millis - (millis * 0.1));
+
+        String key = CART_KEY_PREFIX + USER_KEY_PREFIX + TIMER_PREFIX + accountId;
+        redisTemplate.opsForValue().set(key, accountId.toString());
+        redisTemplate.expire(key, saveTime, TimeUnit.MILLISECONDS);
+    }
 
     private String buildKey(Long accountId) {
         return CART_KEY_PREFIX + USER_KEY_PREFIX + accountId;

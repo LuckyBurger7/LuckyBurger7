@@ -44,7 +44,7 @@ public class CartUserService {
         User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         // shopMenu 조회
-        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(request.shopMenuId());
+        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuByIdDetails(request.shopMenuId());
 
         // 판매하지 않는 메뉴 검사
         if (shopMenu.getStatus() == ShopMenuStatus.DEACTIVATE)
@@ -124,7 +124,6 @@ public class CartUserService {
 
         return CartResponse.of(cart, cartMenus);
     }
-
 
     //===== 헬퍼 메서드 =====
 
