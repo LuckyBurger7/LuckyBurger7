@@ -31,7 +31,7 @@ public class CartUserController {
     }
 
     @PostMapping("/v2/user/carts")
-    public ResponseEntity<ApiResponse<Void>> addMenuOfRedis(
+    public ResponseEntity<ApiResponse<Void>> addMenuApplyCache(
             @Valid @RequestBody CartAddMenuRequest request
     ) {
         cartCacheUserService.addCartMenu(request);
@@ -44,6 +44,11 @@ public class CartUserController {
         return ApiResponse.success(cartUserService.getCartResponse());
     }
 
+    @GetMapping("v2/user/carts")
+    public ResponseEntity<ApiResponse<CartResponse>> getCartApplyCache() {
+        return ApiResponse.success(cartCacheUserService.getCartResponse());
+    }
+
     @PutMapping("v1/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> updateCart(
             @Valid @RequestBody CartUpdateMenuRequest request
@@ -51,10 +56,24 @@ public class CartUserController {
         return ApiResponse.success(cartUserService.updateCartMenu(request));
     }
 
+    @PutMapping("v2/user/carts")
+    public ResponseEntity<ApiResponse<CartResponse>> updateCartApplyCache(
+            @Valid @RequestBody CartUpdateMenuRequest request
+    ) {
+        return ApiResponse.success(cartCacheUserService.updateCartMenu(request));
+    }
+
     @DeleteMapping("v1/user/carts")
-    public ResponseEntity<ApiResponse<CartResponse>> removeCart(
+    public ResponseEntity<ApiResponse<CartResponse>> deleteCart(
             @Valid @RequestBody CartDeleteMenuRequest request
     ) {
         return ApiResponse.success(cartUserService.deleteCartMenu(request));
+    }
+
+    @DeleteMapping("v2/user/carts")
+    public ResponseEntity<ApiResponse<CartResponse>> deleteCartApplyCache(
+            @Valid @RequestBody CartDeleteMenuRequest request
+    ) {
+        return ApiResponse.success(cartCacheUserService.deleteCartMenu(request));
     }
 }

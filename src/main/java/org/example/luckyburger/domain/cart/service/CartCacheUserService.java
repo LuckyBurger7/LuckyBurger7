@@ -1,70 +1,104 @@
 package org.example.luckyburger.domain.cart.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.example.luckyburger.domain.cart.dto.redis.CartMenuRedisResponse;
+import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.cart.dto.request.CartAddMenuRequest;
+import org.example.luckyburger.domain.cart.dto.request.CartDeleteMenuRequest;
+import org.example.luckyburger.domain.cart.dto.request.CartUpdateMenuRequest;
 import org.example.luckyburger.domain.cart.dto.response.CartResponse;
-import org.example.luckyburger.domain.cart.exception.CartMenuBadRequestException;
 import org.example.luckyburger.domain.cart.repository.CartCacheRepository;
-import org.example.luckyburger.domain.shop.entity.ShopMenu;
+import org.example.luckyburger.domain.cart.repository.CartLuaRepository;
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse;
+import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
+import org.example.luckyburger.domain.shop.exception.ShopMenuDeactivateException;
 import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
-import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.service.UserEntityFinder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartCacheUserService {
     private final CartCacheRepository cartCacheRepository;
+    private final CartLuaRepository cartLuaRepository;
 
-    private final UserEntityFinder userEntityFinder;
+    private final CartUserService cartUserService;
+    private final CartEntityFinder cartEntityFinder;
+    private final CartMenuEntityFinder cartMenuEntityFinder;
     private final ShopMenuEntityFinder shopMenuEntityFinder;
+    private final UserEntityFinder userEntityFinder;
 
     public void addCartMenu(CartAddMenuRequest request) {
         // 로그인 유저
-        User user = userEntityFinder.getLoginUser();
+        Long userId = AuthAccountUtil.getAuthAccount().getAccountId();
 
-        // shopMenu 및 cartMenus 조회
-        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(request.shopMenuId());
+        // 점포 메뉴 조회
+        ShopMenuCacheResponse shopMenu = shopMenuEntityFinder.getShopMenuCacheResponseById(request.shopMenuId());
 
-        // 점포 검증
-        if (cartCacheRepository.isUsedByOtherShop(user.getId(), shopMenu.getShop().getId())) {
-            throw new CartMenuBadRequestException();
-        }
+        // 판매하지 않는 메뉴 검사
+        if (shopMenu.shopMenuStatus() == ShopMenuStatus.DEACTIVATE)
+            throw new ShopMenuDeactivateException();
 
-        // 점포 사용
-        cartCacheRepository.useShop(user.getId(), shopMenu.getShop().getId());
+        // lua script 사용
+        cartLuaRepository.addCartMenu(
+                userId,
+                shopMenu.shopId(),
+                request.shopMenuId(),
+                shopMenu.price(),
+                3L
+        );
+    }
 
-        // 카트 생성 및 메뉴 증가
-        cartCacheRepository.incrementCartMenuQuantity(user.getId(), request.shopMenuId());
+    @Transactional(readOnly = true)
+    public CartResponse getCartResponse() {
+        // 로그인 유저
+        Long userId = AuthAccountUtil.getAuthAccount().getAccountId();
 
-        // 리스트를 토대로 총합 금액 계산
-        cartCacheRepository.incrementTotalPrice(user.getId(), shopMenu.getMenu().getPrice());
+        Optional<CartResponse> cartResponse = cartCacheRepository.findAllCartResponse(userId);
 
-        //TTL 설정
-        cartCacheRepository.setTTL(user.getId(), 3, TimeUnit.MINUTES);
+        // 캐시 실패 시 DB 반환
+        return cartResponse.orElseGet(cartUserService::getCartResponse);
     }
 
     @Transactional
-    public CartResponse getCartResponse() {
-        // 로그인 유저
-        User user = userEntityFinder.getLoginUser();
+    public CartResponse updateCartMenu(CartUpdateMenuRequest request) {
+        Long userId = AuthAccountUtil.getAuthAccount().getAccountId();
 
-        List<CartMenuRedisResponse> cartMenuRedisResponseList =
-                cartCacheRepository.findAllCartMenuRedisResponse(user.getId());
+        boolean result = cartLuaRepository.updateCartMenuQuantity(
+                userId,
+                request.shopMenuId(),
+                request.quantity(),
+                3L
+        );
 
-       /*List<CartMenuResponse> cartMenuResponseList = cartMenuRedisResponseList.stream()
-                .map(cartMenuRedis->{
+        // 캐시 성공
+        if (result)
+            return getCartResponse();
+
+        CartResponse cartResponse = cartUserService.updateCartMenu(request);
+
+        // 갱신
 
 
-                     CartMenuResponse.of
-                })
+        return cartResponse;
+    }
 
-*/
-        return null;
+    @Transactional
+    public CartResponse deleteCartMenu(CartDeleteMenuRequest request) {
+        Long userId = AuthAccountUtil.getAuthAccount().getAccountId();
+
+        boolean result = cartLuaRepository.deleteCartMenuQuantity(
+                userId,
+                request.shopMenuId(),
+                3L
+        );
+        // 캐시 성공
+        if (result)
+            return getCartResponse();
+
+        return cartUserService.deleteCartMenu(request);
     }
 }

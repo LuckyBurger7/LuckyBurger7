@@ -28,7 +28,7 @@ public class MenuService {
     // 메뉴 단일 조회
     @Transactional(readOnly = true)
     public MenuResponse getMenuResponse(Long menuId) {
-        Menu menu = menuEntityFinder.getMenu(menuId);
+        Menu menu = menuEntityFinder.getMenuById(menuId);
 
         return MenuResponse.from(menu);
     }

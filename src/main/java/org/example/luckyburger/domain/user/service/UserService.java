@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.user.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.dto.request.AccountUpdateRequest;
 import org.example.luckyburger.domain.auth.dto.request.CredentialRequest;
@@ -68,7 +69,7 @@ public class UserService {
     @Transactional
     @CacheEvict(value = "users")
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
-        User user = userEntityFinder.getLoginUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         authService.updateAccount(AccountUpdateRequest.builder()
                 .name(userRequest.name())
@@ -87,7 +88,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
 
-        User user = userEntityFinder.getLoginUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         return UserResponse.from(user);
     }

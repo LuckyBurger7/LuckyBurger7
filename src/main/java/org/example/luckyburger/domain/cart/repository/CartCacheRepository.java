@@ -2,8 +2,14 @@ package org.example.luckyburger.domain.cart.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.luckyburger.domain.cart.dto.redis.CartMenuRedisResponse;
-import org.example.luckyburger.domain.cart.dto.redis.ShopRedisResponse;
+import org.example.luckyburger.domain.cart.dto.response.CartMenuResponse;
+import org.example.luckyburger.domain.cart.dto.response.CartResponse;
+import org.example.luckyburger.domain.menu.entity.Menu;
+import org.example.luckyburger.domain.menu.service.MenuEntityFinder;
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse;
+import org.example.luckyburger.domain.shop.entity.Shop;
+import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
+import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -12,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -26,6 +31,10 @@ public class CartCacheRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private final ShopMenuEntityFinder shopMenuEntityFinder;
+    private final MenuEntityFinder menuEntityFinder;
+    private final ShopEntityFinder shopEntityFinder;
+
     private HashOperations<String, String, Object> hashOps() {
         return redisTemplate.opsForHash();
     }
@@ -34,9 +43,7 @@ public class CartCacheRepository {
         String key = buildKey(accountId);
         String hashKey = buildHashKey(shopMenuId);
 
-        Long count = hashOps().increment(key, hashKey, 1);
-
-        //log.info("{} 메뉴 갯수 : {}", shopMenuId, count);
+        hashOps().increment(key, hashKey, 1);
     }
 
     public void decrementCartMenuQuantity(Long accountId, Long shopMenuId) {
@@ -59,57 +66,61 @@ public class CartCacheRepository {
         return Optional.ofNullable((Long) value);
     }
 
-    public void useShop(Long accountId, Long shopId) {
-        String key = buildKey(accountId);
-        ShopRedisResponse shopRedisResponse = ShopRedisResponse.of(shopId);
-        hashOps().put(key, SHOP_PREFIX, shopRedisResponse);
-    }
-
-    public boolean isUsedByOtherShop(Long accountId, Long shopId) {
-        String key = buildKey(accountId);
-
-        Object value = hashOps().get(key, SHOP_PREFIX);
-
-        if (value instanceof ShopRedisResponse) {
-            return !((ShopRedisResponse) value).getShopMenuId().equals(shopId);
-        }
-
-        return false;
-    }
-
-    public void incrementTotalPrice(Long accountId, Long price) {
-        String key = buildKey(accountId);
-
-        Long totalPrice = hashOps().increment(key, TOTAL_PRICE_PREFIX, price);
-
-        //log.info("{} 카트 총금액 : {}", accountId, totalPrice);
-    }
-
-    public void decrementTotalPrice(Long accountId, Long price) {
-        String key = buildKey(accountId);
-
-        hashOps().increment(key, TOTAL_PRICE_PREFIX, -price);
-    }
-
-    public List<CartMenuRedisResponse> findAllCartMenuRedisResponse(Long accountId) {
+    public Optional<CartResponse> findAllCartResponse(Long accountId) {
         String key = buildKey(accountId);
 
         Map<String, Object> allEntries = hashOps().entries(key);
 
-        return allEntries.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith("menu:"))
+        List<CartMenuResponse> cartMenuResponseList = allEntries.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(MENU_KEY_PREFIX))
                 .map(entry -> {
-                    String menuKey = entry.getKey().substring("menu:".length());
-                    Long menuId = Long.valueOf(menuKey);
-                    Long quantity = (Long) entry.getValue();
-
-                    return CartMenuRedisResponse.of(menuId, quantity);
+                    String menuKey = entry.getKey().substring(MENU_KEY_PREFIX.length());
+                    Long shopMenuId = Long.valueOf(menuKey);
+                    Integer quantity = (Integer) entry.getValue();
+                    ShopMenuCacheResponse shopMenu = getShopMenuCacheResponse(shopMenuId);
+                    Menu menu = getMenu(shopMenu.menuId());
+                    Shop shop = getShop(shopMenu.shopId());
+                    return CartMenuResponse.of(
+                            shopMenuId,
+                            menu.getName(),
+                            shop.getName(),
+                            quantity,
+                            menu.getPrice());
                 })
-                .collect(Collectors.toList());
+                .toList();
+
+        Integer totalPriceInt = (Integer) allEntries.get(TOTAL_PRICE_PREFIX);
+        if (totalPriceInt == null)
+            return Optional.empty();
+
+        return Optional.of(CartResponse.of(accountId, cartMenuResponseList, (long) totalPriceInt));
+    }
+
+    public Optional<CartMenuResponse> findCartMenuResponse(Long accountId, Long shopMenuId) {
+        String key = buildKey(accountId);
+        String hashKey = buildHashKey(shopMenuId);
+
+        Integer quantity = (Integer) hashOps().get(key, hashKey);
+
+        if (quantity == null)
+            return Optional.empty();
+
+        ShopMenuCacheResponse shopMenu = getShopMenuCacheResponse(shopMenuId);
+        Menu menu = getMenu(shopMenu.menuId());
+        Shop shop = getShop(shopMenu.shopId());
+
+        return Optional.of(CartMenuResponse.of(
+                shopMenuId,
+                menu.getName(),
+                shop.getName(),
+                quantity,
+                menu.getPrice()
+        ));
     }
 
     public void setTTL(Long accountId, long timeout, TimeUnit unit) {
         String key = buildKey(accountId);
+
         redisTemplate.expire(key, timeout, unit);
     }
 
@@ -119,5 +130,17 @@ public class CartCacheRepository {
 
     private String buildHashKey(Long shopMenuId) {
         return MENU_KEY_PREFIX + shopMenuId;
+    }
+
+    private ShopMenuCacheResponse getShopMenuCacheResponse(Long shopMenuId) {
+        return shopMenuEntityFinder.getShopMenuCacheResponseById(shopMenuId);
+    }
+
+    private Menu getMenu(Long menuId) {
+        return menuEntityFinder.getMenuById(menuId);
+    }
+
+    private Shop getShop(Long shopMenuId) {
+        return shopEntityFinder.getShopById(shopMenuId);
     }
 }

@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.shop.repository;
 
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.statistic.dto.response.MenuTotalSalesResponse;
@@ -65,4 +66,11 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
 
     @EntityGraph(attributePaths = {"menu", "shop"})
     Optional<ShopMenu> findById(Long shopMenuId);
+
+    @Query("""
+            SELECT new org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse(s.id, m.id, m.price, sm.status)
+            FROM ShopMenu sm JOIN sm.menu m JOIN sm.shop s
+            WHERE sm.id = :shopMenuId
+            """)
+    Optional<ShopMenuCacheResponse> findShopMenuCacheResponseById(@Param("shopMenuId") Long shopMenuId);
 }

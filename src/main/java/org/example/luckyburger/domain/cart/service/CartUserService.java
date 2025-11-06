@@ -14,6 +14,8 @@ import org.example.luckyburger.domain.cart.exception.CartMenuForbiddenException;
 import org.example.luckyburger.domain.cart.repository.CartMenuRepository;
 import org.example.luckyburger.domain.cart.repository.CartRepository;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
+import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
+import org.example.luckyburger.domain.shop.exception.ShopMenuDeactivateException;
 import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.service.UserEntityFinder;
@@ -39,15 +41,22 @@ public class CartUserService {
     @Transactional
     public void addCartMenu(CartAddMenuRequest request) {
         // 로그인 유저
-        User user = userEntityFinder.getLoginUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+
+        // shopMenu 조회
+        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(request.shopMenuId());
+
+        // 판매하지 않는 메뉴 검사
+        if (shopMenu.getStatus() == ShopMenuStatus.DEACTIVATE)
+            throw new ShopMenuDeactivateException();
 
         // 장바구니가 없다면 생성 및 save
         Cart cart = cartRepository.findById(user.getId())
                 .orElseGet(() -> cartRepository.save(Cart.of(user, 0)));
 
-        // shopMenu 및 cartMenus 조회
-        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(request.shopMenuId());
+        // cartMenus 조회
         List<CartMenu> cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+
 
         CartMenu sameCartMenu = null;
         for (CartMenu menu : cartMenus) {
@@ -87,7 +96,7 @@ public class CartUserService {
         Cart cart = getCart();
 
         // 해당하는 cartMenu를 찾아서 반환
-        CartMenu cartMenu = getCartMenu(cart.getId(), request.cartMenuId());
+        CartMenu cartMenu = getCartMenu(cart.getId(), request.shopMenuId());
 
         // 해당 cartMenu의 수량 수정
         cartMenu.updateQuantity(request.quantity());
@@ -104,7 +113,7 @@ public class CartUserService {
         Cart cart = getCart();
 
         // 해당하는 cartMenu를 찾아서 반환
-        CartMenu cartMenu = getCartMenu(cart.getId(), request.cartMenuId());
+        CartMenu cartMenu = getCartMenu(cart.getId(), request.shopMenuId());
 
         // 해당 cartMenu 삭제
         cartMenuService.deleteCartMenu(cartMenu);
@@ -126,8 +135,8 @@ public class CartUserService {
 
     // 해당 메뉴가 있는지 체크 후 CartMenu 반환
     // 메뉴가 없으면 NOT_FOUND, CartMenu의 cartId가 user의 cartId와 다르면 FORBIDDEN
-    private CartMenu getCartMenu(Long cartId, Long cartMenuId) {
-        CartMenu cartMenu = cartMenuEntityFinder.getCartMenuById(cartMenuId);
+    private CartMenu getCartMenu(Long cartId, Long shopMenuId) {
+        CartMenu cartMenu = cartMenuEntityFinder.getCartMenuByCartIdAndShopMenuId(cartId, shopMenuId);
 
         if (!cartMenu.getCart().getId().equals(cartId)) {
             throw new CartMenuForbiddenException();

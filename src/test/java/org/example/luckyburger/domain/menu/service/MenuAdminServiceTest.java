@@ -69,7 +69,7 @@ public class MenuAdminServiceTest {
         Menu existingMenu = Menu.of("기존버거", MenuCategory.HAMBURGER, 7000);
         MenuRequest request = new MenuRequest(menuName, category, price);
 
-        given(menuEntityFinder.getMenu(menuId)).willReturn(existingMenu);
+        given(menuEntityFinder.getMenuById(menuId)).willReturn(existingMenu);
 
         // when
         MenuResponse response = menuAdminService.updateMenu(menuId, request);
@@ -87,7 +87,7 @@ public class MenuAdminServiceTest {
         Long menuId = 1L;
         MenuRequest updateRequest = new MenuRequest(menuName, category, price);
 
-        given(menuEntityFinder.getMenu(menuId)).willThrow(new MenuNotFoundException());
+        given(menuEntityFinder.getMenuById(menuId)).willThrow(new MenuNotFoundException());
 
         // when & then
         assertThrows(MenuNotFoundException.class, () -> menuAdminService.updateMenu(menuId, updateRequest));
@@ -98,7 +98,7 @@ public class MenuAdminServiceTest {
         // given
         Long menuId = 1L;
         Menu menu = Menu.of(menuName, category, price);
-        given(menuEntityFinder.getMenu(menuId)).willReturn(menu);
+        given(menuEntityFinder.getMenuById(menuId)).willReturn(menu);
 
         // when
         menuAdminService.deleteMenu(menuId);
@@ -111,7 +111,7 @@ public class MenuAdminServiceTest {
     void 메뉴가_존재하지_않아_삭제에_실패한다() {
         // given
         Long menuId = 1L;
-        given(menuEntityFinder.getMenu(menuId)).willThrow(new MenuNotFoundException());
+        given(menuEntityFinder.getMenuById(menuId)).willThrow(new MenuNotFoundException());
 
         // when & then
         assertThrows(MenuNotFoundException.class, () -> menuAdminService.deleteMenu(menuId));

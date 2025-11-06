@@ -36,7 +36,8 @@ public class CouponUserService {
 
         coupon.issueCoupon();
 
-        User user = userEntityFinder.getLoginUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
+        ;
 
         // 쿠폰 중복 검사
         if (userCouponRepository.existsByUserAndCoupon(user, coupon))

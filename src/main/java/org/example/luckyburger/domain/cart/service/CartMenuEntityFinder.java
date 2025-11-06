@@ -23,6 +23,11 @@ public class CartMenuEntityFinder {
                 .orElseThrow(CartMenuNotFoundException::new);
     }
 
+    public CartMenu getCartMenuByCartIdAndShopMenuId(Long cartId, Long shopMenuId) {
+        return cartMenuRepository.findByCartIdAndShopMenuId(cartId, shopMenuId)
+                .orElseThrow(CartMenuNotFoundException::new);
+    }
+
     // cartId로 리스트 찾기
     public List<CartMenu> getAllCartMenuByCartId(Long cartId) {
         return cartMenuRepository.findAllByCartId(cartId);
