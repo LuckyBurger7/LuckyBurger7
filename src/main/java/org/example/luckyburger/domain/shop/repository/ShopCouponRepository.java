@@ -1,6 +1,7 @@
 package org.example.luckyburger.domain.shop.repository;
 
 import org.example.luckyburger.domain.shop.entity.CouponPolicy;
+import org.example.luckyburger.domain.shop.enums.CouponStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -29,4 +30,9 @@ public interface ShopCouponRepository extends JpaRepository<CouponPolicy, Long> 
                 FROM coupons c
             """, nativeQuery = true)
     void saveForAllCoupon(@Param("shopId") Long shopId, @Param("status") String status);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update CouponPolicy cp set cp.status = :status where cp.coupon.id = :couponId")
+    int updateStatusByCouponId(@Param("couponId") Long couponId,
+                               @Param("status") CouponStatus status);
 }
