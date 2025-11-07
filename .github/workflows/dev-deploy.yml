@@ -44,17 +44,21 @@ jobs:
           ./scripts/ecr-push.sh
         # ecr-push.sh가 FULL_URI를 $GITHUB_OUTPUT에 기록함
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Deploy to production
+        uses: appleboy/ssh-action@master
+        id: deploy-prod
+        if: contains(github.ref, 'main')
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST}}
+          username: ${{ secrets.EC2_USERNAME}}
+          key: ${{ secrets.EC2_SSH_KEY}}
+          envs: GITHUB_SHA
           script: |
-            scp docker-compose.yml /home/ec2-user/my-app/
-            cd /home/ec2-user/my-app
-            docker compose pull
-            docker compose up -d
+            sudo su
+            docker system prune -f
+            docker-compose down
+            docker-compose pull
+            docker-compose up -d --build
 
       - name: Deploy on EC2 via SSM
         env:
