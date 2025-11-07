@@ -1,9 +1,4 @@
 services:
-  app:
-    image: ${FULL_URI}
-    container_name: LuckyBurger7
-    ports:
-      - "80:8080"
   ngrinder-controller:
     image: ngrinder/controller:3.5.9
     container_name: ngrinder-controller
@@ -77,7 +72,6 @@ services:
     restart: always
     volumes:
       - ./promtail-config.yml:/etc/promtail/promtail-config.yml
-      - C:/loki/logs:/var/logs
     command: -config.file=/etc/promtail/promtail-config.yml
     depends_on:
       - loki
