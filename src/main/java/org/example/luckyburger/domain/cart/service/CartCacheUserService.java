@@ -7,25 +7,37 @@ import org.example.luckyburger.domain.cart.dto.request.CartAddMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartDeleteMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartUpdateMenuRequest;
 import org.example.luckyburger.domain.cart.dto.response.CartResponse;
+import org.example.luckyburger.domain.cart.entity.Cart;
+import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.repository.CartCacheRepository;
 import org.example.luckyburger.domain.cart.repository.CartLuaRepository;
+import org.example.luckyburger.domain.cart.repository.CartMenuRepository;
+import org.example.luckyburger.domain.cart.repository.CartRepository;
 import org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse;
+import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.exception.ShopMenuDeactivateException;
 import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
+import org.example.luckyburger.domain.user.entity.User;
+import org.example.luckyburger.domain.user.service.UserEntityFinder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class CartCacheUserService {
+    private final CartRepository cartRepository;
+    private final CartMenuRepository cartMenuRepository;
     private final CartCacheRepository cartCacheRepository;
     private final CartLuaRepository cartLuaRepository;
 
     private final CartUserService cartUserService;
     private final ShopMenuEntityFinder shopMenuEntityFinder;
+    private final UserEntityFinder userEntityFinder;
 
     public void addCartMenu(CartAddMenuRequest request) {
         // 로그인 유저
@@ -130,5 +142,40 @@ public class CartCacheUserService {
         cartLuaRepository.saveCartToCache(userId, 3L);
 
         return cartResponse;
+    }
+
+    @Transactional
+    public void saveAllCache(Long accountId) {
+        Map<String, Object> allEntries = cartCacheRepository.getAllEntries(accountId);
+
+        User user = userEntityFinder.getUserByAccountId(accountId);
+
+        Integer totalPriceInt = (Integer) allEntries.get(CartCacheRepository.TOTAL_PRICE_PREFIX);
+
+        Cart cart = cartRepository.findById(user.getId())
+                .orElseGet(() -> cartRepository.save(Cart.of(user, totalPriceInt)));
+
+        cart.updateTotalPrice(totalPriceInt);
+
+        List<CartMenu> cartMenuList = allEntries.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(CartCacheRepository.MENU_KEY_PREFIX))
+                .map(entry -> {
+                    String menuKey = entry.getKey().substring(CartCacheRepository.MENU_KEY_PREFIX.length());
+                    Long shopMenuId = Long.valueOf(menuKey);
+                    Integer quantity = (Integer) entry.getValue();
+                    ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(shopMenuId);
+
+                    return CartMenu.of(
+                            cart,
+                            shopMenu,
+                            quantity
+                    );
+                })
+                .toList();
+
+        // 데이터 제거
+        cartMenuRepository.deleteAllByCartId(cart.getId());
+        // DB에 저장
+        cartMenuRepository.saveAll(cartMenuList);
     }
 }

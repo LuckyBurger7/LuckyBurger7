@@ -2,11 +2,11 @@ package org.example.luckyburger.domain.cart.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.luckyburger.common.listener.ReserveExpireListener;
 import org.example.luckyburger.domain.cart.dto.redis.CartMenuRedisResponse;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.exception.CartMenuBadRequestException;
-import org.example.luckyburger.domain.cart.lisner.CartExpirationListener;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.menu.entity.Menu;
@@ -170,7 +170,7 @@ public class CartLuaRepository {
     /**
      * <p>Write Back 저장 시점을 위한 TTL 설정</p>
      * <p>함수 호출 시 정해둔 timeoutMinute분 의 90퍼센트가 지날 때 콜백을 통한 저장 호출</p>
-     * {@link CartExpirationListener}
+     * {@link ReserveExpireListener}
      *
      * @param accountId     계정 아이디
      * @param timeoutMinute 분 단위 타임 아웃
@@ -182,7 +182,7 @@ public class CartLuaRepository {
 
         String key = CART_KEY_PREFIX + USER_KEY_PREFIX + TIMER_PREFIX + accountId;
         redisTemplate.opsForValue().set(key, accountId.toString());
-        redisTemplate.expire(key, saveTime, TimeUnit.MILLISECONDS);
+        redisTemplate.expire(key, 1000, TimeUnit.MILLISECONDS);
     }
 
     private String buildKey(Long accountId) {

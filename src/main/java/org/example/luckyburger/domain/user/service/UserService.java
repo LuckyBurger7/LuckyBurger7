@@ -17,7 +17,6 @@ import org.example.luckyburger.domain.user.dto.response.UserResponse;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.exception.DuplicatePhoneException;
 import org.example.luckyburger.domain.user.repository.UserRepository;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +66,6 @@ public class UserService {
      * @return 유저 응답 DTO
      */
     @Transactional
-    @CacheEvict(value = "users")
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
         User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
@@ -104,20 +102,17 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(value = "users")
     public void withdrawUser(CredentialRequest request) {
         authService.withdraw(request);
     }
 
 
     @Transactional
-    @CacheEvict(value = "users")
     public void deductPoints(User user, Integer usePoint) {
         user.usePoint(usePoint);
     }
 
     @Transactional
-    @CacheEvict(value = "users")
     public void addPoints(User user, Integer addedPoint) {
         user.accumulatePoint(addedPoint);
     }

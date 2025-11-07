@@ -1,8 +1,5 @@
 package org.example.luckyburger.domain.order.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -27,6 +24,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -87,7 +88,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponseCompare(Pageable pageable) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
         Long shopId = owner.getShop().getId();
 
         // 주문 페이징 조회

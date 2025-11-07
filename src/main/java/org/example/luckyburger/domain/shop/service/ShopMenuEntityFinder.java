@@ -29,7 +29,7 @@ public class ShopMenuEntityFinder {
 
     // Fetch 미적용
     public ShopMenu getShopMenuById(Long shopMenuId) {
-        return shopMenuRepository.findByIdWithDetails(shopMenuId)
+        return shopMenuRepository.findById(shopMenuId)
                 .orElseThrow(ShopMenuNotFoundException::new);
     }
 
