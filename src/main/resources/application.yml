@@ -3,6 +3,13 @@ spring:
     name: Lucky-Burger
   profiles:
     active: local
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations:
+      - classpath:db/migration
+
   jpa:
     properties:
       hibernate:

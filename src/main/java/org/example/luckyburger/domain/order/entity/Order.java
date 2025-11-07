@@ -1,6 +1,14 @@
 package org.example.luckyburger.domain.order.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,8 +20,6 @@ import org.example.luckyburger.domain.order.exception.OrderNotCancelableExceptio
 import org.example.luckyburger.domain.order.exception.OrderStatusInvalidUpdateException;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.user.entity.User;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -123,25 +129,39 @@ public class Order extends BaseIdEntity {
     }
 
     public void cancelByUser() {
-        if (this.status == OrderStatus.WAITING) this.status = OrderStatus.CANCEL;
-        else throw new OrderNotCancelableException();
+        if (this.status == OrderStatus.WAITING) {
+            this.status = OrderStatus.CANCEL;
+        } else {
+            throw new OrderNotCancelableException();
+        }
     }
 
     public void updateStatusByOwner(OrderStatus status) {
-        if (this.status == status) return;
+        if (this.status == status) {
+            return;
+        }
 
         switch (this.status) {
             case WAITING -> {
-                if (status == OrderStatus.COOKING || status == OrderStatus.CANCEL) this.status = status;
-                else throw new OrderStatusInvalidUpdateException();
+                if (status == OrderStatus.COOKING || status == OrderStatus.CANCEL) {
+                    this.status = status;
+                } else {
+                    throw new OrderStatusInvalidUpdateException();
+                }
             }
             case COOKING -> {
-                if (status == OrderStatus.ON_DELIVERY) this.status = status;
-                else throw new OrderStatusInvalidUpdateException();
+                if (status == OrderStatus.ON_DELIVERY) {
+                    this.status = status;
+                } else {
+                    throw new OrderStatusInvalidUpdateException();
+                }
             }
             case ON_DELIVERY -> {
-                if (status == OrderStatus.COMPLETED) this.status = status;
-                else throw new OrderStatusInvalidUpdateException();
+                if (status == OrderStatus.COMPLETED) {
+                    this.status = status;
+                } else {
+                    throw new OrderStatusInvalidUpdateException();
+                }
             }
             default -> throw new OrderStatusInvalidUpdateException();
         }

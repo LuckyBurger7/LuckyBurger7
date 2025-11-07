@@ -1,6 +1,14 @@
 //package org.example.luckyburger.common._dummyData;
 //
+//import java.time.LocalDateTime;
+//import java.util.ArrayList;
+//import java.util.HashSet;
+//import java.util.List;
+//import java.util.Locale;
+//import java.util.Random;
+//import java.util.Set;
 //import lombok.RequiredArgsConstructor;
+//import lombok.extern.slf4j.Slf4j;
 //import net.datafaker.Faker;
 //import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 //import org.example.luckyburger.domain.auth.entity.Account;
@@ -23,9 +31,7 @@
 //import org.springframework.stereotype.Component;
 //import org.springframework.transaction.annotation.Transactional;
 //
-//import java.time.LocalDateTime;
-//import java.util.*;
-//
+//@Slf4j
 //@Component
 //@RequiredArgsConstructor
 //public class BigDummyDataLoader implements CommandLineRunner {
@@ -41,6 +47,13 @@
 //    @Override
 //    @Transactional
 //    public void run(String... args) {
+//
+//        //=== 멱등 마커: 관리자 계정이 이미 있으면 전체 시딩 스킵 ===
+//        if (accountRepository.findByEmail("admin@naver.com").isPresent()) {
+//            log.info("[DummyDataLoader] admin@naver.com already exists. Skip seeding.");
+//            return;
+//        }
+//
 //        Faker faker = new Faker(new Locale("ko"));
 //        Random random = new Random();
 //
@@ -65,6 +78,7 @@
 //
 //        // 유저용 account 생성
 //        List<Account> accounts = new ArrayList<>();
+
 //        for (int b = 1; b <= 1000; b++) {
 //            accounts.add(Account.of(
 //                    "user" + b + "@naver.com",
