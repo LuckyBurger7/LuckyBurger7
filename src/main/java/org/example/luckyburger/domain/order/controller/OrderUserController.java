@@ -9,6 +9,7 @@ import org.example.luckyburger.domain.order.dto.request.OrderCreateRequest;
 import org.example.luckyburger.domain.order.dto.response.OrderPrepareResponse;
 import org.example.luckyburger.domain.order.dto.response.OrderResponse;
 import org.example.luckyburger.domain.order.service.OrderUserService;
+import org.example.luckyburger.domain.order.service.OrderUserServiceV2;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class OrderUserController {
     private final OrderUserService orderUserService;
+    private final OrderUserServiceV2 orderUserServiceV2;
 
     @GetMapping("/v1/user/orderInfo")
     public ResponseEntity<ApiResponse<OrderPrepareResponse>> prepareOrder() {
@@ -63,5 +65,15 @@ public class OrderUserController {
             @PathVariable("orderId") Long orderId) {
         orderUserService.cancelOrder(orderId);
         return ApiResponse.noContent();
+    }
+
+    @GetMapping("/v2/user/orderInfo")
+    public ResponseEntity<ApiResponse<OrderPrepareResponse>> prepareOrderV2() {
+        return ApiResponse.success(orderUserServiceV2.prepareOrderResponse());
+    }
+
+    @PostMapping("/v2/user/orders")
+    public ResponseEntity<ApiResponse<OrderResponse>> createOrderV2(@Valid @RequestBody OrderCreateRequest request) {
+        return ApiResponse.created(orderUserServiceV2.createOrderResponse(request));
     }
 }
