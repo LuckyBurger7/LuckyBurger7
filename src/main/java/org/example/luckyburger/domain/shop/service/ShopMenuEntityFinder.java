@@ -46,4 +46,8 @@ public class ShopMenuEntityFinder {
     public Long getSumOfSalesVolumes() {
         return shopMenuRepository.findSumOfSalesVolumes();
     }
+
+    public List<ShopMenu> getAllShopMenuById(List<Long> shopMenuIds) {
+        return shopMenuRepository.findAllById(shopMenuIds);
+    }
 }

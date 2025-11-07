@@ -15,6 +15,8 @@ public enum OrderErrorCode implements ErrorCode {
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문을 찾을 수 없습니다."),
     UNAUTHORIZED_ORDER_ACCESS(HttpStatus.UNAUTHORIZED, "해당 주문에 접근할 권한이 없습니다."),
     UNAUTHORIZED_CART_ACCESS(HttpStatus.UNAUTHORIZED, "해당 장바구니에 접근할 권한이 없습니다."),
+    SHOP_MENU_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "일부 메뉴가 현재 판매 중지 상태입니다."),
+    SHOP_MENU_PRICE_CHANGED(HttpStatus.BAD_REQUEST, "일부 메뉴의 가격이 변동되었습니다."),
     SHOP_NOT_OPENED(HttpStatus.BAD_REQUEST, "주문 가능한 영업 시간이 아닙니다."),
     ORDER_NOT_CANCELABLE(HttpStatus.BAD_REQUEST, "취소 가능한 주문이 아닙니다."),
     ORDER_STATUS_INVALID_TRANSITION(HttpStatus.BAD_REQUEST, "유효한 주문 상태 변경이 아닙니다.");

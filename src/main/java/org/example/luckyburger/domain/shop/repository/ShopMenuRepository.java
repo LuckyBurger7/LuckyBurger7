@@ -75,4 +75,12 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
             WHERE sm.id = :shopMenuId
             """)
     Optional<ShopMenuCacheResponse> findShopMenuCacheResponseById(@Param("shopMenuId") Long shopMenuId);
+
+    @Query("""
+            SELECT sm FROM ShopMenu sm
+            JOIN FETCH sm.menu
+            JOIN FETCH sm.shop
+            WHERE sm.id IN :ids
+            """)
+    List<ShopMenu> findAllById(List<Long> ids);
 }
