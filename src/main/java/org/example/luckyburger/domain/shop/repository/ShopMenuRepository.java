@@ -1,5 +1,7 @@
 package org.example.luckyburger.domain.shop.repository;
 
+import jakarta.websocket.server.PathParam;
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.statistic.dto.response.MenuTotalSalesResponse;
@@ -63,4 +65,14 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
             """, nativeQuery = true)
     void saveForAllMenu(@Param("shopId") Long shopId, @Param("status") String status);
 
+    @EntityGraph(attributePaths = {"menu", "shop"})
+    @Query("SELECT sm FROM ShopMenu sm WHERE sm.id = :shopMenuId")
+    Optional<ShopMenu> findByIdWithDetails(@PathParam("shopMenuId") Long shopMenuId);
+
+    @Query("""
+            SELECT new org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse(s.id, m.id, m.price, sm.status)
+            FROM ShopMenu sm JOIN sm.menu m JOIN sm.shop s
+            WHERE sm.id = :shopMenuId
+            """)
+    Optional<ShopMenuCacheResponse> findShopMenuCacheResponseById(@Param("shopMenuId") Long shopMenuId);
 }

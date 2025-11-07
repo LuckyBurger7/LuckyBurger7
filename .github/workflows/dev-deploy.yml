@@ -50,6 +50,7 @@ jobs:
         run: |
           ./scripts/deploy.sh
 
+
       - name: Verify container
         run: |
           aws ssm send-command \

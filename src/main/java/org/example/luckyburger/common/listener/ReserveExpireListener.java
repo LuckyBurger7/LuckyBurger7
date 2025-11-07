@@ -1,6 +1,7 @@
 package org.example.luckyburger.common.listener;
 
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.domain.cart.service.CartCacheUserService;
 import org.example.luckyburger.domain.coupon.audit.CouponAuditLogger;
 import org.example.luckyburger.domain.coupon.audit.CouponIssueStatus;
 import org.example.luckyburger.domain.coupon.redis.CouponKeys;
@@ -30,10 +31,14 @@ public class ReserveExpireListener implements MessageListener {
 
     private final StringRedisTemplate redis;
     private final CouponAuditLogger audit;
+    private final CartCacheUserService cartCacheUserService; // DB 저장 서비스
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String expiredKey = new String(message.getBody(), StandardCharsets.UTF_8);
+
+        reserveSaveAllCacheMessage(message);
+
         if (!expiredKey.startsWith("reserve:coupon:")) return;
 
         try {
@@ -52,6 +57,19 @@ public class ReserveExpireListener implements MessageListener {
                 audit.log(couponId, Long.parseLong(userId), CouponIssueStatus.COMPENSATE, "reserve timeout");
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    private void reserveSaveAllCacheMessage(Message message) {
+        String expiredKey = new String(message.getBody());
+
+        String CART_USER_TIMER_PREFIX = "cart:user:timer:";
+        if (expiredKey.startsWith(CART_USER_TIMER_PREFIX)) {
+            // 데이터 키 추출
+            Long accountId = Long.parseLong(expiredKey.replace(CART_USER_TIMER_PREFIX, ""));
+
+            // DB 저장 로직 실행
+            cartCacheUserService.saveAllCache(accountId);
         }
     }
 }

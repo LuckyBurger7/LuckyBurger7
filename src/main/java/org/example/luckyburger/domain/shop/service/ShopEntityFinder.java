@@ -2,9 +2,11 @@ package org.example.luckyburger.domain.shop.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.consts.CacheConst;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.exception.ShopNotFoundException;
 import org.example.luckyburger.domain.shop.repository.ShopRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,7 @@ public class ShopEntityFinder {
 
     private final ShopRepository shopRepository;
 
+    @Cacheable(value = CacheConst.SHOP, key = "#shopId")
     public Shop getShopById(Long shopId) {
         return shopRepository.findById(shopId)
                 .orElseThrow(ShopNotFoundException::new);

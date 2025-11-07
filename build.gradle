@@ -51,6 +51,7 @@ dependencies {
     // [redis]
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.1'
 
     // [index]
     implementation "org.flywaydb:flyway-core:11.7.2"

@@ -1,8 +1,5 @@
 package org.example.luckyburger.domain.order.service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -28,6 +25,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderOwnerService {
@@ -41,7 +42,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderResponse(Long orderId) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getShop().getId().equals(owner.getShop().getId())) {
@@ -56,7 +57,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByShop(owner.getShop(), pageable);
@@ -87,7 +88,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponseCompare(Pageable pageable) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
         Long shopId = owner.getShop().getId();
 
         // 주문 페이징 조회
@@ -117,7 +118,7 @@ public class OrderOwnerService {
 
     @Transactional
     public void updateOrderStatus(Long orderId, OrderUpdateRequest request) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
         User user = order.getUser();
         OrderStatus status = request.status();
@@ -157,7 +158,7 @@ public class OrderOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public Owner getOwner() {
+    public Owner getLoginOwner() {
         return ownerEntityFinder.getOwnerByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }

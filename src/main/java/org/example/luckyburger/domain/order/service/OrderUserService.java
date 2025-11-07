@@ -61,7 +61,7 @@ public class OrderUserService {
 
     @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // 장바구니 메뉴 조회
@@ -115,7 +115,7 @@ public class OrderUserService {
 
     @Transactional
     public OrderResponse createOrderResponse(OrderCreateRequest request) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         // 주문서 조회
         List<OrderForm> orderForms = orderFormRepository.findAllByUser(user);
@@ -227,7 +227,7 @@ public class OrderUserService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderResponse(Long orderId) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -242,7 +242,7 @@ public class OrderUserService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByUserId(user.getId(), pageable);
@@ -273,7 +273,7 @@ public class OrderUserService {
 
     @Transactional
     public void cancelOrder(Long orderId) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -295,11 +295,6 @@ public class OrderUserService {
         if (usedPoint != null && usedPoint > 0) {
             userService.addPoints(user, usedPoint);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public User getUser() {
-        return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }
 
