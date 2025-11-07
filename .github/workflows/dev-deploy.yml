@@ -47,7 +47,7 @@ jobs:
       - name: Deploy to production
         uses: appleboy/ssh-action@master
         id: deploy-prod
-        if: contains(github.ref, 'main')
+        if: contains(github.ref, 'dev')
         with:
           host: ${{ secrets.EC2_HOST}}
           username: ${{ secrets.EC2_USERNAME}}
