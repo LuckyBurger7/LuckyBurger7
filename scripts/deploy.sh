@@ -29,7 +29,7 @@ echo "[INFO] COMMENT=${COMMENT}"
 # ===== EC2에서 실행할 커맨드(배열로 안전하게 정의) =====
 CMDS=(
   "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REG_URI}"
-  "cd /home/ec2-user/app"
+  "cd /home/ec2-user/LuckyBurger7"
   "docker compose down || true"
   "export SPRING_PROFILES_ACTIVE=${SPRING_PROFILE}"
   "IMAGE=${FULL_URI} docker compose up -d --force-recreate"

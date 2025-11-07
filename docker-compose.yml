@@ -1,4 +1,9 @@
 services:
+  app:
+    image: ${FULL_URI}
+    container_name: LuckyBurger7
+    ports:
+      - "80:8080"
   ngrinder-controller:
     image: ngrinder/controller:3.5.9
     container_name: ngrinder-controller
