@@ -1,5 +1,8 @@
 package org.example.luckyburger.domain.order.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
 import org.example.luckyburger.domain.shop.entity.Shop;
@@ -10,10 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.repository.query.Param;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -115,4 +115,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                     10
             """, nativeQuery = true)
     List<ShopTotalSalesResponse> findAllShopTotalSalesResponseOrderByAsc();
+
+    /**
+     * 점주 주문조회 인덱스 미적용 v2
+     */
+    @Query(value = """
+            SELECT o.*
+            FROM orders o IGNORE INDEX (ix_orders_shop_date_id)
+            WHERE o.shop_id = :shopId
+            ORDER BY o.order_date DESC, o.id DESC
+            """,
+            countQuery = """
+                    SELECT COUNT(*)
+                    FROM orders o IGNORE INDEX (ix_orders_shop_date_id)
+                    WHERE o.shop_id = :shopId 
+                    """,
+            nativeQuery = true)
+    Page<Order> findOwnerOrders_CompareIgnoreIndex(@Param("shopId") Long shopId, Pageable pageable);
 }

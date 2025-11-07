@@ -23,6 +23,24 @@ public class CouponAdminController {
 
     private final CouponAdminService couponAdminService;
 
+    @PostMapping("/v2/admin/coupons")
+    public ResponseEntity<ApiResponse<CouponResponse>> createCouponWithRedis(@Valid @RequestBody CouponRequest couponRequest) {
+        return ApiResponse.created(couponAdminService.createCouponWithRedis(couponRequest));
+    }
+
+    @PutMapping("/v2/admin/coupons/{couponId}")
+    public ResponseEntity<ApiResponse<CouponResponse>> updateCouponWithRedis(
+            @PathVariable Long couponId,
+            @Valid @RequestBody CouponRequest couponRequest) {
+        return ApiResponse.success(couponAdminService.updateCouponWithRedis(couponId, couponRequest));
+    }
+
+    @DeleteMapping("/v2/admin/coupons/{couponId}")
+    public ResponseEntity<ApiResponse<CouponResponse>> deleteCouponWithRedis(@PathVariable Long couponId) {
+        couponAdminService.deleteCouponWithRedis(couponId);
+        return ApiResponse.noContent();
+    }
+
     @PostMapping("/v1/admin/coupons")
     public ResponseEntity<ApiResponse<CouponResponse>> createCoupon(@Valid @RequestBody CouponRequest couponRequest) {
         return ApiResponse.created(couponAdminService.createCoupon(couponRequest));

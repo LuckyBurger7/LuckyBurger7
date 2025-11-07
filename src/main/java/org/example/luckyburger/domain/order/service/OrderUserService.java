@@ -1,5 +1,9 @@
 package org.example.luckyburger.domain.order.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -19,7 +23,11 @@ import org.example.luckyburger.domain.order.entity.Order;
 import org.example.luckyburger.domain.order.entity.OrderForm;
 import org.example.luckyburger.domain.order.entity.OrderMenu;
 import org.example.luckyburger.domain.order.enums.OrderStatus;
-import org.example.luckyburger.domain.order.exception.*;
+import org.example.luckyburger.domain.order.exception.EmptyOrderException;
+import org.example.luckyburger.domain.order.exception.NegativePayOrderException;
+import org.example.luckyburger.domain.order.exception.PointExceedBalanceException;
+import org.example.luckyburger.domain.order.exception.ShopNotOpenedException;
+import org.example.luckyburger.domain.order.exception.UnauthorizedOrderAccessException;
 import org.example.luckyburger.domain.order.repository.OrderFormRepository;
 import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
@@ -34,11 +42,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -85,7 +88,8 @@ public class OrderUserService {
         long totalPrice = cart.getTotalPrice();
 
         // 유저 보유 쿠폰 조회
-        List<OrderCouponResponse> coupons = userCouponEntityFinder.getAllVerifiedUserCouponByUserId(user.getId()).stream()
+        List<OrderCouponResponse> coupons = userCouponEntityFinder.getAllVerifiedUserCouponByUserId(user.getId())
+                .stream()
                 .map(OrderCouponResponse::from)
                 .toList();
 
@@ -163,7 +167,9 @@ public class OrderUserService {
 
         // 실제 결제 금액 계산
         long pay = subtotal - discount;
-        if (pay < 0) throw new NegativePayOrderException();
+        if (pay < 0) {
+            throw new NegativePayOrderException();
+        }
 
         // TODO: 결제 연동
 

@@ -23,6 +23,8 @@ services:
       - TZ=Asia/Seoul
     depends_on:
       - ngrinder-controller
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: always
 
   prometheus:

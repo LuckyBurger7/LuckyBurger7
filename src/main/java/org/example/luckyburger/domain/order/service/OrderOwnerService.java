@@ -1,5 +1,8 @@
 package org.example.luckyburger.domain.order.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -24,10 +27,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -80,6 +79,36 @@ public class OrderOwnerService {
                     .map(OrderMenuResponse::from)
                     .toList();
 
+            return OrderResponse.from(order, items);
+        }).toList();
+
+        return new PageImpl<>(contents, pageable, orderPage.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getAllOrderResponseCompare(Pageable pageable) {
+        Owner owner = getOwner();
+        Long shopId = owner.getShop().getId();
+
+        // 주문 페이징 조회
+        Page<Order> orderPage = orderRepository.findOwnerOrders_CompareIgnoreIndex(shopId, pageable);
+        if (orderPage.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, orderPage.getTotalElements());
+        }
+
+        List<Order> orders = orderPage.getContent();
+
+        // 주문 메뉴 목록 조회
+        List<OrderMenu> allOrderMenus = orderMenuRepository.findAllByOrderInWithMenu(orders);
+
+        // 주문 메뉴 그룹핑
+        Map<Long, List<OrderMenu>> itemsByOrderId = allOrderMenus.stream()
+                .collect(Collectors.groupingBy(om -> om.getOrder().getId()));
+
+        List<OrderResponse> contents = orders.stream().map(order -> {
+            List<OrderMenuResponse> items = itemsByOrderId
+                    .getOrDefault(order.getId(), List.of())
+                    .stream().map(OrderMenuResponse::from).toList();
             return OrderResponse.from(order, items);
         }).toList();
 

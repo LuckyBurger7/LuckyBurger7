@@ -21,7 +21,6 @@ public class MenuService {
     @Transactional(readOnly = true)
     public Page<MenuResponse> getAllMenuResponse(Pageable pageable) {
         Page<Menu> menus = menuRepository.findAll(pageable);
-
         return menus.map(MenuResponse::from);
     }
 
@@ -31,5 +30,12 @@ public class MenuService {
         Menu menu = menuEntityFinder.getMenuById(menuId);
 
         return MenuResponse.from(menu);
+    }
+
+    // 메뉴 검색
+    @Transactional(readOnly = true)
+    public Page<MenuResponse> searchMenuByName(String menuName, Pageable pageable) {
+        Page<Menu> menus = menuRepository.findAllByNameContaining(menuName, pageable);
+        return menus.map(MenuResponse::from);
     }
 }
