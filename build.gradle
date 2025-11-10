@@ -81,11 +81,13 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'net.datafaker:datafaker:2.2.2'
+ 
+    // [swagger]
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'}
 
     // [flyway]
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
-}
 
 tasks.named('test') {
     useJUnitPlatform()
