@@ -182,7 +182,7 @@ public class CartLuaRepository {
 
         String key = CART_KEY_PREFIX + USER_KEY_PREFIX + TIMER_PREFIX + accountId;
         redisTemplate.opsForValue().set(key, accountId.toString());
-        redisTemplate.expire(key, 1000, TimeUnit.MILLISECONDS);
+        redisTemplate.expire(key, saveTime, TimeUnit.MILLISECONDS);
     }
 
     private String buildKey(Long accountId) {
