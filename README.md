@@ -34,7 +34,7 @@
 
 
 ## 2. ERD
-<img width="1516" height="699" alt="image" src="https://github.com/user-attachments/assets/a8bd5a57-658d-47d4-9dbc-985fd011bc8a" />
+<img width="1516" height="699" alt="Image" src="https://github.com/user-attachments/assets/38df1816-b460-4c27-a4a2-2336f84db2d9" />
 
 
 ## 3. 기능 설계
@@ -106,12 +106,12 @@
                 TPS : 581 / sec  
                 MTT : 106 ms  
                 커넥션 대기 시간 1 sec  
-                <img width="1280" height="568" alt="Image" src="https://github.com/user-attachments/assets/db39076a-0442-47f5-a98c-0e59fa27d802" /> </pre>
+                <img width="1280" height="568" alt="Image" src="https://github.com/user-attachments/assets/79391ef2-6e01-468a-b948-f33cd4674035" /> </pre>
           <pre> [설정 후]  
                 TPS : 697 / sec  
                 MTT : 73 ms  
                 커넥션 대기 시간 331 ms
-                <img width="1280" height="568" alt="image" src="https://github.com/user-attachments/assets/1e942410-abd5-4dc3-971e-499398d569e2" /> </pre>
+                <img width="1280" height="568" alt="Image" src="https://github.com/user-attachments/assets/87db2e16-2dca-40c8-a891-12e9a2ae15da" /> </pre>
   
     - **원인 분석**:
       - 점주의 주문 데이터가 많아서 효과가 커 보이는 것일까?
@@ -181,7 +181,7 @@
       TPS : 49 / sec  
       MTT : 2002 ms  
       커넥션 대기 시간 6 sec  
-      <img width="1280" height="565" alt="image" src="https://github.com/user-attachments/assets/818584b2-755a-48fb-a51a-aeec95677ee9" />
+      <img width="1280" height="565" alt="Image" src="https://github.com/user-attachments/assets/e7c8179f-d498-4394-82a1-404779b7d586" />
   
 - **2. 원인 분석**
     - 주문 조회 시 DB에 데이터가 많이 쌓인 상태에서 풀 스캔이 동작 하다보니 성능 저하가 발생한 것으로 예측 됨
@@ -190,14 +190,14 @@
 - **3. 개선 사항**
     - 사용자 주문 조회에 대한 복합 인덱스 설정 (사용자 id, 주문 날짜, 주문 id)
     - migration 을 통하여 버전 관리  
-      <img width="623" height="97" alt="image" src="https://github.com/user-attachments/assets/f5ef6cea-1796-4598-ab80-f82707c12436" />
+      <img width="623" height="97" alt="Image" src="https://github.com/user-attachments/assets/b683961c-9611-480f-8bc3-38142b7a22f5" />
 
 - **4. 성능 개선 (후)**
     - DB에 저장된 주문 데이터가 1,000,000 건 이상일 경우
     - TPS : 420/ sec  
       MTT : 198 ms  
       커넥션 대기 시간 2 sec  
-      <img width="1280" height="566" alt="image" src="https://github.com/user-attachments/assets/7d2d21c7-3923-40b1-af32-48de7fe14804" />  
+      <img width="1280" height="566" alt="Image" src="https://github.com/user-attachments/assets/6d0cf9b4-4dec-4e61-a845-b060ed00fc7a" />  
     - TPS는 약 8.5배, MTT는 약 10배 가량 성능이 향상되었고, 대기 시간 또한 1/3 가량으로 줄어들어 성능이 개선 됨
  
 - **5. 측정 방법/도구**
