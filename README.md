@@ -448,7 +448,6 @@
 ## 10. 팀원
 
 | 이름      | Github                                      |  
-|---------|----------------------|------------------------|  
 | **장태욱** | [링크](https://github.com/doldollee00)     |  
 | **김기수** | [링크](https://github.com/Lunarltn)        |  
 | **김동현** | [링크](https://github.com/donghyeon505)    |  
