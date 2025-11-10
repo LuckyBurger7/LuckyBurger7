@@ -145,7 +145,7 @@ public class CartCacheUserService {
     }
 
     @Transactional
-    public void saveAllCache(Long accountId) {
+    public List<CartMenu> saveAllCache(Long accountId) {
         Map<String, Object> allEntries = cartCacheRepository.getAllEntries(accountId);
 
         User user = userEntityFinder.getUserByAccountId(accountId);
@@ -176,6 +176,6 @@ public class CartCacheUserService {
         // 데이터 제거
         cartMenuRepository.deleteAllByCartId(cart.getId());
         // DB에 저장
-        cartMenuRepository.saveAll(cartMenuList);
+        return cartMenuRepository.saveAll(cartMenuList);
     }
 }
