@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
-
+  
     @Query("SELECT m.id FROM Menu m WHERE m.category=:menuCategory")
     List<Long> findAllByCategory(@Param("menuCategory") MenuCategory category);
 

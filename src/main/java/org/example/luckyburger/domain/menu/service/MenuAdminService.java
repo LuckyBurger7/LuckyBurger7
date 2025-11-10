@@ -2,12 +2,14 @@ package org.example.luckyburger.domain.menu.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.consts.CacheConst;
 import org.example.luckyburger.domain.menu.dto.request.MenuRequest;
 import org.example.luckyburger.domain.menu.dto.response.MenuResponse;
 import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.menu.repository.MenuRepository;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +35,10 @@ public class MenuAdminService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MENU, key = "#menuId")
     public MenuResponse updateMenu(Long menuId, MenuRequest request) {
 
-        Menu menu = menuEntityFinder.getMenu(menuId);
+        Menu menu = menuEntityFinder.getMenuById(menuId);
 
         menu.updateMenu(request.name(), request.menuCategory(), request.price());
 
@@ -43,8 +46,9 @@ public class MenuAdminService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheConst.MENU, key = "#menuId")
     public void deleteMenu(Long menuId) {
-        Menu menu = menuEntityFinder.getMenu(menuId);
+        Menu menu = menuEntityFinder.getMenuById(menuId);
 
         menuRepository.delete(menu);
     }

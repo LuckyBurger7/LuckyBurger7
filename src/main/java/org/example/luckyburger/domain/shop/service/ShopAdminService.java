@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.shop.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.consts.CacheConst;
 import org.example.luckyburger.domain.order.service.OrderEntityFinder;
 import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
@@ -12,6 +13,7 @@ import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.example.luckyburger.domain.shop.repository.ShopRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,7 @@ public class ShopAdminService {
 
     // 상점의 정보를 수정
     @Transactional
+    @CacheEvict(value = CacheConst.SHOP, key = "#shopId")
     public ShopResponse updateShop(Long shopId, ShopRequest request) {
 
         Shop shopEntity = shopEntityFinder.getShopById(shopId);
@@ -52,6 +55,7 @@ public class ShopAdminService {
 
     // 상점 삭제
     @Transactional
+    @CacheEvict(value = CacheConst.SHOP, key = "#shopId")
     public void deleteShop(Long shopId) {
 
         shopEntityFinder.getShopById(shopId).delete();

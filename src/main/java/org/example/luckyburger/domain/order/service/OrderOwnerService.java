@@ -42,7 +42,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderResponse(Long orderId) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getShop().getId().equals(owner.getShop().getId())) {
@@ -57,7 +57,7 @@ public class OrderOwnerService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByShop(owner.getShop(), pageable);
@@ -86,9 +86,39 @@ public class OrderOwnerService {
         return new PageImpl<>(contents, pageable, orderPage.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getAllOrderResponseCompare(Pageable pageable) {
+        Owner owner = getLoginOwner();
+        Long shopId = owner.getShop().getId();
+
+        // 주문 페이징 조회
+        Page<Order> orderPage = orderRepository.findOwnerOrders_CompareIgnoreIndex(shopId, pageable);
+        if (orderPage.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, orderPage.getTotalElements());
+        }
+
+        List<Order> orders = orderPage.getContent();
+
+        // 주문 메뉴 목록 조회
+        List<OrderMenu> allOrderMenus = orderMenuRepository.findAllByOrderInWithMenu(orders);
+
+        // 주문 메뉴 그룹핑
+        Map<Long, List<OrderMenu>> itemsByOrderId = allOrderMenus.stream()
+                .collect(Collectors.groupingBy(om -> om.getOrder().getId()));
+
+        List<OrderResponse> contents = orders.stream().map(order -> {
+            List<OrderMenuResponse> items = itemsByOrderId
+                    .getOrDefault(order.getId(), List.of())
+                    .stream().map(OrderMenuResponse::from).toList();
+            return OrderResponse.from(order, items);
+        }).toList();
+
+        return new PageImpl<>(contents, pageable, orderPage.getTotalElements());
+    }
+
     @Transactional
     public void updateOrderStatus(Long orderId, OrderUpdateRequest request) {
-        Owner owner = getOwner();
+        Owner owner = getLoginOwner();
         Order order = orderEntityFinder.getOrderById(orderId);
         User user = order.getUser();
         OrderStatus status = request.status();
@@ -128,7 +158,7 @@ public class OrderOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public Owner getOwner() {
+    public Owner getLoginOwner() {
         return ownerEntityFinder.getOwnerByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }

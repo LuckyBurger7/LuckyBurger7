@@ -1,11 +1,5 @@
 package org.example.luckyburger.domain.shop.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.Year;
-import java.time.YearMonth;
-import java.time.ZoneId;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -17,11 +11,7 @@ import org.example.luckyburger.domain.review.service.ReviewEntityFinder;
 import org.example.luckyburger.domain.shop.dto.request.CouponPolicyRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopMenuRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
-import org.example.luckyburger.domain.shop.dto.response.CouponPolicyResponse;
-import org.example.luckyburger.domain.shop.dto.response.ShopDashboardResponse;
-import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
-import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
-import org.example.luckyburger.domain.shop.dto.response.ShopTotalSalesResponse;
+import org.example.luckyburger.domain.shop.dto.response.*;
 import org.example.luckyburger.domain.shop.entity.CouponPolicy;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
@@ -29,8 +19,11 @@ import org.example.luckyburger.domain.shop.exception.CouponPolicyNotFoundExcepti
 import org.example.luckyburger.domain.shop.exception.ShopMenuNotFoundException;
 import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.*;
 
 
 @Service
@@ -49,7 +42,7 @@ public class ShopOwnerService {
     @Transactional
     public CouponPolicyResponse updateCouponStatus(Long shopId, Long couponId, CouponPolicyRequest cpr) {
         // 점포와 점주 매칭 검증
-        getOwner(shopId);
+        validOwnerOfShop(shopId);
         CouponPolicy couponPolicy = shopCouponRepository.findByShopIdAndCouponId(shopId, couponId).
                 orElseThrow(CouponPolicyNotFoundException::new);
 
@@ -60,7 +53,7 @@ public class ShopOwnerService {
     // 상점의 쿠폰 조회
     @Transactional(readOnly = true)
     public CouponPolicyResponse getCouponPolicyResponse(Long shopId, Long couponId) {
-        getOwner(shopId);
+        validOwnerOfShop(shopId);
         CouponPolicy couponPolicy = shopCouponRepository.findByShopIdAndCouponId(shopId, couponId).
                 orElseThrow(CouponPolicyNotFoundException::new);
         return CouponPolicyResponse.from(couponPolicy);
@@ -70,15 +63,16 @@ public class ShopOwnerService {
     @Transactional
     public ShopResponse updateShopStatus(Long shopId, ShopUpdateRequest request) {
         Shop shopEntity = shopEntityFinder.getShopById(shopId);
-        getOwner(shopId);
+        validOwnerOfShop(shopId);
         shopEntity.updateShopStatus(request.businessStatus());
         return ShopResponse.from(shopEntity);
     }
 
     // 상점의 메뉴의 상태 변경
     @Transactional
+    @CacheEvict(value = "shopMenus")
     public ShopMenuResponse updateMenuStatus(Long shopId, Long menuId, ShopMenuRequest request) {
-        getOwner(shopId);
+        validOwnerOfShop(shopId);
         ShopMenu shopMenu = shopMenuRepository.findWithShopByShopIdAndMenuId(shopId, menuId).
                 orElseThrow(ShopMenuNotFoundException::new);
         shopMenu.updateShopMenuStatus(request.menuStatus());
@@ -86,8 +80,9 @@ public class ShopOwnerService {
     }
 
     // 월 정산 구간: 매 월 21일 00:00 ~ 다음 달 21일 00:00
+    @Transactional(readOnly = true)
     public ShopTotalSalesResponse getTotalSalesByShopIdAndMonth(Long shopId, Integer month) {
-        getOwner(shopId);
+        validOwnerOfShop(shopId);
         ZoneId zone = ZoneId.of("Asia/Seoul");
 
         Month m = (month == null) ? LocalDate.now(zone).getMonth() : Month.of(month);
@@ -139,7 +134,7 @@ public class ShopOwnerService {
     }
 
     @Transactional(readOnly = true)
-    public void getOwner(Long shopId) {
+    public void validOwnerOfShop(Long shopId) {
         Owner owner = ownerEntityFinder.getOwnerByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         if (!owner.getShop().getId().equals(shopId)) {
             throw new OwnerUnauthorizedAccessException();

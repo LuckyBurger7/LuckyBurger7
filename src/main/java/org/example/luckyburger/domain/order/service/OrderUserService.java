@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
+import org.example.luckyburger.domain.cart.service.CartCacheUserService;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuService;
@@ -55,14 +56,19 @@ public class OrderUserService {
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
     private final UserCouponEntityFinder userCouponEntityFinder;
+    private final CartCacheUserService cartCacheUserService;
 
     @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // 장바구니 메뉴 조회
-        List<CartMenu> cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(user.getId());
+
+        if (cartMenus == null || cartMenus.isEmpty())
+            cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+
         if (cartMenus.isEmpty()) {
             throw new EmptyOrderException();
         }
@@ -85,7 +91,8 @@ public class OrderUserService {
         long totalPrice = cart.getTotalPrice();
 
         // 유저 보유 쿠폰 조회
-        List<OrderCouponResponse> coupons = userCouponEntityFinder.getAllVerifiedUserCouponByUserId(user.getId()).stream()
+        List<OrderCouponResponse> coupons = userCouponEntityFinder.getAllVerifiedUserCouponByUserId(user.getId())
+                .stream()
                 .map(OrderCouponResponse::from)
                 .toList();
 
@@ -111,7 +118,7 @@ public class OrderUserService {
 
     @Transactional
     public OrderResponse createOrderResponse(OrderCreateRequest request) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         // 주문서 조회
         List<OrderForm> orderForms = orderFormRepository.findAllByUser(user);
@@ -163,7 +170,9 @@ public class OrderUserService {
 
         // 실제 결제 금액 계산
         long pay = subtotal - discount;
-        if (pay < 0) throw new NegativePayOrderException();
+        if (pay < 0) {
+            throw new NegativePayOrderException();
+        }
 
         // TODO: 결제 연동
 
@@ -221,7 +230,7 @@ public class OrderUserService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrderResponse(Long orderId) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -236,7 +245,7 @@ public class OrderUserService {
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> getAllOrderResponse(Pageable pageable) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         // 주문 페이징 조회
         Page<Order> orderPage = orderRepository.findByUserId(user.getId(), pageable);
@@ -267,7 +276,7 @@ public class OrderUserService {
 
     @Transactional
     public void cancelOrder(Long orderId) {
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         Order order = orderEntityFinder.getOrderById(orderId);
 
         if (!order.getUser().getId().equals(user.getId())) {
@@ -289,11 +298,6 @@ public class OrderUserService {
         if (usedPoint != null && usedPoint > 0) {
             userService.addPoints(user, usedPoint);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public User getUser() {
-        return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
     }
 }
 

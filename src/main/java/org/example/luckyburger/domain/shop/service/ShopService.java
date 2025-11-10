@@ -41,7 +41,7 @@ public class ShopService {
     public ShopMenuResponse getMenuDetail(Long shopId, Long shopMenuId) {
         Shop shop = shopEntityFinder.getShopById(shopId);
 
-        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(shopMenuId);
+        ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuByIdDetails(shopMenuId);
 
         if (!shopMenu.getShop().getId().equals(shop.getId())) {
             throw new ShopMenuBadRequestException();

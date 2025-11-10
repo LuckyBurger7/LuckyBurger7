@@ -2,6 +2,7 @@ package org.example.luckyburger.common._dummyData;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datafaker.Faker;
 import org.example.luckyburger.common.security.dto.AuthAccount;
 import org.example.luckyburger.domain.auth.dto.request.AccountSignupRequest;
 import org.example.luckyburger.domain.auth.dto.request.OwnerSignupRequest;
@@ -50,6 +51,7 @@ import org.example.luckyburger.domain.shop.repository.ShopRepository;
 import org.example.luckyburger.domain.shop.service.ShopAdminService;
 import org.example.luckyburger.domain.shop.service.ShopOwnerService;
 import org.example.luckyburger.domain.user.dto.request.UserSignupRequest;
+import org.example.luckyburger.domain.user.repository.UserRepository;
 import org.example.luckyburger.domain.user.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,6 +61,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,6 +71,7 @@ import java.util.Optional;
 public class DummyDataLoader implements CommandLineRunner {
 
     private final UserService userService;
+    private final UserRepository userRepository;
     private final AuthService authService;
     private final CouponAdminService couponAdminService;
     private final ShopMenuRepository shopMenuRepository;
@@ -102,13 +106,12 @@ public class DummyDataLoader implements CommandLineRunner {
         ensureAccount("admin@naver.com", "password", "관리자", AccountRole.ROLE_ADMIN);
 
         ShopResponse shopResp1 = ensureShop("럭키버거 홍대점", "서울특별시 마포구 양화로 123", "홍대거리");
-        ShopResponse shopResp2 = ensureShop("럭키버거 강남점", "서울특별시 강남구 테헤란로 456", "강남대로");
+        //ShopResponse shopResp2 = ensureShop("럭키버거 강남점", "서울특별시 강남구 테헤란로 456", "강남대로");
 
         ensureOwner("owner1@naver.com", "password", "점주1", shopResp1.shopId());
-        ensureOwner("owner2@naver.com", "password", "점주2", shopResp2.shopId());
+        //ensureOwner("owner2@naver.com", "password", "점주2", shopResp2.shopId());
 
-        ensureUser("user1@naver.com", "password", "김기수", "010-3333-5555", "주소", "상세 주소");
-        ensureUser("user2@naver.com", "password", "홍길동", "010-7777-8888", "주소", "상세 주소");
+        ensureUsers(100);
 
         // 2) 이벤트/쿠폰 ensure
         ensureEvent("신규 오픈 10% 할인 이벤트", "선착순 100명에게 10% 할인 쿠폰을 드립니다!");
@@ -122,7 +125,9 @@ public class DummyDataLoader implements CommandLineRunner {
         MenuResponse menuResp1 = ensureMenu("치즈버거", MenuCategory.HAMBURGER, 5500);
         MenuResponse menuResp2 = ensureMenu("감자튀김", MenuCategory.SIDE, 2500);
         MenuResponse menuResp3 = ensureMenu("콜라", MenuCategory.DRINK, 2000);
-
+        MenuResponse menuResp4 = ensureMenu("불고기버거", MenuCategory.HAMBURGER, 5500);
+        MenuResponse menuResp5 = ensureMenu("치킨너겟", MenuCategory.SIDE, 2500);
+        MenuResponse menuResp6 = ensureMenu("사이다", MenuCategory.DRINK, 2000);
         // ShopMenu 연결(이미 존재한다고 가정: createShop/createMenu 시 ShopMenu 생성 로직이 있다면 find만)
         ShopMenu shopMenu11 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp1.menuId())
                 .orElseThrow();
@@ -130,17 +135,17 @@ public class DummyDataLoader implements CommandLineRunner {
                 .orElseThrow();
         ShopMenu shopMenu13 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp1.shopId(), menuResp3.menuId())
                 .orElseThrow();
-        ShopMenu shopMenu21 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp1.menuId())
+        /*ShopMenu shopMenu21 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp1.menuId())
                 .orElseThrow();
         ShopMenu shopMenu22 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp2.menuId())
                 .orElseThrow();
         ShopMenu shopMenu23 = shopMenuRepository.findWithShopByShopIdAndMenuId(shopResp2.shopId(), menuResp3.menuId())
-                .orElseThrow();
+                .orElseThrow();*/
 
         Account user1 = accountRepository.findByEmail("user1@naver.com").orElseThrow();
         Account user2 = accountRepository.findByEmail("user2@naver.com").orElseThrow();
         Account owner1 = accountRepository.findByEmail("owner1@naver.com").orElseThrow();
-        Account owner2 = accountRepository.findByEmail("owner2@naver.com").orElseThrow();
+        //Account owner2 = accountRepository.findByEmail("owner2@naver.com").orElseThrow();
 
         // 4) 점주로서 매장/메뉴 상태 변경
         asAccount(owner1, () -> {
@@ -151,8 +156,12 @@ public class DummyDataLoader implements CommandLineRunner {
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
             shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp3.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-        });
-        asAccount(owner2, () -> {
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp4.menuId(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+            shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp5.menuId(),
+                    new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+        });// 6번 메뉴만 비활성화
+        /*asAccount(owner2, () -> {
             shopOwnerService.updateShopStatus(shopResp2.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
             shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp1.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
@@ -160,7 +169,7 @@ public class DummyDataLoader implements CommandLineRunner {
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
             shopOwnerService.updateMenuStatus(shopResp2.shopId(), menuResp3.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
-        });
+        });*/
 
         // 5) 유저 주문/장바구니/리뷰
         final OrderResponse[] orderResp = new OrderResponse[3];
@@ -181,11 +190,11 @@ public class DummyDataLoader implements CommandLineRunner {
                             resp2.address(), resp2.street(), "없음", null, 0));
 
             // Shop2, ShopMenu1 주문
-            cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu21.getId()));
+            /*cartUserService.addCartMenuV1(new CartAddMenuRequest(shopMenu21.getId()));
             OrderPrepareResponse resp3 = orderUserService.prepareOrderResponse();
             orderUserService.createOrderResponse(
                     new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
-                            resp3.address(), resp3.street(), "없음", null, 0));
+                            resp3.address(), resp3.street(), "없음", null, 0));*/
 
             // Shop1, ShopMenu1 장바구니
             cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu11.getId()));
@@ -200,18 +209,18 @@ public class DummyDataLoader implements CommandLineRunner {
                             resp1.address(), resp1.street(), "없음", null, 0));
 
             // Shop2, ShopMenu3 주문
-            cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu23.getId()));
+            /*cartUserService.addCartMenuV1(new CartAddMenuRequest(shopMenu23.getId()));
             OrderPrepareResponse resp2 = orderUserService.prepareOrderResponse();
             orderUserService.createOrderResponse(
                     new OrderCreateRequest(shopResp2.shopId(), resp2.receiver(), resp2.phone(),
-                            resp2.address(), resp2.street(), "없음", null, 0));
+                            resp2.address(), resp2.street(), "없음", null, 0));*/
 
             // Shop2, ShopMenu2 주문
-            cartUserService.addCartMenu(new CartAddMenuRequest(shopMenu22.getId()));
+            /*cartUserService.addCartMenuV1(new CartAddMenuRequest(shopMenu22.getId()));
             OrderPrepareResponse resp3 = orderUserService.prepareOrderResponse();
             orderUserService.createOrderResponse(
                     new OrderCreateRequest(shopResp2.shopId(), resp3.receiver(), resp3.phone(),
-                            resp3.address(), resp3.street(), "없음", null, 0));
+                            resp3.address(), resp3.street(), "없음", null, 0));*/
         });
 
         // 6) 점주: 주문 상태 변경
@@ -274,6 +283,27 @@ public class DummyDataLoader implements CommandLineRunner {
             userService.createUser(new UserSignupRequest(email, password, name, phone, addr, street));
             return accountRepository.findByEmail(email).orElseThrow();
         });
+    }
+
+    private void ensureUsers(int count) {
+        Faker faker = new Faker(new Locale("ko"));
+
+        // 휴대폰 번호 생성 10000개 (중복 X)
+        Set<String> phoneSet = new HashSet<>();
+        while (phoneSet.size() < count) {
+            phoneSet.add(faker.phoneNumber().phoneNumber());
+        }
+        List<String> phoneList = new ArrayList<>(phoneSet);
+
+        for (int i = 0; i < count; i++) {
+            ensureUser("user" + i + "@naver.com",
+                    "password",
+                    faker.name().fullName().replaceAll("\\s+", ""),
+                    phoneList.get(i),
+                    faker.address().city(),
+                    faker.address().streetAddress()
+            );
+        }
     }
 
     private ShopResponse ensureShop(String name, String address, String street) {

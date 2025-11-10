@@ -67,8 +67,7 @@ public class UserService {
      */
     @Transactional
     public UserResponse updateProfile(UserUpdateRequest userRequest) {
-        Account account = accountEntityFinder.getAccountByEmail(AuthAccountUtil.getAuthAccount().getEmail());
-        User user = userEntityFinder.getUserByAccountId(account.getId());
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         authService.updateAccount(AccountUpdateRequest.builder()
                 .name(userRequest.name())
@@ -87,7 +86,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getProfile() {
 
-        User user = getUser();
+        User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
 
         return UserResponse.from(user);
     }
@@ -97,8 +96,7 @@ public class UserService {
      *
      * @param phone 검사할 연락처
      */
-    @Transactional(readOnly = true)
-    public void validateDuplicatePhone(String phone) {
+    private void validateDuplicatePhone(String phone) {
         if (userRepository.existsUserByPhone(phone))
             throw new DuplicatePhoneException();
     }
@@ -108,10 +106,6 @@ public class UserService {
         authService.withdraw(request);
     }
 
-    @Transactional(readOnly = true)
-    public User getUser() {
-        return userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
-    }
 
     @Transactional
     public void deductPoints(User user, Integer usePoint) {
