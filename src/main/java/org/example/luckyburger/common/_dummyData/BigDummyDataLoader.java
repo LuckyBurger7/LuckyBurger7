@@ -34,6 +34,7 @@
 //@Slf4j
 //@Component
 //@RequiredArgsConstructor
+//@org.springframework.core.annotation.Order(2)
 //public class BigDummyDataLoader implements CommandLineRunner {
 //
 //    private final AuthService authService;
