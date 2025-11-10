@@ -11,12 +11,18 @@
   - [4. 트러블 슈팅](#4-트러블-슈팅)
     - [4.1. 사용자 주문 조회에 대한 인덱스 적용 실패](#41-사용자-주문-조회에-대한-인덱스-적용-실패)
     - [4.2. 동시성 제어 테스트 중 불안정한 성공/실패 발생](#42-동시성-제어-테스트-중-불안정한-성공실패-발생)
-  - [5. 주요 기능 및 API](#5-주요-기능-및-api)
-    - [5.1. API 목록](#51-api-목록)
-  - [6. 시연 영상](#6-시연-영상)
-  - [7. 개발 환경](#7-개발-환경)
-  - [8. Git 그라운드 룰](#8-git-그라운드-룰)
-  - [9. 팀원](#9-팀원)
+    - [4.3. Redis 원자성 문제](#43-레디스-원자성-문제)
+  - [5. 성능 개선](#5-성능-개선)
+    - [5.1 사용자/점주 주문 전체 조회 성능 개선](#51-사용자점주-주문-전체-조회-성능-개선)
+    - [5.2 쿠폰 발급 동시성 제어 안정성 개선](#52-쿠폰-발급-동시성-제어-안정성-개선)
+    - [5.3 주문 성능 개선](#53-주문-성능-개선)
+    - [5.4 장바구니 캐싱 적용](#54-장바구니-캐싱-적용)  
+  - [6. 주요 기능 및 API](#6-주요-기능-및-api)
+    - [6.1. API 목록](#61-api-목록)
+  - [7. 시연 영상](#7-시연-영상)
+  - [8. 개발 환경](#8-개발-환경)
+  - [9. Git 그라운드 룰](#9-git-그라운드-룰)
+  - [10. 팀원](#10-팀원)
 
 <!-- /TOC -->
 
@@ -26,10 +32,9 @@
 - 사용자, 점주, 관리자 기준의 백앤드 개발
 - 기능 개선을 위한 최적화, 동시성 제어, 캐시 사용
 
+
 ## 2. ERD
-
-![ERD.png](https://private-user-images.githubusercontent.com/50581232/511747933-695571a2-e327-4bbf-8cfb-d611e7aefbec.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjI2NzM0NDksIm5iZiI6MTc2MjY3MzE0OSwicGF0aCI6Ii81MDU4MTIzMi81MTE3NDc5MzMtNjk1NTcxYTItZTMyNy00YmJmLThjZmItZDYxMWU3YWVmYmVjLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMDklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTA5VDA3MjU0OVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWYyOGUwOWM3YmU5YzAwZTBjYmI0MTU5NDliNGZhNjM4OTAwODJmN2FmYmI3MzI3MGNhMzViYzE5MGRiZTQxMjImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.AehkIGq3-EZXW6lhsDg6V3fp_wiKtqYR4-nvpW7CZqA)
-
+<img width="1516" height="699" alt="Image" src="https://github.com/user-attachments/assets/38df1816-b460-4c27-a4a2-2336f84db2d9" />
 
 
 ## 3. 기능 설계
@@ -101,12 +106,12 @@
                 TPS : 581 / sec  
                 MTT : 106 ms  
                 커넥션 대기 시간 1 sec  
-                ![설정 전.png](https://private-user-images.githubusercontent.com/50581232/511747688-b43e0ab7-83ae-4215-9abf-fae7342d4c02.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjI2NzMxOTcsIm5iZiI6MTc2MjY3Mjg5NywicGF0aCI6Ii81MDU4MTIzMi81MTE3NDc2ODgtYjQzZTBhYjctODNhZS00MjE1LTlhYmYtZmFlNzM0MmQ0YzAyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMDklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTA5VDA3MjEzN1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWNjNDBjYmQ4MWYwZjQ1MjAxZDcyMDhmMzkwYzhmNmY3MDkyMmQ0NzJiMDBhMTUzOThiNmRlNWU2Yzc2ODkwMDgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0._1lPOMukNPoh8MwBfxUs2TvP48x6F_gMq5mOx576YhI) </pre>
+                <img width="1280" height="568" alt="Image" src="https://github.com/user-attachments/assets/79391ef2-6e01-468a-b948-f33cd4674035" /> </pre>
           <pre> [설정 후]  
                 TPS : 697 / sec  
                 MTT : 73 ms  
                 커넥션 대기 시간 331 ms
-                ![설정 후.png](https://private-user-images.githubusercontent.com/50581232/511747754-da1d8aec-03a2-41f1-8c29-92221487c212.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjI2NzMyNzksIm5iZiI6MTc2MjY3Mjk3OSwicGF0aCI6Ii81MDU4MTIzMi81MTE3NDc3NTQtZGExZDhhZWMtMDNhMi00MWYxLThjMjktOTIyMjE0ODdjMjEyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTExMDklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMTA5VDA3MjI1OVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU0ZDZiZmIzOThhNTEyMWQ5MzI0YjYxMzQwMjczNjY0YWM2MTA0NjBhYTQ4M2JkZWIyMGY3YzNlZGE5ZTBmM2YmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.t_7P2iaxohbZIxb4DKhcIXzGUkB689uPNEn9NglbhAo) </pre>
+                <img width="1280" height="568" alt="Image" src="https://github.com/user-attachments/assets/87db2e16-2dca-40c8-a891-12e9a2ae15da" /> </pre>
   
     - **원인 분석**:
       - 점주의 주문 데이터가 많아서 효과가 커 보이는 것일까?
@@ -143,11 +148,190 @@
       - 단순히 비즈니스 로직의 동시성 문제가 아니라 애플리케이션 실행 단계의 초기화 순서가 동시성 제어 테스트의 안정성을 해친 사례임
       - Spring Boot Runner의 실행 순서는 보장되지 않으므로 명시적으로 우선순위를 지정하는 과정이 필요함을 인지할 수 있었음
 
+### 4.3. 레디스 원자성 문제
+
+- **1. 증상 및 로그**
+    - **증상**: Redis의 RedisTemplate 기능을 활용해 복잡한 로직을 구현할 경우 @TransactionAnotation을 걸어도 원자성이 보장되지 않는 문제가 발생했다.
+  
+    - **원인 분석**:
+      - Redis에 @Transaction을 적용하려면 Redis의 Configration에서 template.setEnableTransactionSupport(true); 설정을 해야 정상 동작합니다.
+      - 하지만 이 방법은 동시성 문제를 방어하기 위해 락 적용시 락을 획득하기 위한 로직 때문에 응답속도가 늦어질 수 있다는 단점이 있습니다.
+  
+    - **해결 방안**:
+      - Lua Script를 사용해 원자성을 보장하고 스크립트 전체가 하나의 명령어이기 때문에 네트워크 왕복 시간을 줄이면서 동시성 문제도 해결할 수 있습니다.
+ 
+    - **테스트**:
+      - 고의로 예외 발생을 위한 데이터 입력 후 의도에 맞게 데이터가 삽입되는지 확인했습니다
+
+    - **회고**:
+      - Redis @Transaction과 Lua script는 롤백을 지원하지 않기 때문에 값에 대한 검증이 충분히 이뤄진 뒤에 수정, 생성을 해야 합니다.
 
 
-## 5. 주요 기능 및 API
+## 5. 성능 개선
 
-### 5.1. API 목록
+### 5.1. 사용자/점주 주문 전체 조회 성능 개선
+
+- **1. 성능 개선 (전)**
+    - 데이터가 쌓이면서 주문 조회 시 응답 속도가 느리고, 간헐적으로 조회 실패를 하기도 함
+    - DB에 저장된 주문 데이터가 100,000건 경우  
+      TPS : 776 / sec  
+      MTT : 167 ms  
+      커넥션 대기 시간 4 sec
+    - DB에 저장된 주문 데이터가 1,000,000건 이상일 경우  
+      TPS : 49 / sec  
+      MTT : 2002 ms  
+      커넥션 대기 시간 6 sec  
+      <img width="1280" height="565" alt="Image" src="https://github.com/user-attachments/assets/e7c8179f-d498-4394-82a1-404779b7d586" />
+  
+- **2. 원인 분석**
+    - 주문 조회 시 DB에 데이터가 많이 쌓인 상태에서 풀 스캔이 동작 하다보니 성능 저하가 발생한 것으로 예측 됨
+    - DB커넥션 대기 시간이 길다는 것은 DB처리가 오래 걸린다는 뜻이기도 하기 때문에 DB 조회 부분이 병목 지점이라 생각하고 이를 개선하고자 함
+ 
+- **3. 개선 사항**
+    - 사용자 주문 조회에 대한 복합 인덱스 설정 (사용자 id, 주문 날짜, 주문 id)
+    - migration 을 통하여 버전 관리  
+      <img width="623" height="97" alt="Image" src="https://github.com/user-attachments/assets/b683961c-9611-480f-8bc3-38142b7a22f5" />
+
+- **4. 성능 개선 (후)**
+    - DB에 저장된 주문 데이터가 1,000,000 건 이상일 경우
+    - TPS : 420/ sec  
+      MTT : 198 ms  
+      커넥션 대기 시간 2 sec  
+      <img width="1280" height="566" alt="Image" src="https://github.com/user-attachments/assets/6d0cf9b4-4dec-4e61-a845-b060ed00fc7a" />  
+    - TPS는 약 8.5배, MTT는 약 10배 가량 성능이 향상되었고, 대기 시간 또한 1/3 가량으로 줄어들어 성능이 개선 됨
+ 
+- **5. 측정 방법/도구**
+    - nGrinder를 통한 부하 테스트
+    - Prometheus, Grafana를 통한 모니터링
+
+### 5.2. 쿠폰 발급 동시성 제어 안정성 개선
+- **도메인**
+  - 한정 수량 쿠폰 발급 서비스 (이벤트 트래픽 환경)
+
+- **1. 성능 개선 (전)**
+    - RDBMS 단독 트랜잭션 기반 처리
+    - 쿠폰 재고 30개, 300명 동시 요청 시
+      - 초과 발급 발생 (70장)
+      - Deadlock 다수 발생
+    - 재고 차감을 DB 내부에서 수행 → 트랜잭션 충돌 및 지연 다수 발생
+    - 외부 실패(서버 중단, 네트워크 오류 등)에 대한 복원 로직 부재
+- **2. 개선 사항**
+    - v1 - Redis 사전 제어 레이어 도입 (Fail-fast 구조)
+      - 쿠폰 오픈, 중복 발급, 재고 확인 과정을 Lua script로 원자적 처리
+      - DB 접근 전 검증이 통과된 요청만 실제 트랜잭션 수행 → DB 경합 축소
+      - 여전히 DB에서 재고 차감을 수행할 경우 deadlock 약 19건 발생
+    - v2 - 재고 차감 로직을 Redis로 이전 (DB 트랜잭션 최소화)
+      - 쿠폰 재고 감소를 Redis에서 책임지고, DB에는 발급 정보 저장만 수행
+      - 트랜잭션 내부의 공유 자원 접근이 사라져 deadlock 0건 달성
+    - v3 - Redis Key 설계를 통한 외부 실패 내성 강화
+      - TTL 기반의 Safety Lock 구조를 도입해 외부 실패에도 일관성 유지
+      - 키 구조 설계
+        |                                          | **목적**                      | **설명**                                               |
+        |-----------------------------------------|--------------------------------|--------------------------------------------------------|
+        | gate:coupon:{couponId}                  | 쿠폰 오픈 제어                  | 오픈 전 요청 차단, TTL 만료로 자동 해제                   |
+        | stock:coupon:{couponId}                 | 재고 관리                      | Lua 스트립트에서 원자적 차감, TTL 만료로 쿠폰 만료 시 삭제  |
+        | issued:set:coupon:{couponId}            | 중복 발급 방지(발급 완료)       | Set 구조로 중복 확인 및 TTL 단일 관리                     |
+        | reserve:coupon:{couponId}:user:{userId} | Safety Lock(발급 시도 중)       | 짧은 TTL로 발급 시도 상태 유지 및 자동 해제               |
+ 
+      - 발급 상태 전이 로직 요약
+        - 발급 성공
+          - issued:set에 사용자 추가 → reserve 키 삭제
+        - DB 트랜잭션 실패
+          - try-catch 블록에서 재고 복원 및 reserve 키 삭제
+        - 프로세스 외부 실패
+          - reserve 키 TTL 만료로 자동 삭제 →  TTL 만료 이벤트 리스너를 두어, issued:set에 사용자가 없을 경우 자동 복원
+      - TTL을 통해 오픈/만료/예약 상태를 자동 관리하여 메모리 누수를 방지함
+- **3. 결과 (후)**  
+    |                                   | **발급 수량**       | **Deadlock** | **외부 실패 대응** | **개선 효과**     |
+    |-----------------------------------|---------------------|--------------|--------------------|-------------------|
+    | 개선 전(DB만)                      | 70/30장 (초과 발급)  | 다수 발생     | X                  |       -          |
+    | 개선 v1 (Redis 적용, DB 차감)      | 11/30장              | 19건         | X                  | 초과 발급 방지    |
+    | 개선 v2 (Redis 차감)               | 30/30장             | 0건          | X                   | 트랜잭션 충돌 제거 |
+    | 개선 v3 (Redis 차감, 예약 키 적용)  | 30/30장             | 0건          | O                   | 에러 내성 강화     |
+ 
+- **4. 측정 방법/도구**
+    - nGrinder: 300명 동시 요청 시뮬레이션
+    - 테스트 기준: Deadlock 발생 로그, 발급 성공 및 실패 응답 수, Redis Key TTL 동작 검증
+ 
+### 5.3. 주문 성능 개선
+
+- **도메인**
+  - 유저가 담은 장바구니를 통해 주문 정보 생성
+
+- **1. 성능 개선 (전)**
+    - 장바구니에 담긴 메뉴가 늘어날수록 응답속도가 느려지는 상황이 발생  
+     ( 동시에 300명 기준 5번 응답속도의 평균 )  
+
+     | **메뉴 수** | **평균 응답속도** | **p95** | **p99** |
+     |-------------|-------------------|---------|---------|
+     |      3      |       18.3ms      | 46.3ms  | 56.2 ms |
+     |     20      |     128.7 ms      | 281 ms  | 355.2 ms |  
+
+    메뉴 수 증가함에 따라 평균 응답속도 약 7배, p95 약 6배, p 99 약 6.3배 정도의 응답속도 증가
+
+- **2. 개선 사항**
+    - (전) 주문 시 해당 유저의 orderForm 테이블의 데이터를 지운 뒤, 장바구니의 메뉴를 orderForm 테이블에 데이터를 저장하는 방식 → DB 접근이 반복
+    - (후) 주문 시 해당 유저의 Id 값에따라 orderForm:{userId} 로 키를 설정하여 아이디마다 장바구니에 담긴 shopMenuId, price, quantity 세가지의 정보를  
+      캐싱 저장하여 결제할 때 조회하여 사용
+
+- **3. 결과 (후)**  
+     (동시에 300명 기준 5번 응답속도의 평균)
+     |             | **평균 응답속도** | **p95** | **p99** |
+     |-------------|-------------------|---------|---------|
+     |   캐싱 전   |      128.7 ms     |  281 ms  | 355.2 ms |
+     |   캐싱 후   |      75.5 ms      | 159.2 ms | 187.6 ms |  
+    
+     평균 응답속도 약 1.7배, p95 약 1.8배, p99 약 1.9배 가량 성능 향상  
+     Redis 캐싱을 도입하여 반복 조회되는 데이터의 DB 접근을 줄임으로써 평균 응답속도와 p95, p99 응답속도를 크게 개선
+
+- **4. 측정 방법/도구** 
+    - nGrinder : 동시 300명 요청
+    - Prometheus, Grafana: 평균 응답속도 및 p95, p99 모니터링
+
+### 5.4. 장바구니 캐싱 적용
+
+- **도메인**
+    - 유저가 장바구니에 물건을 담는다
+
+- **1. 성능 개선 (전)**
+     | **VUser** | **평균 응답시간** | **MTT(평균 테스트 시간)** | **p95** | **p99** |
+     |-----------|-------------------|---------------------------|---------|---------|
+     |    50     |       143 ms      |           227.5 ms        |  265 ms |  340 ms |
+     |    100    |       273 ms      |           437.8 ms        |  633 ms |  1.27 s |
+     |    200    |       475 ms      |           867.2 ms        |  1.10 s |  1.63 s |
+    - TPS: 151 / DB Connection Acquire time 증가
+
+- **2. 개선 사항**
+    - 모든 데이터 요청을 DB에서 처리하기 때문에 많은 요청이 몰릴 시 커넥션 풀이 고갈되어 응답 시간이 지연되는 상황 발생
+    - Redis의 Lua Script를 도입하여 DB에 대한 접근횟수를 줄이는 방법 적용
+    - 흐름 : Redis 조회 및 생성 → 실패 시 DB 사용 → 결과 응답
+    - Lau Script는 Redis 내부에서 단일 명령으로 실행되기 때문에 네트워크 오버헤드가 적고 더 빠르며, 조건 분기 및 복합 연산을 한 번에 처리 할 수 있어 원자성과 동시성을 안정적으로 챙길 수 있음
+
+- **2. 개선 사항**
+    - (전) 주문 시 해당 유저의 orderForm 테이블의 데이터를 지운 뒤, 장바구니의 메뉴를 orderForm 테이블에 데이터를 저장하는 방식 → DB 접근이 반복
+    - (후) 주문 시 해당 유저의 Id 값에따라 orderForm:{userId} 로 키를 설정하여 아이디마다 장바구니에 담긴 shopMenuId, price, quantity 세가지의 정보를  
+      캐싱 저장하여 결제할 때 조회하여 사용
+
+- **3. 결과 (후)**  
+     | **VUser** | **평균 응답시간** | **MTT(평균 테스트 시간)** | **p95** | **p99** |
+     |-----------|-------------------|---------------------------|---------|---------|
+     |    50     |       58.8 ms     |          127.9 ms         |  104 ms |  144 ms |
+     |    100    |       102 ms      |          233.3 ms         |  226 ms |  282 ms |
+     |    200    |       150 ms      |          446.6 ms         |  320 ms |  422 ms | 
+    - TPS: 240 / DB Connection Acquire time 변화 없음 
+    
+- **4. 측정 방법/도구** 
+    - nGrinder 세팅
+      - 프로세스 : 5 (고정)
+      - 스레드 : VUser / Process
+    - Connect Pool Size : 21
+    - 서버 환경 : local
+    - 모니터링 도구 : Grafana, Prometheus
+
+
+## 6. 주요 기능 및 API
+
+### 6.1. API 목록
 
 | **도메인**  | **기능**                | **Method** | **URI**                          |
 |----------|-----------------------|------------|---------------------------------------|
@@ -219,11 +403,12 @@
 |          | 사용자 정보 조회       | GET         | /api/v1/user/profile             |
 
 
-## 6. 시연 영상
+## 7. 시연 영상
 
 [시연 영상 링크](https://)
 
-## 7. 개발 환경
+
+## 8. 개발 환경
 
 - Java 17, Spring Boot, Spring Data JPA
 - Spring Security, JWT
@@ -232,7 +417,8 @@
 - Junit 5, Testcontainers
 - Prometheus, Grafana, Loki
 
-## 8. Git 그라운드 룰
+
+## 9. Git 그라운드 룰
 
 - **도메인 간 상호작용**
     - 서비스로만 통신 (타 도메인 Repository 사용 금지)
@@ -258,15 +444,17 @@
     - **이슈 기반 개발**: GitHub Issues 중심으로 관리하고, Projects(칸반 보드)와 연동하여 시각적으로 확인
     - Issue Label 및 Template 적극 활용
 
-## 9. 팀원
 
-| 이름      | Github                                      |  
-|---------|----------------------|------------------------|  
+## 10. 팀원
+
+| 이름       | Github                                     |
+|------------|--------------------------------------------|
 | **장태욱** | [링크](https://github.com/doldollee00)     |  
-| **김기수** | [링크]()    |  
+| **김기수** | [링크](https://github.com/Lunarltn)        |  
 | **김동현** | [링크](https://github.com/donghyeon505)    |  
 | **장혜준** | [링크](https://github.com/joon448)         |  
 | **유석진** | [링크](https://github.com/sonomooo)        |  
+
 
 ## 10. 브로셔
 
