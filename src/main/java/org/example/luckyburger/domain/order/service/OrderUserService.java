@@ -64,7 +64,7 @@ public class OrderUserService {
         Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // 캐시 된 장바구니 DB 저장
-        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(user.getId());
+        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(cart.getId());
 
         if (cartMenus.isEmpty()) {
             cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
