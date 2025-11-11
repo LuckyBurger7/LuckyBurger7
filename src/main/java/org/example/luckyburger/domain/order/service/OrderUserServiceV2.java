@@ -69,6 +69,13 @@ public class OrderUserServiceV2 {
             throw new EmptyOrderException();
         }
 
+        Shop shop = shopEntityFinder.getShopById(cartMenus.get(0).getShopMenu().getShop().getId());
+
+        // 매장 영업 중인지 확인
+        if (shop.getStatus() != BusinessStatus.OPEN) {
+            throw new ShopNotOpenedException();
+        }
+
         // Redis에 주문서 캐시 저장 (shopMenuId, price, quantity)
         String redisKey = ORDER_FORM_KEY_PREFIX + user.getId();
 
@@ -78,13 +85,6 @@ public class OrderUserServiceV2 {
 
         // Redis 저장
         orderFormCacheService.saveCache(redisKey, orderForms);
-
-        Shop shop = shopEntityFinder.getShopById(cartMenus.get(0).getShopMenu().getShop().getId());
-
-        // 매장 영업 중인지 확인
-        if (shop.getStatus() != BusinessStatus.OPEN) {
-            throw new ShopNotOpenedException();
-        }
 
         // 총 금액
         long totalPrice = cart.getTotalPrice();
