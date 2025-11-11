@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.luckyburger.common.listener.ReserveExpireListener;
 import org.example.luckyburger.domain.cart.dto.redis.CartMenuRedisResponse;
+import org.example.luckyburger.domain.cart.dto.response.CartMenuResponse;
+import org.example.luckyburger.domain.cart.dto.response.CartResponse;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
 import org.example.luckyburger.domain.cart.exception.CartMenuBadRequestException;
@@ -17,26 +19,25 @@ import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
 import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class CartLuaRepository {
-    private static final String CART_KEY_PREFIX = "cart:";
-    private static final String USER_KEY_PREFIX = "user:";
-    private static final String MENU_KEY_PREFIX = "menu:";
-    private static final String SHOP_PREFIX = "shopId";
-    private static final String TOTAL_PRICE_PREFIX = "totalPrice";
-    private static final String TIMER_PREFIX = "timer:";
+    public static final String CART_KEY_PREFIX = "cart:";
+    public static final String USER_KEY_PREFIX = "user:";
+    public static final String MENU_KEY_PREFIX = "menu:";
+    public static final String SHOP_PREFIX = "shopId";
+    public static final String TOTAL_PRICE_PREFIX = "totalPrice";
+    public static final String TIMER_PREFIX = "timer:";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -45,18 +46,18 @@ public class CartLuaRepository {
     private final ShopEntityFinder shopEntityFinder;
     private final CartEntityFinder cartEntityFinder;
     private final CartMenuEntityFinder cartMenuEntityFinder;
-
     @Value("classpath:lua/add_cart_menu.lua")
     private Resource addCartMenuResource;
-
     @Value("classpath:lua/update_cart_menu.lua")
     private Resource updateCartMenuResource;
-
     @Value("classpath:lua/delete_cart_menu.lua")
     private Resource deleteCartMenuResource;
-
     @Value("classpath:lua/save_cart_to_cache.lua")
     private Resource saveCartToCacheResource;
+
+    private HashOperations<String, String, Object> hashOps() {
+        return redisTemplate.opsForHash();
+    }
 
     public void addCartMenu(Long accountId, Long shopId, Long shopMenuId, Long price, Long timeout) {
 
@@ -185,16 +186,70 @@ public class CartLuaRepository {
         redisTemplate.expire(key, saveTime, TimeUnit.MILLISECONDS);
     }
 
+
+    public Optional<CartResponse> findAllCartResponse(Long accountId) {
+        String key = buildKey(accountId);
+
+        Map<String, Object> allEntries = hashOps().entries(key);
+
+        // 조회 실패
+        if (allEntries.isEmpty())
+            return Optional.empty();
+
+        // DTO 변환
+        List<CartMenuResponse> cartMenuResponseList = allEntries.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(MENU_KEY_PREFIX))
+                .map(entry -> {
+                    String menuKey = entry.getKey().substring(MENU_KEY_PREFIX.length());
+                    Long shopMenuId = Long.valueOf(menuKey);
+                    Integer quantity = (Integer) entry.getValue();
+
+                    ShopMenuCacheResponse shopMenu = getShopMenuCacheResponse(shopMenuId);
+                    Menu menu = getMenu(shopMenu.menuId());
+                    Shop shop = getShop(shopMenu.shopId());
+
+                    return CartMenuResponse.of(
+                            shopMenuId,
+                            menu.getName(),
+                            shop.getName(),
+                            quantity,
+                            menu.getPrice());
+                })
+                .toList();
+
+        // TTL 갱신
+        setTTL(accountId, 3L, TimeUnit.MINUTES);
+
+        // 총 금액 계산
+        Integer totalPriceInt = (Integer) allEntries.get(TOTAL_PRICE_PREFIX);
+
+        return Optional.of(CartResponse.of(accountId, cartMenuResponseList, (long) totalPriceInt));
+    }
+
+    public Optional<Map<String, Object>> getAllEntriesById(Long accountId) {
+        String key = buildKey(accountId);
+        Map<String, Object> allEntries = hashOps().entries(key);
+        if (allEntries.isEmpty())
+            return Optional.empty();
+        return Optional.of(allEntries);
+    }
+
+    public void setTTL(Long accountId, long timeout, TimeUnit unit) {
+        String key = buildKey(accountId);
+
+        redisTemplate.expire(key, timeout, unit);
+    }
+
+    private ShopMenuCacheResponse getShopMenuCacheResponse(Long shopMenuId) {
+        return shopMenuEntityFinder.getShopMenuCacheResponseById(shopMenuId);
+    }
+
     private String buildKey(Long accountId) {
         return CART_KEY_PREFIX + USER_KEY_PREFIX + accountId;
     }
 
     private String buildHashKey(Long shopMenuId) {
         return MENU_KEY_PREFIX + shopMenuId;
-    }
-
-    private ShopMenuCacheResponse getShopMenuCacheResponse(Long shopMenuId) {
-        return shopMenuEntityFinder.getShopMenuCacheResponseById(shopMenuId);
     }
 
     private Menu getMenu(Long menuId) {

@@ -20,11 +20,6 @@ for i = 4, countArgv + 3 , 2 do
 	redis.call('HSET', KEYS[1], menuField, quantity)
 end
 
-redis.log(redis.LOG_WARNING, "shopKey '" .. shopKey .. "'")
-redis.log(redis.LOG_WARNING, "menuKey '" .. menuKey .. "'")
-redis.log(redis.LOG_WARNING, "totalPriceKey '" .. totalPriceKey .. "'")
-
-
 -- 점포 기록
 redis.call('HSET', cartKey, shopKey, shopId)
 

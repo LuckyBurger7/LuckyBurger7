@@ -9,7 +9,7 @@ import org.example.luckyburger.domain.cart.dto.request.CartUpdateMenuRequest;
 import org.example.luckyburger.domain.cart.dto.response.CartResponse;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
-import org.example.luckyburger.domain.cart.repository.CartCacheRepository;
+import org.example.luckyburger.domain.cart.exception.CartNotFoundException;
 import org.example.luckyburger.domain.cart.repository.CartLuaRepository;
 import org.example.luckyburger.domain.cart.repository.CartMenuRepository;
 import org.example.luckyburger.domain.cart.repository.CartRepository;
@@ -32,8 +32,7 @@ import java.util.Optional;
 public class CartCacheUserService {
     private final CartRepository cartRepository;
     private final CartMenuRepository cartMenuRepository;
-    private final CartCacheRepository cartCacheRepository;
-    private final CartLuaRepository cartLuaRepository;
+    private final CartLuaRepository cartCacheRepository;
 
     private final CartUserService cartUserService;
     private final ShopMenuEntityFinder shopMenuEntityFinder;
@@ -54,7 +53,7 @@ public class CartCacheUserService {
 
         // lua script 사용
         try {
-            cartLuaRepository.addCartMenu(
+            cartCacheRepository.addCartMenu(
                     userId,
                     shopMenu.shopId(),
                     request.shopMenuId(),
@@ -63,7 +62,8 @@ public class CartCacheUserService {
             );
 
             // 캐시 저장 타이머
-            cartLuaRepository.setSaveDBTimer(userId, timeout);
+            cartCacheRepository.setSaveDBTimer(userId, timeout);
+
         } catch (Exception e) {
             // 레디스 장애 발생 시 DB저장
             cartUserService.addCartMenu(request);
@@ -79,14 +79,13 @@ public class CartCacheUserService {
         // 캐시 조회 실패시 Optional.empty 반환
         Optional<CartResponse> cartResponse = cartCacheRepository.findAllCartResponse(userId);
 
-        long timeout = 3L;
-
         // 캐시 성공
         if (cartResponse.isPresent())
             return cartResponse.get();
 
         // 캐시 갱신
-        cartLuaRepository.saveCartToCache(userId, timeout);
+        long timeout = 3L;
+        cartCacheRepository.saveCartToCache(userId, timeout);
 
         // 캐시 실패 시 DB 반환
         return cartUserService.getCartResponse();
@@ -98,7 +97,7 @@ public class CartCacheUserService {
 
         long timeout = 3L;
 
-        boolean result = cartLuaRepository.updateCartMenuQuantity(
+        boolean result = cartCacheRepository.updateCartMenuQuantity(
                 userId,
                 request.shopMenuId(),
                 request.quantity(),
@@ -108,7 +107,7 @@ public class CartCacheUserService {
         // 캐시 성공
         if (result) {
             // 캐시 저장 타이머
-            cartLuaRepository.setSaveDBTimer(userId, timeout);
+            cartCacheRepository.setSaveDBTimer(userId, timeout);
 
             return getCartResponse();
         }
@@ -117,7 +116,7 @@ public class CartCacheUserService {
         CartResponse cartResponse = cartUserService.updateCartMenu(request);
 
         // 캐시 갱신
-        cartLuaRepository.saveCartToCache(userId, 3L);
+        cartCacheRepository.saveCartToCache(userId, 3L);
 
         return cartResponse;
     }
@@ -128,7 +127,7 @@ public class CartCacheUserService {
 
         long timeout = 3L;
 
-        boolean result = cartLuaRepository.deleteCartMenuQuantity(
+        boolean result = cartCacheRepository.deleteCartMenuQuantity(
                 userId,
                 request.shopMenuId(),
                 3L
@@ -136,7 +135,7 @@ public class CartCacheUserService {
         // 캐시 성공
         if (result) {
             // 캐시 저장 타이머
-            cartLuaRepository.setSaveDBTimer(userId, timeout);
+            cartCacheRepository.setSaveDBTimer(userId, timeout);
 
             return getCartResponse();
         }
@@ -145,18 +144,20 @@ public class CartCacheUserService {
         CartResponse cartResponse = cartUserService.deleteCartMenu(request);
 
         // 캐시 갱신
-        cartLuaRepository.saveCartToCache(userId, 3L);
+        cartCacheRepository.saveCartToCache(userId, 3L);
 
         return cartResponse;
     }
 
     @Transactional
     public List<CartMenu> saveAllCache(Long accountId) {
-        Map<String, Object> allEntries = cartCacheRepository.getAllEntries(accountId);
+        Map<String, Object> allEntries = cartCacheRepository.getAllEntriesById(accountId).orElseThrow(
+                CartNotFoundException::new
+        );
 
         User user = userEntityFinder.getUserByAccountId(accountId);
 
-        Integer totalPriceInt = (Integer) allEntries.get(CartCacheRepository.TOTAL_PRICE_PREFIX);
+        Integer totalPriceInt = (Integer) allEntries.get(CartLuaRepository.TOTAL_PRICE_PREFIX);
 
         Cart cart = cartRepository.findById(user.getId())
                 .orElseGet(() -> cartRepository.save(Cart.of(user, totalPriceInt)));
@@ -164,9 +165,9 @@ public class CartCacheUserService {
         cart.updateTotalPrice(totalPriceInt);
 
         List<CartMenu> cartMenuList = allEntries.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(CartCacheRepository.MENU_KEY_PREFIX))
+                .filter(entry -> entry.getKey().startsWith(CartLuaRepository.MENU_KEY_PREFIX))
                 .map(entry -> {
-                    String menuKey = entry.getKey().substring(CartCacheRepository.MENU_KEY_PREFIX.length());
+                    String menuKey = entry.getKey().substring(CartLuaRepository.MENU_KEY_PREFIX.length());
                     Long shopMenuId = Long.valueOf(menuKey);
                     Integer quantity = (Integer) entry.getValue();
                     ShopMenu shopMenu = shopMenuEntityFinder.getShopMenuById(shopMenuId);
