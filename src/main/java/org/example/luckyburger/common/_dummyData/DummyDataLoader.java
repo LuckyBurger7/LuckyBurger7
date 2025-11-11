@@ -62,8 +62,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -325,7 +323,7 @@ public class DummyDataLoader implements CommandLineRunner {
     private void ensureCoupon(String name, double discount, int count,
                               LocalDateTime exp, CouponType type, LocalDateTime open) {
         couponRepository.findByName(name).orElseGet(() -> {
-            couponAdminService.createCoupon(new CouponRequest(name, discount, count, exp, type, open));
+            couponAdminService.createCouponWithRedis(new CouponRequest(name, discount, count, exp, type, open));
             return couponRepository.findByName(name).orElseThrow();
         });
     }
