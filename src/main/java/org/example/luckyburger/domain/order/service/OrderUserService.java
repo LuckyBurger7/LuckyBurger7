@@ -63,11 +63,15 @@ public class OrderUserService {
         User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
         Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
-        // 장바구니 메뉴 조회
+        // 캐시 된 장바구니 DB 저장
         List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(user.getId());
 
-        if (cartMenus == null || cartMenus.isEmpty())
+        if (cartMenus.isEmpty()) {
             cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+        } else {
+            // 자동 저장 타이머 종료
+            cartCacheUserService.deleteSaveDBTimer(user.getId());
+        }
 
         if (cartMenus.isEmpty()) {
             throw new EmptyOrderException();
