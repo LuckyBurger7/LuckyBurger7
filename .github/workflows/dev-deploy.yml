@@ -56,6 +56,8 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceIds,Values=${EC2_INSTANCE_ID}" \
             --parameters commands="[
+              \"docker network create app_monnet || true \",
+              \"docker network connect app_monnet app || true \",
               \"docker ps --format 'table {{.Names}}\\t{{.Image}}\\t{{.Status}}'\"
             ]" \
             --region $AWS_REGION --output json
