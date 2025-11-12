@@ -10,7 +10,7 @@ permissions:
 
 env:
   AWS_REGION: ap-northeast-2
-  ACCOUNiT_ID: ${{ secrets.ACCOUNT_ID }}
+  ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
   ECR_REPO: ${{ secrets.PROD_ECR_REPO }}
   IMAGE_TAG: ${{ github.sha }}
   ECS_CLUSTER: aws-demo-ecs-cluster
