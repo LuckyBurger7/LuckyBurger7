@@ -20,6 +20,8 @@ import org.example.luckyburger.domain.shop.exception.ShopMenuNotFoundException;
 import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +68,14 @@ public class ShopOwnerService {
         validOwnerOfShop(shopId);
         shopEntity.updateShopStatus(request.businessStatus());
         return ShopResponse.from(shopEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ShopMenuResponse> getAllShopMenuResponse(Long shopId, Pageable pageable) {
+        validOwnerOfShop(shopId);
+        Shop shop = shopEntityFinder.getShopById(shopId);
+        Page<ShopMenu> shopMenus = shopMenuRepository.findAllByShop(shop, pageable);
+        return shopMenus.map(ShopMenuResponse::from);
     }
 
     // 상점의 메뉴의 상태 변경
