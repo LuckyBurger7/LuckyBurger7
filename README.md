@@ -5,6 +5,7 @@
 <!-- TOC -->
 
 - [LuckyBurger7](#LuckyBurger7)
+  - [LuckyBurger7 프론트엔드](#luckyburger7-프론트엔드)
   - [1. 프로젝트 개요](#1-프로젝트-개요)
   - [2. ERD](#2-erd)
   - [3. 기능 설계](#3-기능-설계)
@@ -25,6 +26,36 @@
   - [10. 팀원](#10-팀원)
 
 <!-- /TOC -->
+
+## LuckyBurger7 프론트엔드
+
+- `frontend/` 디렉터리에 Vite + React(TypeScript) 기반의 UI 레이어를 추가했습니다.
+- 설치 및 실행
+  1. `cd frontend`
+  2. `npm install`
+  3. `npm run dev`
+- 환경 변수
+  - `VITE_API_URL`: LuckyBurger7 백엔드 API 엔드포인트 (기본값 `http://localhost:8080/api`)
+  - `VITE_API_PROXY`: 개발 서버 프록시 대상 (선택 사항)
+- 주요 화면
+  - **홈**: 메뉴/매장/쿠폰 요약과 하이라이트 카드
+  - **메뉴/매장/쿠폰**: `/api/v1/menus`, `/api/v1/shops/search`, `/api/v1/coupons` 연동 검색/페이지네이션 UI
+  - **장바구니**: `/api/v1/user/carts`, `/api/v2/user/carts` API 호출, 인증 토큰 기반 CRUD 폼
+  - **관리자 대시보드**: `/api/v1/admin/**` 통계 API 시각화 (ADMIN 권한 로그인 필요)
+
+### LuckyBurger7-Front 저장소로 내보내기
+
+- 프론트엔드 코드를 별도 저장소([LuckyBurger7-Front](https://github.com/LuckyBurger7/LuckyBurger7-Front))로 옮기고 싶다면 `scripts/export_frontend.sh` 스크립트를 활용할 수 있습니다.
+- 사전 준비
+  - 새 저장소가 GitHub에 생성되어 있고, 쓰기 권한이 있는 계정의 SSH 혹은 HTTPS URL을 알고 있어야 합니다.
+  - 현재 저장소에서 `frontend/` 디렉터리가 최신 상태인지 확인합니다.
+- 내보내기 절차
+  1. `./scripts/export_frontend.sh git@github.com:LuckyBurger7/LuckyBurger7-Front.git main`
+     - HTTPS URL을 쓰고 싶다면 `https://github.com/LuckyBurger7/LuckyBurger7-Front.git` 처럼 전달하면 됩니다.
+     - 마지막 인자는 대상 저장소의 브랜치 이름이며 기본값은 `main` 입니다.
+  2. 스크립트는 `git subtree split`을 사용해 `frontend/` 디렉터리만 분리한 임시 브랜치를 만든 뒤 대상 저장소로 푸시합니다.
+  3. 푸시가 끝나면 임시 브랜치를 자동으로 정리합니다.
+- 푸시 후에는 새 저장소에서 의존성 설치(`npm install`) 및 개발 서버 실행(`npm run dev`)을 통해 정상 동작을 확인할 수 있습니다.
 
 ## 1. 프로젝트 개요
 
