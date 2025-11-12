@@ -1,0 +1,46 @@
+spring:
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      parameter-store:
+        enabled: false
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+jwt:
+  secret:
+    aesKey: ${JWT_AES_KEY}
+    key: ${JWT_SECRET_KEY}
+    whiteList:
+      - /api/v1/signup
+      - /api/v1/login
+      - /api/v1/menus/**
+      - /api/v1/coupons/**
+      - /api/v1/shops/**
+      - /api/v1/events/**
+      - /actuator/health
+      - /actuator/prometheus
+
+  token:
+    prefix: 'Bearer '
+    expiration: 18000000
+
+springdoc:
+  api-docs.enabled: false
+  swagger-ui:
+    enabled: false
