@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.shop.repository;
 
 import jakarta.websocket.server.PathParam;
 import org.example.luckyburger.domain.shop.dto.response.ShopMenuCacheResponse;
+import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
 import org.example.luckyburger.domain.statistic.dto.response.MenuTotalSalesResponse;
@@ -83,4 +84,8 @@ public interface ShopMenuRepository extends JpaRepository<ShopMenu, Long> {
             WHERE sm.id IN :ids
             """)
     List<ShopMenu> findAllById(List<Long> ids);
+
+    @EntityGraph(attributePaths = {"menu"})
+    @Query("SELECT sm FROM ShopMenu sm WHERE sm.shop = :shop")
+    Page<ShopMenu> findAllByShop(@Param("shop") Shop shop, Pageable pageable);
 }
