@@ -5,6 +5,7 @@
 <!-- TOC -->
 
 - [LuckyBurger7](#LuckyBurger7)
+  - [LuckyBurger7 프론트엔드](#luckyburger7-프론트엔드)
   - [1. 프로젝트 개요](#1-프로젝트-개요)
   - [2. ERD](#2-erd)
   - [3. 기능 설계](#3-기능-설계)
@@ -25,6 +26,22 @@
   - [10. 팀원](#10-팀원)
 
 <!-- /TOC -->
+
+## LuckyBurger7 프론트엔드
+
+- `frontend/` 디렉터리에 Vite + React(TypeScript) 기반의 UI 레이어를 추가했습니다.
+- 설치 및 실행
+  1. `cd frontend`
+  2. `npm install`
+  3. `npm run dev`
+- 환경 변수
+  - `VITE_API_URL`: LuckyBurger7 백엔드 API 엔드포인트 (기본값 `http://localhost:8080/api`)
+  - `VITE_API_PROXY`: 개발 서버 프록시 대상 (선택 사항)
+- 주요 화면
+  - **홈**: 메뉴/매장/쿠폰 요약과 하이라이트 카드
+  - **메뉴/매장/쿠폰**: `/api/v1/menus`, `/api/v1/shops/search`, `/api/v1/coupons` 연동 검색/페이지네이션 UI
+  - **장바구니**: `/api/v1/user/carts`, `/api/v2/user/carts` API 호출, 인증 토큰 기반 CRUD 폼
+  - **관리자 대시보드**: `/api/v1/admin/**` 통계 API 시각화 (ADMIN 권한 로그인 필요)
 
 ## 1. 프로젝트 개요
 
