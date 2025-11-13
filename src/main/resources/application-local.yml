@@ -2,7 +2,7 @@ spring:
   config:
     import: optional:file:.env.local[.properties]
   flyway:
-    enabled: true
+    enabled: false
     baseline-on-migrate: false
     baseline-version: 0
     locations:
