@@ -20,6 +20,14 @@
         {
           "name": "SPRING_PROFILES_ACTIVE",
           "value": "<PROFILE>"
+        },
+        {
+          "name": "REDIS_HOST",
+          "value": "redis"
+        },
+        {
+          "name": "REDIS_PORT",
+          "value": "6379"
         }
       ],
       "essential": true,
@@ -63,12 +71,30 @@
         {
           "name": "JWT_SECRET_KEY",
           "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/mysql/credentials:jwt.secret_key::"
-        },
-        {
-          "name": "REDIS_HOST",
-          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:<ACCOUNT_ID>:secret:<PROFILE>/mysql/credentials:redis.host::"
         }
       ]
+    },
+    {
+      "name": "redis",
+      "image": "redis:latest",
+      "essential": true,
+      "cpu": 0,
+      "memoryReservation": 128,
+      "portMappings": [
+        {
+          "containerPort": 6379,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/redis-task",
+          "awslogs-create-group": "true",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "redis-log"
+        }
+      }
     }
   ]
 }
