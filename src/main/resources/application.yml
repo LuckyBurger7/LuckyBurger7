@@ -1,6 +1,8 @@
 spring:
   application:
     name: Lucky-Burger
+  profiles:
+    active: local
   jpa:
     properties:
       hibernate:
