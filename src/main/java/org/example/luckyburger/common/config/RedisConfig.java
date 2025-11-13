@@ -1,5 +1,6 @@
 package org.example.luckyburger.common.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.luckyburger.domain.order.dto.cache.OrderFormCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableRedisRepositories
+@Slf4j
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")
@@ -24,6 +26,7 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
+        log.info("레터스 호스트 : {} , 포트 : {}", host, port);
         return new LettuceConnectionFactory(host, port);
     }
 
