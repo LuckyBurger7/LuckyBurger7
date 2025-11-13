@@ -8,6 +8,12 @@ spring:
       hibernate:
         format_sql: false
     show_sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    baseline-version: 0
+    locations:
+      - classpath:db/migration
 
 server:
   port: 8080
