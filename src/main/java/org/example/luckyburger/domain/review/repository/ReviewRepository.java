@@ -26,7 +26,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Long countByShop(Shop shop);
 
     @Query("""
-                SELECT AVG(r.rating)
+                SELECT ROUND(AVG(r.rating), 1)
                 FROM Review r
                 WHERE r.shop = :shop
             """)
