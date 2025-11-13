@@ -89,10 +89,10 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/redis-task",
-          "awslogs-create-group": "true",
+          "awslogs-group": "/ecs/aws-demo-ecs-task-definition",
+          "awslogs-create-group": "false",
           "awslogs-region": "ap-northeast-2",
-          "awslogs-stream-prefix": "redis-log"
+          "awslogs-stream-prefix": "redis"
         }
       }
     }
