@@ -3,22 +3,11 @@ spring:
     name: Lucky-Burger
   profiles:
     active: local
-  flyway:
-    enabled: true
-    baseline-on-migrate: false
-    baseline-version: 0
-    locations:
-      - classpath:db/migration
-
   jpa:
     properties:
       hibernate:
-        show_sql: true
         format_sql: false
-        generate_statistics: true
-  datasource:
-    hikari:
-      pool-name: hikari-pool
+    show_sql: true
 
 server:
   port: 8080
@@ -32,29 +21,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: [ "*" ]
+        include: health,info
   endpoint:
     health:
       show-details: always
-  metrics:
-    tags:
-      application: ${spring.application.name}
-      region: my-region
-      uri: true
-      status: true
-      command: true
-    distribution:
-      percentiles-histogram:
-        http:
-          server:
-            requests: true
-        redis:
-          commands:
-            command: true
-        jdbc:
-          connections:
-            acquire: true
-
 
 logging:
   level:

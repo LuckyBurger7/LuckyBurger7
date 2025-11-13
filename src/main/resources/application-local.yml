@@ -1,17 +1,29 @@
 spring:
   config:
     import: optional:file:.env.local[.properties]
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    baseline-version: 0
+    locations:
+      - classpath:db/migration
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
+      pool-name: hikari-pool
       maximum-pool-size: 21
       leak-detection-threshold: 3000
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: false
+        generate_statistics: true
   autoconfigure:
     exclude:
       - io.awspring.cloud.autoconfigure.config.parameterstore.ParameterStoreAutoConfiguration
@@ -19,9 +31,35 @@ spring:
     redis:
       host: localhost
       port: 6379
-
   cache:
     type: redis
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ "*" ]
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      region: my-region
+      uri: true
+      status: true
+      command: true
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+        redis:
+          commands:
+            command: true
+        jdbc:
+          connections:
+            acquire: true
 
 
 jwt:

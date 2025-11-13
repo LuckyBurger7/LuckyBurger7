@@ -2,6 +2,12 @@ spring:
   config:
     import:
       - "aws-parameterstore:/config/dev/"
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+    baseline-version: 0
+    locations:
+      - classpath:db/migration
   datasource:
     url: jdbc:mysql://${db.host}:${db.port:3306}/${db.name}?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: ${db.username}
@@ -12,11 +18,43 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        show_sql: true
+        format_sql: false
+        generate_statistics: true
         dialect: org.hibernate.dialect.MySQLDialect
+
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:redis}
       port: ${SPRING_DATA_REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ "*" ]
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      region: my-region
+      uri: true
+      status: true
+      command: true
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+        redis:
+          commands:
+            command: true
+        jdbc:
+          connections:
+            acquire: true
+
 
 jwt:
   secret:
