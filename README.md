@@ -263,7 +263,7 @@
       ( 동시에 300명 기준 5번 응답속도의 평균 )
 
   | **메뉴 수** | **평균 응답속도** | **p95** | **p99** |
-                                 |-------------|-------------------|---------|---------|
+                                   |-------------|-------------------|---------|---------|
   |      3      |       18.3ms      | 46.3ms  | 56.2 ms |
   |     20      |     128.7 ms      | 281 ms  | 355.2 ms |  
 
@@ -399,8 +399,8 @@
 |            | 점포 별 매출 Bottom10          | GET        | /api/v1/admin/statistics/sales/shops/bottom10            |
 |            | 햄버거 메뉴 별 판매량              | GET        | /api/v1/admin/statistics/sales/menus/burger              |
 |            | 사이드 메뉴 별 판매량              | GET        | /api/v1/admin/statistics/sales/menus/side                |
-| users      | 회원 탈퇴                     | DELETE     | /api/v1/withdraw                                         |
-|            | 회원 가입                     | POST       | /api/v1/signup                                           |
+| users      | 회원 가입                     | POST       | /api/v1/signup                                           |
+|            | 회원 탈퇴                     | DELETE     | /api/v1/withdraw                                         |
 |            | 사용자 정보 수정                 | PUT        | /api/v1/user/profile                                     |
 |            | 사용자 정보 조회                 | GET        | /api/v1/user/profile                                     |
 
