@@ -16,12 +16,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-  flyway:
-    enabled: true
-    baseline-on-migrate: false
-    baseline-version: 0
-    locations:
-      - classpath:db/migration
+
   data:
     redis:
       host: ${REDIS_HOST}
