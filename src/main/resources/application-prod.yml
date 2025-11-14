@@ -21,6 +21,10 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: 6379
+      ssl:
+        enabled: true
+  cache:
+    type: redis
 
 jwt:
   secret:
@@ -35,12 +39,16 @@ jwt:
       - /api/v1/events/**
       - /actuator/health
       - /actuator/prometheus
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /swagger-resources/**
+      - /swagger-ui.html
 
   token:
     prefix: 'Bearer '
     expiration: 18000000
 
 springdoc:
-  api-docs.enabled: false
+  api-docs.enabled: true
   swagger-ui:
-    enabled: false
+    enabled: true
