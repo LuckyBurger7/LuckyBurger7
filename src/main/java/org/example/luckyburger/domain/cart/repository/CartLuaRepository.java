@@ -186,6 +186,11 @@ public class CartLuaRepository {
         redisTemplate.expire(key, saveTime, TimeUnit.MILLISECONDS);
     }
 
+    public void deleteSaveDBTimer(Long accountId) {
+        String key = CART_KEY_PREFIX + USER_KEY_PREFIX + TIMER_PREFIX + accountId;
+        redisTemplate.delete(key);
+    }
+
 
     public Optional<CartResponse> findAllCartResponse(Long accountId) {
         String key = buildKey(accountId);
