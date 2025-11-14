@@ -158,6 +158,9 @@ public class DummyDataLoader implements CommandLineRunner {
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
             shopOwnerService.updateMenuStatus(shopResp1.shopId(), menuResp5.menuId(),
                     new ShopMenuRequest(ShopMenuStatus.ON_SALE));
+
+            log.info("점포 상태 1 {}", shopRepository.findById(shopResp1.shopId()).get().getStatus());
+
         });// 6번 메뉴만 비활성화
         /*asAccount(owner2, () -> {
             shopOwnerService.updateShopStatus(shopResp2.shopId(), new ShopUpdateRequest(BusinessStatus.OPEN));
