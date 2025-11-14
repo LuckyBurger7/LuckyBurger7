@@ -117,7 +117,8 @@
         - 사용자 주문에 대한 복합 인덱스가 잘 못 설계된 것일까?
             - 인덱스를 강제로 실행해 보는 진단용 쿼리문을 통해 테스트 - 결과 (X)
 
-    - **해결 및 회고**: PC를 재부팅 하니깐 해결 됨. 아마도 여러번 테스트를 진행해 보면서 DB를 바꿔 보기도 하고, 인덱스를 숨겼다, 다시 적용 했다를 반복하다 보니 데이터가 꼬였던 것이 아닌가 생각 됨
+    - **해결 및 회고**: PC를 재부팅 하니깐 해결 됨. 아마도 여러번 테스트를 진행해 보면서 DB를 바꿔 보기도 하고, 인덱스를 숨겼다, 다시 적용 했다를 반복하다 보니 데이터가 꼬였던 것이 아닌가 생각
+      됨
 
 ### 4.2. 동시성 제어 테스트 중 불안정한 성공/실패 발생
 
@@ -126,7 +127,8 @@
       테스트 실패 시 로그에서 Redis stock key 조회 실패가 관찰됨
 
     - **원인 분석**:
-        - CommandLineRunner (대용량 더미 데이터를 위한 BigDummyDataLoader)와 ApplicationRunner (Redis 초기화를 위한 RedisDataInitializer)가 동일한 실행 시점 (ApplicationContext 초기화 직후)에 동작하기 때문이었음
+        - CommandLineRunner (대용량 더미 데이터를 위한 BigDummyDataLoader)와 ApplicationRunner (Redis 초기화를 위한 RedisDataInitializer)가
+          동일한 실행 시점 (ApplicationContext 초기화 직후)에 동작하기 때문이었음
         - 현재 Spring Boot에서 CommandLineRunner와 ApplicationRunner는 동일한 우선순위 레벨에서 실행되며, 따로 우선순위를 명시하지 않을 시 순서가 보장되지 않음
             - 일부 Spring Boot 버전(ex. 2.7)에서는 ApplicationRunner → CommandLineRunner 순서로 실행되었었음
         - Runner 실행 순서에 따라
@@ -149,20 +151,20 @@
 ### 4.3. 레디스 원자성 문제
 
 - **1. 증상 및 로그**
-    - **증상**: Redis의 RedisTemplate 기능을 활용해 복잡한 로직을 구현할 경우 @TransactionAnotation을 걸어도 원자성이 보장되지 않는 문제가 발생했다.
+    - **증상**: Redis의 RedisTemplate 기능을 활용해 복잡한 로직을 구현할 경우 @TransactionAnotation을 걸어도 원자성이 보장되지 않는 문제가 발생함
 
     - **원인 분석**:
-        - Redis에 @Transaction을 적용하려면 Redis의 Configration에서 template.setEnableTransactionSupport(true); 설정을 해야 정상 동작합니다.
-        - 하지만 이 방법은 동시성 문제를 방어하기 위해 락 적용시 락을 획득하기 위한 로직 때문에 응답속도가 늦어질 수 있다는 단점이 있습니다.
+        - Redis에 @Transaction을 적용하려면 Redis의 Configration에서 template.setEnableTransactionSupport(true); 설정을 해야 정상 동작함
+        - 하지만 이 방법은 동시성 문제를 방어하기 위해 락 적용시 락을 획득하기 위한 로직 때문에 응답속도가 늦어질 수 있다는 단점이 있음
 
     - **해결 방안**:
-        - Lua Script를 사용해 원자성을 보장하고 스크립트 전체가 하나의 명령어이기 때문에 네트워크 왕복 시간을 줄이면서 동시성 문제도 해결할 수 있습니다.
+        - Lua Script를 사용해 원자성을 보장하고 스크립트 전체가 하나의 명령어이기 때문에 네트워크 왕복 시간을 줄이면서 동시성 문제도 해결할 수 있음
 
     - **테스트**:
-        - 고의로 예외 발생을 위한 데이터 입력 후 의도에 맞게 데이터가 삽입되는지 확인했습니다
+        - 고의로 예외 발생을 위한 데이터 입력 후 의도에 맞게 데이터가 삽입되는지 확인함
 
     - **회고**:
-        - Redis @Transaction과 Lua script는 롤백을 지원하지 않기 때문에 값에 대한 검증이 충분히 이뤄진 뒤에 수정, 생성을 해야 합니다.
+        - Redis @Transaction과 Lua script는 롤백을 지원하지 않기 때문에 값에 대한 검증이 충분히 이뤄진 뒤에 수정, 생성을 해야 함
 
 ## 5. 성능 개선
 
@@ -261,9 +263,9 @@
       ( 동시에 300명 기준 5번 응답속도의 평균 )
 
   | **메뉴 수** | **평균 응답속도** | **p95** | **p99** |
-           |-------------|-------------------|---------|---------|
-  |      3      |       18.3ms      | 46.3ms  | 56.2 ms |
-  |     20      |     128.7 ms      | 281 ms  | 355.2 ms |  
+  |-------------|-------------------|---------|---------|
+  | 3 | 18.3ms | 46.3ms | 56.2 ms |
+  | 20 | 128.7 ms | 281 ms | 355.2 ms |
 
   메뉴 수 증가함에 따라 평균 응답속도 약 7배, p95 약 6배, p 99 약 6.3배 정도의 응답속도 증가
 
@@ -332,24 +334,22 @@
 
 | **도메인**    | **기능**                    | **Method** | **URI**                                                  |
 |------------|---------------------------|------------|----------------------------------------------------------|
-| auth       | 회원 탈퇴                     | DELETE     | /api/v1/withdraw                                         |
-|            | 회원 가입                     | POST       | /api/v1/signup                                           |
-|            | 로그인                       | POST       | /api/v1/login                                            |
+| auth       | 로그인                       | POST       | /api/v1/login                                            |
 |            | 점주 가입                     | POST       | /api/v1/admin/ownerSignup                                |
 |            | 점주 수정                     | PUT        | /api/v1/admin/owners/{ownerId}                           |
 |            | 점주 탈퇴                     | DELETE     | /api/v1/admin/owners/{ownerId}                           |
 |            | 점주 전체 조회                  | GET        | /api/v1/admin/owners                                     |
-| carts      | 장바구니 담기                   | POST       | /api/v1/user/carts                                       |
-|            | 장바구니 메뉴 수정                | PUT        | /api/v1/user/carts                                       |
-|            | 장바구니 메뉴 삭제                | DELETE     | /api/v1/user/carts                                       |
-|            | 장바구니 조회                   | GET        | /api/v1/user/carts                                       |
+| carts      | 장바구니 담기                   | POST       | /api/v2/user/carts                                       |
+|            | 장바구니 메뉴 수정                | PUT        | /api/v2/user/carts                                       |
+|            | 장바구니 메뉴 삭제                | DELETE     | /api/v2/user/carts                                       |
+|            | 장바구니 조회                   | GET        | /api/v2/user/carts                                       |
 | coupons    | 쿠폰 단일 조회                  | GET        | /api/v1/coupons/{couponId}                               |
 |            | 쿠폰 전체 조회                  | GET        | /api/v1/coupons?page=0&size=10                           |
 |            | 보유 쿠폰 전체 조회               | GET        | /api/v1/user/coupons?page=0&size=10                      |
-|            | 쿠폰 발급                     | POST       | /api/v1/user/coupons/{couponId}                          |
-|            | 쿠폰 추가                     | POST       | /api/v1/admin/coupons                                    |
-|            | 쿠폰 수정                     | PUT        | /api/v1/admin/coupons/{couponId}                         |
-|            | 쿠폰 삭제                     | DELETE     | /api/v1/admin/coupons/{couponId}                         |
+|            | 쿠폰 발급                     | POST       | /api/v2/user/coupons/{couponId}                          |
+|            | 쿠폰 추가                     | POST       | /api/v2/admin/coupons                                    |
+|            | 쿠폰 수정                     | PUT        | /api/v2/admin/coupons/{couponId}                         |
+|            | 쿠폰 삭제                     | DELETE     | /api/v2/admin/coupons/{couponId}                         |
 |            | 활성 쿠폰 조회                  | GET        | /api/v1/admin/coupons/availability?page=0&size=10        |
 | events     | 이벤트 단일 조회                 | GET        | /api/v1/events/{eventId}                                 |
 |            | 이벤트 전체 조회                 | GET        | /api/v1/events/all                                       |
@@ -359,16 +359,17 @@
 |            | 이벤트 삭제                    | DELETE     | /api/v1/admin/events/{eventId}                           |
 | menus      | 메뉴 전체 조회                  | GET        | /api/v1/menus?page=0&size=10                             |
 |            | 메뉴 단일 조회                  | GET        | /api/v1/menus/{menuId}                                   |
+|            | 메뉴 검색                     | GET        | /api/v1/menus/search?menuName=000                        |
 |            | 메뉴 추가                     | POST       | /api/v1/admin/menus                                      |
 |            | 메뉴 수정                     | PUT        | /api/v1/admin/menus/{menuId}                             |
 |            | 메뉴 삭제                     | DELETE     | /api/v1/admin/menus/{menuId}                             |
-| orders     | 주문 준비                     | GET        | /api/v1/user/orderInfo                                   |
-|            | 주문 생성                     | POST       | /api/v1/user/orders                                      |    
+| orders     | 주문 준비                     | GET        | /api/v2/user/orderInfo                                   |
+|            | 주문 생성                     | POST       | /api/v2/user/orders                                      |    
 |            | 자기 주문 단일 조회               | GET        | /api/v1/user/orders/{orderId}                            |
 |            | 자기 주문 전체 조회               | GET        | /api/v1/user/orders?page=0&size=10                       |
 |            | 주문 취소                     | PUT        | /api/v1/user/orders/{orderId}                            |
 |            | 점포 주문 단일 조회               | GET        | /api/v1/owner/orders/{orderId}                           |
-|            | 점포 주문 전체 조회               | GET        | /api/v1/owner/orders?page=0&size=10                      |
+|            | 점포 주문 전체 조회               | GET        | /api/v2/owner/orders?page=0&size=10                      |
 |            | 주문 상태 변경                  | PUT        | /api/v1/owner/orders/{orderId}                           |
 |            | 총 주문 수 카운트                | GET        | /api/v1/admin/orders/count                               |
 | reviews    | 주문에 대한 리뷰 생성              | POST       | /api/v1/user/orders/{orderId}/reviews                    |
@@ -382,7 +383,7 @@
 |            | 점포 메뉴 전체 조회 NotDeactivate | GET        | /api/v1/shops/{shopId}/shopMenus                         |
 |            | 점포 메뉴 상세 조회               | GET        | /api/v1/shops/{shopId}/shopMenus/{shopMenuId}            |
 |            | 점포 대시보드                   | GET        | /api/v1/owner/shops/{shopId}/dashboard                   |
-|            | 점포 메뉴 전체 조회               | GET        | /api/v1/owner/shops/{shopId}                             |
+|            | 점포 메뉴 전체 조회               | GET        | /api/v1/owner/shops/{shopId}/menus                       |
 |            | 점포별 메뉴 관리                 | PUT        | /api/v1/owner/shops/{shopId}/menus/{menuId}              |
 |            | 점포별 쿠폰 사용 여부 변경           | PUT        | /api/v1/owner/shops/{shopId}/coupons/{couponId}          |
 |            | 점포별 쿠폰 조회                 | GET        | /api/v1/owner/shops/{shopId}/coupons/{couponId}          |
@@ -392,18 +393,20 @@
 |            | 점포 전체 조회                  | GET        | /api/v1/admin/shops                                      |
 |            | 점포 수정                     | PUT        | /api/v1/admin/shops/{shopId}                             |
 |            | 점포 삭제                     | DELETE     | /api/v1/admin/shops/{shopId}                             |
-|            | 관리자 대시보드                  | GET        | /api/v1/admin/dashboard                                  |
-| statistics | 총 월 매출 추이                 | GET        | /api/v1/admin/statistics/sales/monthly                   |
+| statistics | 관리자 대시보드                  | GET        | /api/v1/admin/dashboard                                  |
+|            | 총 월 매출 추이                 | GET        | /api/v1/admin/statistics/sales/monthly                   |
 |            | 점포 별 매출 Top10             | GET        | /api/v1/admin/statistics/sales/shops/top10               |
 |            | 점포 별 매출 Bottom10          | GET        | /api/v1/admin/statistics/sales/shops/bottom10            |
 |            | 햄버거 메뉴 별 판매량              | GET        | /api/v1/admin/statistics/sales/menus/burger              |
 |            | 사이드 메뉴 별 판매량              | GET        | /api/v1/admin/statistics/sales/menus/side                |
-| users      | 사용자 정보 수정                 | PUT        | /api/v1/user/profile                                     |
+| users      | 회원 가입                     | POST       | /api/v1/signup                                           |
+|            | 회원 탈퇴                     | DELETE     | /api/v1/withdraw                                         |
+|            | 사용자 정보 수정                 | PUT        | /api/v1/user/profile                                     |
 |            | 사용자 정보 조회                 | GET        | /api/v1/user/profile                                     |
 
 ## 7. 시연 영상
 
-[시연 영상 링크](https://)
+[시연 영상 링크](https://www.youtube.com/watch?v=VEFpxX6SzHw)
 
 ## 8. 개발 환경
 
