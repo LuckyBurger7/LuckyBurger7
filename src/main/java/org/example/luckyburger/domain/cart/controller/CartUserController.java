@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
+import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.cart.dto.request.CartAddMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartDeleteMenuRequest;
 import org.example.luckyburger.domain.cart.dto.request.CartUpdateMenuRequest;
@@ -11,8 +12,10 @@ import org.example.luckyburger.domain.cart.dto.response.CartResponse;
 import org.example.luckyburger.domain.cart.service.CartCacheUserService;
 import org.example.luckyburger.domain.cart.service.CartUserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+@Secured(AccountRole.Authority.USER)
 @RestController
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @RequestMapping("/api")
