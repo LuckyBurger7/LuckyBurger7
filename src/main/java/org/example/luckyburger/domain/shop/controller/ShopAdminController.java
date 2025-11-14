@@ -2,11 +2,15 @@ package org.example.luckyburger.domain.shop.controller;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.common.dto.response.ApiPageResponse;
 import org.example.luckyburger.common.dto.response.ApiResponse;
 import org.example.luckyburger.domain.auth.enums.AccountRole;
 import org.example.luckyburger.domain.shop.dto.request.ShopRequest;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
 import org.example.luckyburger.domain.shop.service.ShopAdminService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,15 @@ public class ShopAdminController {
 
         return ApiResponse.created(shopAdminService.createShop(shopRequest));
 
+    }
+
+    @GetMapping("/v1/admin/shops")
+    public ResponseEntity<ApiPageResponse<ShopResponse>> getAllShop(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+        return ApiPageResponse.success(shopAdminService.getAllShopResponse(pageable));
     }
 
     @PutMapping("/v1/admin/shops/{shopId}")
