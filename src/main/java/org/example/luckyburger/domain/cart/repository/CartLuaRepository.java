@@ -8,7 +8,6 @@ import org.example.luckyburger.domain.cart.dto.response.CartMenuResponse;
 import org.example.luckyburger.domain.cart.dto.response.CartResponse;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
-import org.example.luckyburger.domain.cart.exception.CartMenuBadRequestException;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.menu.entity.Menu;
@@ -59,7 +58,7 @@ public class CartLuaRepository {
         return redisTemplate.opsForHash();
     }
 
-    public void addCartMenu(Long accountId, Long shopId, Long shopMenuId, Long price, Long timeout) {
+    public Long addCartMenu(Long accountId, Long shopId, Long shopMenuId, Long price, Long timeout) {
 
         List<String> keys = Arrays.asList(
                 buildKey(accountId),
@@ -75,10 +74,7 @@ public class CartLuaRepository {
 
         RedisScript<Long> script = RedisScript.of(addCartMenuResource, Long.class);
 
-        Long result = redisTemplate.execute(script, keys, args);
-
-        if (result == 0)
-            throw new CartMenuBadRequestException();
+        return redisTemplate.execute(script, keys, args);
     }
 
     @Transactional(readOnly = true)
