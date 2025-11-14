@@ -14,6 +14,8 @@ import org.example.luckyburger.domain.shop.repository.ShopCouponRepository;
 import org.example.luckyburger.domain.shop.repository.ShopMenuRepository;
 import org.example.luckyburger.domain.shop.repository.ShopRepository;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,12 @@ public class ShopAdminService {
 
         return ShopResponse.from(savedShop);
 
+    }
+
+    // 상점 전체 조회
+    public Page<ShopResponse> getAllShopResponse(Pageable pageable) {
+        Page<Shop> shops = shopRepository.findAll(pageable);
+        return shops.map(ShopResponse::from);
     }
 
     // 상점의 정보를 수정
@@ -76,5 +84,4 @@ public class ShopAdminService {
     public long getTotalStoreCount() {
         return shopRepository.count();
     }
-
 }
