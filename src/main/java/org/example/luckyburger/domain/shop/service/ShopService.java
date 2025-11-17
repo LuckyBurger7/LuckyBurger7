@@ -49,4 +49,9 @@ public class ShopService {
 
         return ShopMenuResponse.from(shopMenu);
     }
+
+    public Page<ShopResponse> getAllShopResponse(Pageable pageable){
+        Page<Shop> shops = shopRepository.findAll(pageable);
+        return shops.map(ShopResponse::from);
+    }
 }
