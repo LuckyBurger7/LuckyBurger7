@@ -60,7 +60,7 @@ public class OrderUserServiceV2 {
     private final OrderFormCacheService orderFormCacheService;
     private final CartCacheUserService cartCacheUserService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
         User user = getUser();
 
