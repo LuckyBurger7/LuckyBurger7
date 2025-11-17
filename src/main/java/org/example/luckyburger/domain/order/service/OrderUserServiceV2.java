@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
+import org.example.luckyburger.domain.cart.service.CartCacheUserService;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuService;
@@ -57,17 +58,27 @@ public class OrderUserServiceV2 {
     private final CartMenuEntityFinder cartMenuEntityFinder;
     private final UserCouponEntityFinder userCouponEntityFinder;
     private final OrderFormCacheService orderFormCacheService;
+    private final CartCacheUserService cartCacheUserService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
         User user = getUser();
-        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
-        // 장바구니 메뉴 조회
-        List<CartMenu> cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+        // 캐시 된 장바구니 DB 저장
+        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(user.getId());
+
         if (cartMenus.isEmpty()) {
-            throw new EmptyOrderException();
+            // 조회 실패
+            cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(user.getId());
+            if (cartMenus.isEmpty())
+                throw new EmptyOrderException();
+        } else {
+            // 조회 성공
+            // 자동 저장 타이머 종료
+            cartCacheUserService.deleteSaveDBTimer(user.getId());
         }
+
+        Cart cart = cartMenus.get(0).getCart();
 
         Shop shop = shopEntityFinder.getShopById(cartMenus.get(0).getShopMenu().getShop().getId());
 

@@ -61,21 +61,22 @@ public class OrderUserService {
     @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
         User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
-        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // 캐시 된 장바구니 DB 저장
-        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(cart.getId());
+        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(user.getId());
 
         if (cartMenus.isEmpty()) {
-            cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+            // 조회 실패
+            cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(user.getId());
+            if (cartMenus.isEmpty())
+                throw new EmptyOrderException();
         } else {
+            // 조회 성공
             // 자동 저장 타이머 종료
             cartCacheUserService.deleteSaveDBTimer(user.getId());
         }
 
-        if (cartMenus.isEmpty()) {
-            throw new EmptyOrderException();
-        }
+        Cart cart = cartMenus.get(0).getCart();
 
         // 주문서 저장 (이전 주문서 삭제)
         orderFormRepository.deleteByUser(user);
