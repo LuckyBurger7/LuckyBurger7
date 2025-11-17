@@ -52,23 +52,21 @@ public class CartCacheUserService {
         long timeout = 3L;
 
         // lua script 사용
-        try {
-            cartCacheRepository.addCartMenu(
-                    accountId,
-                    shopMenu.shopId(),
-                    request.shopMenuId(),
-                    shopMenu.price(),
-                    timeout
-            );
+        Long result = cartCacheRepository.addCartMenu(
+                accountId,
+                shopMenu.shopId(),
+                request.shopMenuId(),
+                shopMenu.price(),
+                timeout
+        );
 
+        // 캐시 성공 시
+        if (result == 1L)
             // 캐시 저장 타이머
             cartCacheRepository.setSaveDBTimer(accountId, timeout);
-
-        } catch (Exception e) {
+        else
             // 레디스 장애 발생 시 DB저장
             cartUserService.addCartMenu(request);
-        }
-
     }
 
     @Transactional(readOnly = true)

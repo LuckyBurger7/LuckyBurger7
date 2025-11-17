@@ -78,8 +78,8 @@ public class ShopOwnerController {
      * @param shopId
      * @return
      */
-    @GetMapping("v1/owner/shops/{shopId}")
-    public ResponseEntity<ApiPageResponse<ShopMenuResponse>> getShopByShopId(
+    @GetMapping("v1/owner/shops/{shopId}/menus")
+    public ResponseEntity<ApiPageResponse<ShopMenuResponse>> getAllShopMenu(
             @PathVariable Long shopId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
