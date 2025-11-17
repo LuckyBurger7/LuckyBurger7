@@ -12,6 +12,9 @@ import org.example.luckyburger.domain.statistic.dto.response.AdminDashboardRespo
 import org.example.luckyburger.domain.statistic.dto.response.MenuTotalSalesResponse;
 import org.example.luckyburger.domain.statistic.dto.response.MonthTotalSalesResponse;
 import org.example.luckyburger.domain.statistic.dto.response.ShopTotalSalesResponse;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Transactional(readOnly = true)
+@CacheConfig(cacheManager = "caffeineCacheManager")
 public class StatisticService {
 
     private final OrderEntityFinder orderEntityFinder;
@@ -33,16 +37,19 @@ public class StatisticService {
         return orderEntityFinder.getAllMonthTotalSalesResponse();
     }
 
+    @Cacheable(value = "statisticCache", sync = true)
     public List<ShopTotalSalesResponse> getTopTenShopTotalSalesResponse() {
 
         return orderEntityFinder.getAllShopTotalSalesResponseOrderByDesc();
     }
 
+    @Cacheable(value = "statisticCache", sync = true)
     public List<ShopTotalSalesResponse> getBottomTenShopTotalSalesResponse() {
 
         return orderEntityFinder.getAllShopTotalSalesResponseOrderByAsc();
     }
 
+    @Cacheable(value = "statisticCache", sync = true)
     public List<MenuTotalSalesResponse> getMenuTotalSalesResponse(MenuCategory category) {
 
         List<Long> categoryMenuIds = menuEntityFinder.getAllMenuIdByCategory(category);

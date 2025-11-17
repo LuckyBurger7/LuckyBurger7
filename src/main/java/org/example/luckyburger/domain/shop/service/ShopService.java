@@ -2,6 +2,7 @@ package org.example.luckyburger.domain.shop.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.example.luckyburger.domain.menu.entity.Menu;
 import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
 import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
 import org.example.luckyburger.domain.shop.entity.Shop;
@@ -48,5 +49,10 @@ public class ShopService {
         }
 
         return ShopMenuResponse.from(shopMenu);
+    }
+
+    public Page<ShopResponse> getAllShopResponse(Pageable pageable){
+        Page<Shop> shops = shopRepository.findAll(pageable);
+        return shops.map(ShopResponse::from);
     }
 }
