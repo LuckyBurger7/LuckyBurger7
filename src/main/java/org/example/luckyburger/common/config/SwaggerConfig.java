@@ -13,8 +13,6 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        //Api 호출에 적용할 요구사항
-        SecurityRequirement accessTokenRequirement = new SecurityRequirement().addList("accessToken");
 
         return new OpenAPI()
                 .info(new Info()
@@ -25,12 +23,12 @@ public class SwaggerConfig {
                         new Components()
                                 .addSecuritySchemes("accessToken",
                                         new SecurityScheme()
-                                                .name("accessToken")
-                                                .type(SecurityScheme.Type.APIKEY)
-                                                .in(SecurityScheme.In.HEADER)
+                                                .name("Authorization")
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
                                                 .bearerFormat("JWT")
                                 )
                 )
-                .addSecurityItem(accessTokenRequirement);
+                .addSecurityItem(new SecurityRequirement().addList("accessToken"));
     }
 }
