@@ -1,5 +1,11 @@
 package org.example.luckyburger.domain.shop.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
@@ -11,7 +17,11 @@ import org.example.luckyburger.domain.review.service.ReviewEntityFinder;
 import org.example.luckyburger.domain.shop.dto.request.CouponPolicyRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopMenuRequest;
 import org.example.luckyburger.domain.shop.dto.request.ShopUpdateRequest;
-import org.example.luckyburger.domain.shop.dto.response.*;
+import org.example.luckyburger.domain.shop.dto.response.CouponPolicyResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopDashboardResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopMenuResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopResponse;
+import org.example.luckyburger.domain.shop.dto.response.ShopTotalSalesResponse;
 import org.example.luckyburger.domain.shop.entity.CouponPolicy;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
@@ -24,8 +34,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.*;
 
 
 @Service
@@ -110,6 +118,7 @@ public class ShopOwnerService {
 
     @Transactional(readOnly = true)
     public ShopDashboardResponse getShopDashboardByShopId(Long shopId) {
+        validOwnerOfShop(shopId);
         Shop shop = shopEntityFinder.getShopById(shopId);
 
         Long todayOrderCount = getTodayOrderCount(shop);
