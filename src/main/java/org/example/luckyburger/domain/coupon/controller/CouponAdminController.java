@@ -41,23 +41,29 @@ public class CouponAdminController {
         return ApiResponse.noContent();
     }
 
+    /*
     @PostMapping("/v1/admin/coupons")
     public ResponseEntity<ApiResponse<CouponResponse>> createCoupon(@Valid @RequestBody CouponRequest couponRequest) {
         return ApiResponse.created(couponAdminService.createCoupon(couponRequest));
     }
+     */
 
+    /*
     @PutMapping("/v1/admin/coupons/{couponId}")
     public ResponseEntity<ApiResponse<CouponResponse>> updateCoupon(
             @PathVariable Long couponId,
             @Valid @RequestBody CouponRequest couponRequest) {
         return ApiResponse.success(couponAdminService.updateCoupon(couponId, couponRequest));
     }
+     */
 
+    /*
     @DeleteMapping("/v1/admin/coupons/{couponId}")
     public ResponseEntity<ApiResponse<CouponResponse>> deleteCoupon(@PathVariable Long couponId) {
         couponAdminService.deleteCoupon(couponId);
         return ApiResponse.noContent();
     }
+     */
 
     @GetMapping("/v1/admin/coupons/availability")
     public ResponseEntity<ApiPageResponse<CouponResponse>> getAllCouponsByAvailable(

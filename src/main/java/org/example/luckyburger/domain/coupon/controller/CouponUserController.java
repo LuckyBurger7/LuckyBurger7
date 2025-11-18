@@ -23,10 +23,12 @@ public class CouponUserController {
     private final CouponUserService couponUserService;
     private final CouponIssuePessimisticService couponIssuePessimisticService;
 
+    /*
     @PostMapping("/v1/user/coupons/{couponId}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> issueCoupon(@PathVariable Long couponId) {
         return ApiResponse.success(couponUserService.issueCoupon(couponId));
     }
+     */
 
     @PostMapping("/v2/user/coupons/{couponId}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> issueCouponWithRedis(@PathVariable Long couponId) {
