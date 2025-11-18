@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.security.utils.AuthAccountUtil;
 import org.example.luckyburger.domain.cart.entity.Cart;
 import org.example.luckyburger.domain.cart.entity.CartMenu;
+import org.example.luckyburger.domain.cart.service.CartCacheUserService;
 import org.example.luckyburger.domain.cart.service.CartEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuEntityFinder;
 import org.example.luckyburger.domain.cart.service.CartMenuService;
@@ -26,6 +27,7 @@ import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
+import org.example.luckyburger.domain.shop.exception.ShopMenuBadRequestException;
 import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
 import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
 import org.example.luckyburger.domain.user.entity.User;
@@ -57,17 +59,27 @@ public class OrderUserServiceV2 {
     private final CartMenuEntityFinder cartMenuEntityFinder;
     private final UserCouponEntityFinder userCouponEntityFinder;
     private final OrderFormCacheService orderFormCacheService;
+    private final CartCacheUserService cartCacheUserService;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
         User user = getUser();
-        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
-        // 장바구니 메뉴 조회
-        List<CartMenu> cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+        // 캐시 된 장바구니 DB 저장
+        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(user.getId());
+
         if (cartMenus.isEmpty()) {
-            throw new EmptyOrderException();
+            // 조회 실패
+            cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(user.getId());
+            if (cartMenus.isEmpty())
+                throw new EmptyOrderException();
+        } else {
+            // 조회 성공
+            // 자동 저장 타이머 종료
+            cartCacheUserService.deleteSaveDBTimer(user.getId());
         }
+
+        Cart cart = cartMenus.get(0).getCart();
 
         Shop shop = shopEntityFinder.getShopById(cartMenus.get(0).getShopMenu().getShop().getId());
 
@@ -143,6 +155,11 @@ public class OrderUserServiceV2 {
 
         // 캐싱된 정보를 바탕으로 ShopMenu 리스트 조회
         List<ShopMenu> shopMenus = shopMenuEntityFinder.getAllShopMenuById(shopMenuIds);
+
+        // 주문된 메뉴와 점포 비교 시 일치하지 않을 때
+        if (!shop.getId().equals(shopMenus.get(0).getShop().getId())) {
+            throw new ShopMenuBadRequestException();
+        }
 
         for (ShopMenu shopMenu : shopMenus) {
             // 해당 메뉴가 판매 중지 되었을 때

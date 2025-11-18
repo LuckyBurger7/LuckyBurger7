@@ -14,14 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,15 +23,18 @@ public class OrderUserController {
     private final OrderUserService orderUserService;
     private final OrderUserServiceV2 orderUserServiceV2;
 
+    /*
     @GetMapping("/v1/user/orderInfo")
     public ResponseEntity<ApiResponse<OrderPrepareResponse>> prepareOrder() {
         return ApiResponse.success(orderUserService.prepareOrderResponse());
     }
-
+     */
+    /*
     @PostMapping("/v1/user/orders")
     public ResponseEntity<ApiResponse<OrderResponse>> createOrder(@Valid @RequestBody OrderCreateRequest request) {
         return ApiResponse.created(orderUserService.createOrderResponse(request));
     }
+     */
 
     @GetMapping("/v1/user/orders/{orderId}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable("orderId") Long orderId) {

@@ -26,6 +26,7 @@ import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
+import org.example.luckyburger.domain.shop.exception.ShopMenuBadRequestException;
 import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.service.UserEntityFinder;
@@ -61,21 +62,22 @@ public class OrderUserService {
     @Transactional
     public OrderPrepareResponse prepareOrderResponse() {
         User user = userEntityFinder.getUserByAccountId(AuthAccountUtil.getAuthAccount().getAccountId());
-        Cart cart = cartEntityFinder.getCartByUserId(user.getId());
 
         // 캐시 된 장바구니 DB 저장
-        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(cart.getId());
+        List<CartMenu> cartMenus = cartCacheUserService.saveAllCache(user.getId());
 
         if (cartMenus.isEmpty()) {
-            cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(cart.getId());
+            // 조회 실패
+            cartMenus = cartMenuEntityFinder.getAllCartMenuByCartId(user.getId());
+            if (cartMenus.isEmpty())
+                throw new EmptyOrderException();
         } else {
+            // 조회 성공
             // 자동 저장 타이머 종료
             cartCacheUserService.deleteSaveDBTimer(user.getId());
         }
 
-        if (cartMenus.isEmpty()) {
-            throw new EmptyOrderException();
-        }
+        Cart cart = cartMenus.get(0).getCart();
 
         // 주문서 저장 (이전 주문서 삭제)
         orderFormRepository.deleteByUser(user);
@@ -135,6 +137,10 @@ public class OrderUserService {
         // 매장 영업 중인지 확인
         if (shop.getStatus() != BusinessStatus.OPEN) {
             throw new ShopNotOpenedException();
+        }
+
+        if (!shop.getId().equals(orderForms.get(0).getShopMenu().getShop().getId())) {
+            throw new ShopMenuBadRequestException();
         }
 
         // 총 금액 계산

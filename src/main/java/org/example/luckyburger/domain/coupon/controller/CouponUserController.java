@@ -23,20 +23,22 @@ public class CouponUserController {
     private final CouponUserService couponUserService;
     private final CouponIssuePessimisticService couponIssuePessimisticService;
 
+    /*
     @PostMapping("/v1/user/coupons/{couponId}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> issueCoupon(@PathVariable Long couponId) {
         return ApiResponse.success(couponUserService.issueCoupon(couponId));
     }
+     */
 
     @PostMapping("/v2/user/coupons/{couponId}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> issueCouponWithRedis(@PathVariable Long couponId) {
         return ApiResponse.success(couponUserService.issueCouponWithRedis(couponId));
     }
 
-    @PostMapping("/v3/user/coupons/{couponId}")
+    /* @PostMapping("/v3/user/coupons/{couponId}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> issueCouponWithPessimistic(@PathVariable Long couponId) {
         return ApiResponse.success(couponIssuePessimisticService.issueCouponWithPessimistic(couponId));
-    }
+    }*/
 
     @GetMapping("/v1/user/coupons")
     public ResponseEntity<ApiPageResponse<UserCouponResponse>> getAllVerifiedUserCoupon(

@@ -8,14 +8,14 @@ import org.example.luckyburger.domain.shop.entity.ShopMenu;
 
 @Builder
 public record OrderMenuResponse(
-        Long menuId,
+        Long shopMenuId,
         String name,
         long unitPrice,
         int quantity
 ) {
     private static OrderMenuResponse of(ShopMenu shopMenu, int quantity) {
         return OrderMenuResponse.builder()
-                .menuId(shopMenu.getId())
+                .shopMenuId(shopMenu.getId())
                 .name(shopMenu.getMenu().getName())
                 .unitPrice(shopMenu.getMenu().getPrice())
                 .quantity(quantity)
