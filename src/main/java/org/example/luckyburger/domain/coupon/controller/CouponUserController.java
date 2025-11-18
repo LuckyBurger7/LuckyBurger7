@@ -33,10 +33,10 @@ public class CouponUserController {
         return ApiResponse.success(couponUserService.issueCouponWithRedis(couponId));
     }
 
-    @PostMapping("/v3/user/coupons/{couponId}")
+    /* @PostMapping("/v3/user/coupons/{couponId}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> issueCouponWithPessimistic(@PathVariable Long couponId) {
         return ApiResponse.success(couponIssuePessimisticService.issueCouponWithPessimistic(couponId));
-    }
+    }*/
 
     @GetMapping("/v1/user/coupons")
     public ResponseEntity<ApiPageResponse<UserCouponResponse>> getAllVerifiedUserCoupon(
