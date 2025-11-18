@@ -26,6 +26,7 @@ import org.example.luckyburger.domain.order.repository.OrderMenuRepository;
 import org.example.luckyburger.domain.order.repository.OrderRepository;
 import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
+import org.example.luckyburger.domain.shop.exception.ShopMenuBadRequestException;
 import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
 import org.example.luckyburger.domain.user.entity.User;
 import org.example.luckyburger.domain.user.service.UserEntityFinder;
@@ -136,6 +137,10 @@ public class OrderUserService {
         // 매장 영업 중인지 확인
         if (shop.getStatus() != BusinessStatus.OPEN) {
             throw new ShopNotOpenedException();
+        }
+
+        if (!shop.getId().equals(orderForms.get(0).getShopMenu().getShop().getId())) {
+            throw new ShopMenuBadRequestException();
         }
 
         // 총 금액 계산

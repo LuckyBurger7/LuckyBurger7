@@ -27,6 +27,7 @@ import org.example.luckyburger.domain.shop.entity.Shop;
 import org.example.luckyburger.domain.shop.entity.ShopMenu;
 import org.example.luckyburger.domain.shop.enums.BusinessStatus;
 import org.example.luckyburger.domain.shop.enums.ShopMenuStatus;
+import org.example.luckyburger.domain.shop.exception.ShopMenuBadRequestException;
 import org.example.luckyburger.domain.shop.service.ShopEntityFinder;
 import org.example.luckyburger.domain.shop.service.ShopMenuEntityFinder;
 import org.example.luckyburger.domain.user.entity.User;
@@ -154,6 +155,11 @@ public class OrderUserServiceV2 {
 
         // 캐싱된 정보를 바탕으로 ShopMenu 리스트 조회
         List<ShopMenu> shopMenus = shopMenuEntityFinder.getAllShopMenuById(shopMenuIds);
+
+        // 주문된 메뉴와 점포 비교 시 일치하지 않을 때
+        if (!shop.getId().equals(shopMenus.get(0).getShop().getId())) {
+            throw new ShopMenuBadRequestException();
+        }
 
         for (ShopMenu shopMenu : shopMenus) {
             // 해당 메뉴가 판매 중지 되었을 때
