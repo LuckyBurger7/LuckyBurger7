@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.review.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,14 @@ import org.example.luckyburger.domain.review.dto.request.ReviewRequest;
 import org.example.luckyburger.domain.review.dto.response.ReviewResponse;
 import org.example.luckyburger.domain.review.service.ReviewUserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
@@ -18,6 +26,7 @@ public class ReviewUserController {
     private final ReviewUserService reviewUserService;
 
     // 주문에 대한 리뷰 생성
+    @Operation(summary = "주문에 대한 리뷰 생성")
     @PostMapping("/v1/user/orders/{orderId}/reviews")
     public ResponseEntity<ApiResponse<ReviewResponse>> createOrderReview(
             @PathVariable Long orderId,
@@ -27,6 +36,7 @@ public class ReviewUserController {
     }
 
     // 작성한 리뷰 단일 조회
+    @Operation(summary = "작성한 리뷰 단건 조회")
     @GetMapping("/v1/user/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> getOrderReview(
             @PathVariable Long reviewId) {
@@ -35,6 +45,7 @@ public class ReviewUserController {
     }
 
     // 주문에 대한 리뷰 수정
+    @Operation(summary = "작성한 리뷰 수정")
     @PutMapping("/v1/user/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(
             @Valid @RequestBody ReviewRequest request,
@@ -44,6 +55,7 @@ public class ReviewUserController {
     }
 
     // 작성한 리뷰 삭제
+    @Operation(summary = "작성한 리뷰 삭제")
     @DeleteMapping("/v1/user/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> deleteReview(
             @PathVariable Long reviewId) {

@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.order.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderAdminController {
     private final OrderAdminService orderAdminService;
 
+    @Operation(summary = "총 점포 주문량")
     @GetMapping("/v1/admin/orders/count")
     public ResponseEntity<ApiResponse<OrderCountResponse>> getOrderCount() {
         return ApiResponse.success(orderAdminService.getOrderCountResponse());
