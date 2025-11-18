@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.coupon.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
@@ -12,7 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Secured(AccountRole.Authority.USER)
 @RestController
@@ -30,6 +35,7 @@ public class CouponUserController {
     }
      */
 
+    @Operation(summary = "쿠폰 발급")
     @PostMapping("/v2/user/coupons/{couponId}")
     public ResponseEntity<ApiResponse<UserCouponResponse>> issueCouponWithRedis(@PathVariable Long couponId) {
         return ApiResponse.success(couponUserService.issueCouponWithRedis(couponId));
@@ -40,6 +46,7 @@ public class CouponUserController {
         return ApiResponse.success(couponIssuePessimisticService.issueCouponWithPessimistic(couponId));
     }*/
 
+    @Operation(summary = "발급 받은 쿠폰 확인")
     @GetMapping("/v1/user/coupons")
     public ResponseEntity<ApiPageResponse<UserCouponResponse>> getAllVerifiedUserCoupon(
             @PageableDefault Pageable pageable

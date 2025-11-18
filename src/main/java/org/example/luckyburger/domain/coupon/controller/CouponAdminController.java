@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.coupon.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Secured(AccountRole.Authority.ADMIN)
 @RestController
@@ -23,11 +31,14 @@ public class CouponAdminController {
 
     private final CouponAdminService couponAdminService;
 
+    @Operation(summary = "쿠폰 추가")
     @PostMapping("/v2/admin/coupons")
-    public ResponseEntity<ApiResponse<CouponResponse>> createCouponWithRedis(@Valid @RequestBody CouponRequest couponRequest) {
+    public ResponseEntity<ApiResponse<CouponResponse>> createCouponWithRedis(
+            @Valid @RequestBody CouponRequest couponRequest) {
         return ApiResponse.created(couponAdminService.createCouponWithRedis(couponRequest));
     }
 
+    @Operation(summary = "쿠폰 변경")
     @PutMapping("/v2/admin/coupons/{couponId}")
     public ResponseEntity<ApiResponse<CouponResponse>> updateCouponWithRedis(
             @PathVariable Long couponId,
@@ -35,6 +46,7 @@ public class CouponAdminController {
         return ApiResponse.success(couponAdminService.updateCouponWithRedis(couponId, couponRequest));
     }
 
+    @Operation(summary = "쿠폰 삭제")
     @DeleteMapping("/v2/admin/coupons/{couponId}")
     public ResponseEntity<ApiResponse<CouponResponse>> deleteCouponWithRedis(@PathVariable Long couponId) {
         couponAdminService.deleteCouponWithRedis(couponId);
@@ -65,6 +77,7 @@ public class CouponAdminController {
     }
      */
 
+    @Operation(summary = "활성화 상태의 쿠폰 확인")
     @GetMapping("/v1/admin/coupons/availability")
     public ResponseEntity<ApiPageResponse<CouponResponse>> getAllCouponsByAvailable(
             @PageableDefault Pageable pageable) {

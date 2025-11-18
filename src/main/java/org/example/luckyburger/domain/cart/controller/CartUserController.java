@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.cart.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,13 @@ import org.example.luckyburger.domain.cart.service.CartUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Secured(AccountRole.Authority.USER)
 @RestController
@@ -34,6 +42,7 @@ public class CartUserController {
     }
      */
 
+    @Operation(summary = "장바구니 담기")
     @PostMapping("/v2/user/carts")
     public ResponseEntity<ApiResponse<Void>> addMenuApplyCache(
             @Valid @RequestBody CartAddMenuRequest request
@@ -50,6 +59,7 @@ public class CartUserController {
     }
      */
 
+    @Operation(summary = "장바구니 메뉴 확인")
     @GetMapping("/v2/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> getCartApplyCache() {
         return ApiResponse.success(cartCacheUserService.getCartResponse());
@@ -64,6 +74,7 @@ public class CartUserController {
     }
     */
 
+    @Operation(summary = "장바구니 메뉴 수정")
     @PutMapping("/v2/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> updateCartApplyCache(
             @Valid @RequestBody CartUpdateMenuRequest request
@@ -80,6 +91,7 @@ public class CartUserController {
     }
      */
 
+    @Operation(summary = "장바구니 삭제")
     @DeleteMapping("/v2/user/carts")
     public ResponseEntity<ApiResponse<CartResponse>> deleteCartApplyCache(
             @Valid @RequestBody CartDeleteMenuRequest request

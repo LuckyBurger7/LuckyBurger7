@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.menu.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
@@ -23,7 +24,7 @@ public class MenuController {
 
     private final MenuService menuService;
 
-    // 메뉴 전체 조회
+    @Operation(summary = "메뉴 전체 조회")
     @GetMapping("/v1/menus")
     public ResponseEntity<ApiPageResponse<MenuResponse>> getAllMenu(
             @RequestParam(defaultValue = "0") int page,
@@ -34,7 +35,7 @@ public class MenuController {
         return ApiPageResponse.success(response);
     }
 
-    // 메뉴 단일 조회
+    @Operation(summary = "메뉴 단건 조회")
     @GetMapping("/v1/menus/{menuId}")
     public ResponseEntity<ApiResponse<MenuResponse>> getMenu(
             @PathVariable Long menuId
@@ -43,7 +44,7 @@ public class MenuController {
         return ApiResponse.success(response);
     }
 
-    // 메뉴 검색
+    @Operation(summary = "메뉴 검색")
     @GetMapping("/v1/menus/search")
     public ResponseEntity<ApiPageResponse<MenuResponse>> searchMenu(
             @RequestParam(required = false) String menuName,
