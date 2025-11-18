@@ -13,6 +13,7 @@ public enum OrderErrorCode implements ErrorCode {
     POINT_EXCEEDS_BALANCE(HttpStatus.BAD_REQUEST, "사용 가능한 적립금 금액을 초과합니다."),
     NEGATIVE_PAY(HttpStatus.BAD_REQUEST, "결제 금액은 0원 이상이어야 합니다."),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 주문을 찾을 수 없습니다."),
+    ORDER_CACHE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "주문서 저장 중 오류가 발생했습니다."),
     UNAUTHORIZED_ORDER_ACCESS(HttpStatus.UNAUTHORIZED, "해당 주문에 접근할 권한이 없습니다."),
     UNAUTHORIZED_CART_ACCESS(HttpStatus.UNAUTHORIZED, "해당 장바구니에 접근할 권한이 없습니다."),
     SHOP_MENU_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "일부 메뉴가 현재 판매 중지 상태입니다."),
