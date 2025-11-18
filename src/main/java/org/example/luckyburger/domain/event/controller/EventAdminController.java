@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.event.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,6 +34,7 @@ public class EventAdminController {
     private final EventAdminService eventAdminService;
     private final EventService eventService;
 
+    @Operation(summary = "이벤트 추가")
     @PostMapping("/v1/admin/events")
     public ResponseEntity<ApiResponse<EventResponse>> createEvent(
             @Valid @RequestBody EventCreateRequest request
@@ -41,6 +42,7 @@ public class EventAdminController {
         return ApiResponse.created(eventAdminService.createEventResponse(request));
     }
 
+    @Operation(summary = "이벤트 수정")
     @PutMapping("/v1/admin/events/{eventId}")
     public ResponseEntity<ApiResponse<EventResponse>> updateEvent(
             @PathVariable Long eventId,
@@ -49,12 +51,14 @@ public class EventAdminController {
         return ApiResponse.success(eventAdminService.updateEventResponse(eventId, request));
     }
 
+    @Operation(summary = "이벤트 삭제")
     @DeleteMapping("/v1/admin/events/{eventId}")
     public ResponseEntity<ApiResponse<Void>> deleteEvent(@PathVariable Long eventId) {
         eventAdminService.deleteEvent(eventId);
         return ApiResponse.noContent();
     }
 
+    @Operation(summary = "이벤트 전체 조회")
     @GetMapping("/v1/admin/events/all")
     public ResponseEntity<ApiPageResponse<EventResponse>> getAllEvent(
             @RequestParam(defaultValue = "0") int page,

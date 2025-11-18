@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(summary = "로그인")
     @PostMapping("/v1/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
         return ApiResponse.success(authService.login(request));

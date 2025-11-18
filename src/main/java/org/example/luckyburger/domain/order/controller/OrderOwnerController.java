@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.order.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,11 +30,13 @@ import org.springframework.web.bind.annotation.*;
 public class OrderOwnerController {
     private final OrderOwnerService orderOwnerService;
 
+    @Operation(summary = "점주 주문 단건 조회")
     @GetMapping("/v1/owner/orders/{orderId}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable("orderId") Long orderId) {
         return ApiResponse.success(orderOwnerService.getOrderResponse(orderId));
     }
 
+    @Operation(summary = "점주 주문 전체 조회")
     @GetMapping("/v2/owner/orders")
     public ResponseEntity<ApiPageResponse<OrderResponse>> getAllOrder(
             @RequestParam(defaultValue = "0") int page,
@@ -54,6 +63,7 @@ public class OrderOwnerController {
     }
      */
 
+    @Operation(summary = "점주 주문 상태 변경")
     @PutMapping("/v1/owner/orders/{orderId}")
     public ResponseEntity<ApiResponse<Void>> updateOrderStatus(
             @PathVariable("orderId") Long orderId,

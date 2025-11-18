@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.review.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class ReviewOwnerController {
 
     private final ReviewOwnerService reviewOwnerService;
 
-    // 주문에 대한 리뷰 전체 조회 (삭제내역 포함)
+    @Operation(summary = "[점주]주문에 대한 리뷰 전체 조회")
     @GetMapping("/v1/owner/shops/{shopId}/reviews/all")
     public ResponseEntity<ApiPageResponse<ReviewResponse>> getShopReviews(
             @PageableDefault Pageable pageable,
@@ -36,7 +37,8 @@ public class ReviewOwnerController {
         return ApiPageResponse.success(reviewOwnerService.getShopReviewsResponse(pageable, shopId));
     }
 
-    // 주문에 대한 리뷰 전체 조회 (삭제내역 미포함)
+
+    @Operation(summary = "[점주]주문에 대한 리뷰 전체 조회(삭제 포함)")
     @GetMapping("/v1/owner/shops/{shopId}/reviews")
     public ResponseEntity<ApiPageResponse<ReviewResponse>> getShopReviewsByNotDeleted(
             @PageableDefault Pageable pageable,
@@ -44,7 +46,7 @@ public class ReviewOwnerController {
         return ApiPageResponse.success(reviewOwnerService.getShopReviewsByNotDeletedResponse(pageable, shopId));
     }
 
-    // 리뷰에 대한 댓글 작성
+    @Operation(summary = "[점주]리뷰에 대한 댓글 작성")
     @PostMapping("/v1/owner/shops/{shopId}/reviews/{reviewId}/comments")
     public ResponseEntity<ApiResponse<Void>> createComment(
             @PathVariable Long shopId,

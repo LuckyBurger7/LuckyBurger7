@@ -1,5 +1,6 @@
 package org.example.luckyburger.domain.shop.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.example.luckyburger.common.dto.response.ApiPageResponse;
@@ -24,6 +25,7 @@ public class ShopController {
 
     private final ShopService shopService;
 
+    @Operation(summary = "점포 검색")
     @GetMapping("/v1/shops/search")
     public ResponseEntity<ApiPageResponse<ShopResponse>> searchShopDetail(
             @RequestParam(required = false) String shopName,
@@ -35,6 +37,7 @@ public class ShopController {
         return ApiPageResponse.success(shopService.searchShopByName(shopName, pageable));
     }
 
+    @Operation(summary = "점포 메뉴 전체 조회")
     @GetMapping("/v1/shops/{shopId}/shopMenus")
     public ResponseEntity<ApiPageResponse<ShopMenuResponse>> getAllShopMenu(
             @PathVariable Long shopId,
@@ -46,6 +49,7 @@ public class ShopController {
         return ApiPageResponse.success(shopService.getAllShopMenuByShopIdResponse(shopId, pageable));
     }
 
+    @Operation(summary = "점포 메뉴 단건 조회")
     @GetMapping("/v1/shops/{shopId}/shopMenus/{shopMenuId}")
     public ResponseEntity<ApiResponse<ShopMenuResponse>> getMenuDetail(
             @PathVariable Long shopId,
@@ -54,12 +58,13 @@ public class ShopController {
         return ApiResponse.success(shopService.getMenuDetail(shopId, shopMenuId));
     }
 
+    @Operation(summary = "전체 점포 조회")
     @GetMapping("/v1/shops")
     public ResponseEntity<ApiPageResponse<ShopResponse>> getAllShop(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
-    ){
-        Pageable pageable = PageRequest.of(page,size);
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
         Page<ShopResponse> responses = shopService.getAllShopResponse(pageable);
         return ApiPageResponse.success(responses);
     }
