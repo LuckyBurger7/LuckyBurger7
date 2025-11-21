@@ -6,23 +6,27 @@
 
 - [LuckyBurger7](#LuckyBurger7)
     - [1. 프로젝트 개요](#1-프로젝트-개요)
-    - [2. ERD](#2-erd)
-    - [3. 기능 설계](#3-기능-설계)
-    - [4. 트러블 슈팅](#4-트러블-슈팅)
-        - [4.1. 사용자 주문 조회에 대한 인덱스 적용 실패](#41-사용자-주문-조회에-대한-인덱스-적용-실패)
-        - [4.2. 동시성 제어 테스트 중 불안정한 성공/실패 발생](#42-동시성-제어-테스트-중-불안정한-성공실패-발생)
-        - [4.3. Redis 원자성 문제](#43-레디스-원자성-문제)
-    - [5. 성능 개선](#5-성능-개선)
-        - [5.1 사용자/점주 주문 전체 조회 성능 개선](#51-사용자점주-주문-전체-조회-성능-개선)
-        - [5.2 쿠폰 발급 동시성 제어 안정성 개선](#52-쿠폰-발급-동시성-제어-안정성-개선)
-        - [5.3 주문 성능 개선](#53-주문-성능-개선)
-        - [5.4 장바구니 캐싱 적용](#54-장바구니-캐싱-적용)
-    - [6. 주요 기능 및 API](#6-주요-기능-및-api)
-        - [6.1. API 목록](#61-api-목록)
-    - [7. 시연 영상](#7-시연-영상)
-    - [8. 개발 환경](#8-개발-환경)
-    - [9. Git 그라운드 룰](#9-git-그라운드-룰)
-    - [10. 팀원](#10-팀원)
+        - [1.1. ERD](#11-erd)
+        - [1.2. 아키텍쳐](#12-아키텍쳐)
+        - [1.3. 사용기술](#13-사용기술)
+    - [2. 기능 설계](#2-기능-설계)
+        - [2.1. 진행 배치 표](#24-진행-배치-표)
+    - [3. 트러블 슈팅](#3-트러블-슈팅)
+        - [3.1. 사용자 주문 조회에 대한 인덱스 적용 실패](#31-사용자-주문-조회에-대한-인덱스-적용-실패)
+        - [3.2. 동시성 제어 테스트 중 불안정한 성공/실패 발생](#32-동시성-제어-테스트-중-불안정한-성공실패-발생)
+        - [3.3. Redis 원자성 문제](#33-레디스-원자성-문제)
+    - [4. 성능 개선](#4-성능-개선)
+        - [4.1 사용자/점주 주문 전체 조회 성능 개선](#41-사용자점주-주문-전체-조회-성능-개선)
+        - [4.2 쿠폰 발급 동시성 제어 안정성 개선](#42-쿠폰-발급-동시성-제어-안정성-개선)
+        - [4.3 주문 성능 개선](#43-주문-성능-개선)
+        - [4.4 장바구니 캐싱 적용](#44-장바구니-캐싱-적용)
+    - [5. 주요 기능 및 API](#5-주요-기능-및-api)
+        - [5.1. API 목록](#51-api-목록)
+    - [6. 시연 영상](#6-시연-영상)
+    - [7. 개발 환경](#7-개발-환경)
+    - [8. Git 그라운드 룰](#8-git-그라운드-룰)
+    - [9. 팀원](#9-팀원)
+    - [10. 브로셔](#10-브로셔)
 
 <!-- /TOC -->
 
@@ -32,13 +36,58 @@
 - 사용자, 점주, 관리자 기준의 백앤드 개발
 - 기능 개선을 위한 최적화, 동시성 제어, 캐시 사용
 
-## 2. ERD
+### 1.1. ERD
 
 <img width="1516" height="699" alt="Image" src="https://github.com/user-attachments/assets/38df1816-b460-4c27-a4a2-2336f84db2d9" />
 
-## 3. 기능 설계
+### 1.2. 아키텍쳐
 
-### 3.1. 사용자(User)
+<img width="1839" height="919" alt="Image" src="https://github.com/user-attachments/assets/de212b43-959d-4671-9d7c-86863742ff0c" />
+
+### 1.3. 사용기술
+
+ ✨ 언어 및 프레임워크  
+<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=JavaScript&logoColor=white"/>
+<img src="https://img.shields.io/badge/SpringBoot-FCC624?style=flat&logo=SpringBoot&logoColor=white"/>
+<img src="https://img.shields.io/badge/SpringDataJPA-0097A7?style=flat&logo=SpringDataJPA&logoColor=white"/>  
+
+✨ 인증.인가  
+<img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=flat&logo=SpringSecurity&logoColor=white"/>
+<img src="https://img.shields.io/badge/JWT-5455FE?style=flat&logo=JWT&logoColor=white"/>  
+
+✨ 데이터베이스  
+<img src="https://img.shields.io/badge/mysql-4479A1?style=flat&logo=mysql&logoColor=white"/>
+<img src="https://img.shields.io/badge/Redis-FF4438?style=flat&logo=Redis&logoColor=white"/>
+<img src="https://img.shields.io/badge/RDS-5455FE?style=flat&logo=RDS&logoColor=white"/>  
+
+✨ CI/CD & Infra  
+<img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=Docker&logoColor=white"/>
+<img src="https://img.shields.io/badge/GitHubActions-2088FF?style=flat&logo=GitHubActions&logoColor=white"/>
+<img src="https://img.shields.io/badge/EC2-1ED760?style=flat&logo=EC2&logoColor=white"/>
+<img src="https://img.shields.io/badge/ECS-002244?style=flat&logo=ECS&logoColor=white"/>
+<img src="https://img.shields.io/badge/ECR-F03E2F?style=flat&logo=ECR&logoColor=white"/>
+<img src="https://img.shields.io/badge/GitHubActions-2088FF?style=flat&logo=GitHubActions&logoColor=white"/> 
+
+✨ 테스트 / 성능 / 모니터링  
+<img src="https://img.shields.io/badge/JUnit5-25A162?style=flat&logo=JUnit5&logoColor=white"/>
+<img src="https://img.shields.io/badge/postman-FF6C37?style=flat&logo=postman&logoColor=white"/>
+<img src="https://img.shields.io/badge/nGrinder-FF8000?style=flat&logo=nGrinder&logoColor=white"/>
+<img src="https://img.shields.io/badge/Prometheus-E6522C?style=flat&logo=Prometheus&logoColor=white"/>
+<img src="https://img.shields.io/badge/Grafana-F46800?style=flat&logo=Grafana&logoColor=white"/>
+<img src="https://img.shields.io/badge/Loki-D4AA00?style=flat&logo=Loki&logoColor=white"/>  
+
+✨ 협업 / 도구  
+<img src="https://img.shields.io/badge/git-F05032?style=flat&logo=git&logoColor=white"/>
+<img src="https://img.shields.io/badge/github-181717?style=flat&logo=github&logoColor=white"/>
+<img src="https://img.shields.io/badge/intelliJ-21BDDB?style=flat&logo=intellijidea&logoColor=white"/>
+<img src="https://img.shields.io/badge/ERDCloud-FAFAFA?style=flat&logo=ERDCloud&logoColor=white"/>
+<img src="https://img.shields.io/badge/Figma-F24E1E?style=flat&logo=Figma&logoColor=white"/>
+<img src="https://img.shields.io/badge/Draw.io-4B5562?style=flat&logo=Draw.io&logoColor=white"/>  
+
+
+## 2. 기능 설계
+
+### 2.1. 사용자(User)
 
 - **1. 인증 & 계정관리**
     - **회원가입 & 로그인**: 이메일, 비밀번호, 이름, 연락처, 주소1, 주소2 정보를 가지고 회원가입 가능
@@ -61,7 +110,7 @@
     - **주문 취소**: 자신이 주문한 제품이 Waiting 상태면 주문 취소가 가능하다
     - **리뷰 작성**: 자신의 주문한 내용에만 리뷰를 작성, 조회, 수정, 삭제 할 수 있다
 
-### 3.2. 점주(Owner)
+### 2.2. 점주(Owner)
 
 - **1. 점포 주문**
     - **점포의 주문 조회**: 자신이 속한 점포의 주문을 단일, 전체 로 조회 할 수 있다
@@ -74,7 +123,7 @@
     - **리뷰 조회**: 자신이 속한 점포에 달린 리뷰를 확인 할 수 있다
     - **댓글 작성**: 자신이 속한 점포에 달린 리뷰에 댓글을 작성 할 수 있다
 
-### 3.3. 관리자(Admin)
+### 2.3. 관리자(Admin)
 
 - **1. 점포 & 점주 등록**
     - **점포 등록**: 프랜차이즈의 점포를 등록, 수정, 삭제 할 수 있다
@@ -90,10 +139,15 @@
     - **총 매출**: 전체 점포에 대한 총 매출을 확인 할 수 있다
     - **Top10 & Bottom10**: 각 점포의 매출을 Top10 & Bottom10으로 확인 할 수 있다
     - **메뉴 별 판매량**: 전체 메뉴 별 판매량을 확인 할 수 있다
+ 
+### 2.4. 진행 배치 표
+<img width="1891" height="845" alt="Image" src="https://github.com/user-attachments/assets/26701a57-1c4f-4b20-9510-876a0a963067" />
+<img width="794" height="734" alt="Image" src="https://github.com/user-attachments/assets/2d64bc6e-e207-4497-9e69-1b90bf3ad88e" />
+<img width="766" height="734" alt="Image" src="https://github.com/user-attachments/assets/be29c6c3-32e1-4678-94a8-23ac6346f3a3" />
 
-## 4. 트러블 슈팅
+## 3. 트러블 슈팅
 
-### 4.1. 사용자 주문 조회에 대한 인덱스 적용 실패
+### 3.1. 사용자 주문 조회에 대한 인덱스 적용 실패
 
 - **1. 증상 및 로그**
     - **증상**: 사용자 주문 조회에 대한 복합 인덱스를 [설정 전] 과 [설정 후]의 테스트 결과가 크게 차이가 나지 않음  
@@ -120,7 +174,7 @@
     - **해결 및 회고**: PC를 재부팅 하니깐 해결 됨. 아마도 여러번 테스트를 진행해 보면서 DB를 바꿔 보기도 하고, 인덱스를 숨겼다, 다시 적용 했다를 반복하다 보니 데이터가 꼬였던 것이 아닌가 생각
       됨
 
-### 4.2. 동시성 제어 테스트 중 불안정한 성공/실패 발생
+### 3.2. 동시성 제어 테스트 중 불안정한 성공/실패 발생
 
 - **1. 증상 및 로그**
     - **증상**: 동일한 테스트 환경(사용자 수, 쿠폰 수량)에서 간헐적으로 테스트가 성공하거나 실패함    
@@ -148,7 +202,7 @@
         - 단순히 비즈니스 로직의 동시성 문제가 아니라 애플리케이션 실행 단계의 초기화 순서가 동시성 제어 테스트의 안정성을 해친 사례임
         - Spring Boot Runner의 실행 순서는 보장되지 않으므로 명시적으로 우선순위를 지정하는 과정이 필요함을 인지할 수 있었음
 
-### 4.3. 레디스 원자성 문제
+### 3.3. 레디스 원자성 문제
 
 - **1. 증상 및 로그**
     - **증상**: Redis의 RedisTemplate 기능을 활용해 복잡한 로직을 구현할 경우 @TransactionAnotation을 걸어도 원자성이 보장되지 않는 문제가 발생함
@@ -166,9 +220,9 @@
     - **회고**:
         - Redis @Transaction과 Lua script는 롤백을 지원하지 않기 때문에 값에 대한 검증이 충분히 이뤄진 뒤에 수정, 생성을 해야 함
 
-## 5. 성능 개선
+## 4. 성능 개선
 
-### 5.1. 사용자/점주 주문 전체 조회 성능 개선
+### 4.1. 사용자/점주 주문 전체 조회 성능 개선
 
 - **1. 성능 개선 (전)**
     - 데이터가 쌓이면서 주문 조회 시 응답 속도가 느리고, 간헐적으로 조회 실패를 하기도 함
@@ -198,12 +252,14 @@
       커넥션 대기 시간 2 sec  
       <img width="1280" height="566" alt="Image" src="https://github.com/user-attachments/assets/6d0cf9b4-4dec-4e61-a845-b060ed00fc7a" />
     - TPS는 약 8.5배, MTT는 약 10배 가량 성능이 향상되었고, 대기 시간 또한 1/3 가량으로 줄어들어 성능이 개선 됨
+      <img width="776" height="484" alt="image" src="https://github.com/user-attachments/assets/e9c421f4-4539-4e42-918a-47c77780b55a" />
+
 
 - **5. 측정 방법/도구**
     - nGrinder를 통한 부하 테스트
     - Prometheus, Grafana를 통한 모니터링
 
-### 5.2. 쿠폰 발급 동시성 제어 안정성 개선
+### 4.2. 쿠폰 발급 동시성 제어 안정성 개선
 
 - **도메인**
     - 한정 수량 쿠폰 발급 서비스 (이벤트 트래픽 환경)
@@ -253,7 +309,7 @@
     - nGrinder: 300명 동시 요청 시뮬레이션
     - 테스트 기준: Deadlock 발생 로그, 발급 성공 및 실패 응답 수, Redis Key TTL 동작 검증
 
-### 5.3. 주문 성능 개선
+### 4.3. 주문 성능 개선
 
 - **도메인**
     - 유저가 담은 장바구니를 통해 주문 정보 생성
@@ -284,11 +340,13 @@
   평균 응답속도 약 1.7배, p95 약 1.8배, p99 약 1.9배 가량 성능 향상  
   Redis 캐싱을 도입하여 반복 조회되는 데이터의 DB 접근을 줄임으로써 평균 응답속도와 p95, p99 응답속도를 크게 개선
 
+  <img width="720" height="428" alt="Image" src="https://github.com/user-attachments/assets/c2648971-df60-4de0-82ba-0e4e0ba4c441" />
+
 - **4. 측정 방법/도구**
     - nGrinder : 동시 300명 요청
     - Prometheus, Grafana: 평균 응답속도 및 p95, p99 모니터링
 
-### 5.4. 장바구니 캐싱 적용
+### 4.4. 장바구니 캐싱 적용
 
 - **도메인**
     - 유저가 장바구니에 물건을 담는다
@@ -328,9 +386,9 @@
     - 서버 환경 : local
     - 모니터링 도구 : Grafana, Prometheus
 
-## 6. 주요 기능 및 API
+## 5. 주요 기능 및 API
 
-### 6.1. API 목록
+### 5.1. API 목록
 
 | **도메인**    | **기능**                    | **Method** | **URI**                                                  |
 |------------|---------------------------|------------|----------------------------------------------------------|
@@ -404,11 +462,11 @@
 |            | 사용자 정보 수정                 | PUT        | /api/v1/user/profile                                     |
 |            | 사용자 정보 조회                 | GET        | /api/v1/user/profile                                     |
 
-## 7. 시연 영상
+## 6. 시연 영상
 
 [시연 영상 링크](https://www.youtube.com/watch?v=VEFpxX6SzHw)
 
-## 8. 개발 환경
+## 7. 개발 환경
 
 - Java 17, Spring Boot, Spring Data JPA
 - Spring Security, JWT
@@ -417,7 +475,7 @@
 - Junit 5, Testcontainers
 - Prometheus, Grafana, Loki
 
-## 9. Git 그라운드 룰
+## 8. Git 그라운드 룰
 
 - **도메인 간 상호작용**
     - 서비스로만 통신 (타 도메인 Repository 사용 금지)
@@ -443,7 +501,7 @@
     - **이슈 기반 개발**: GitHub Issues 중심으로 관리하고, Projects(칸반 보드)와 연동하여 시각적으로 확인
     - Issue Label 및 Template 적극 활용
 
-## 10. 팀원
+## 9. 팀원
 
 | 이름      | Github                                |
 |---------|---------------------------------------|
